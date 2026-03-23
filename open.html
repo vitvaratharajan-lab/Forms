@@ -671,7 +671,7 @@
         try { localStorage.setItem(BRANDING_PRESETS_STORAGE_KEY, JSON.stringify(arr)); } catch (e) {}
       }
       var BRANDING_PRESETS = loadBrandingPresets();
-      var ASSESSMENT_FORM_CONFIG = { whenNewData: 'accept' };
+
       var REVIEW_PROMPT_CONFIG = {
         enabled: true,
         title: 'Critical Compliance Gates:',
@@ -1627,16 +1627,6 @@
               '<p class="info-note" style="margin-top:12px">Reminders before expiry are configurable below.</p>' +
             '</div>' +
           '</div>' +
-          '<div class="card">' +
-            '<div class="card-header">Forms in assessments</div>' +
-            '<div class="card-body">' +
-              '<p class="muted-text">Forms are raised in a workflow step per entity or assessment. When the same form type is needed for multiple assessments, deduplication can reuse one response across them (see Cross-form deduplication above).</p>' +
-              '<p class="form-label" style="margin:12px 0 8px">When new data arrives and a form impacts multiple assessments</p>' +
-              '<p class="muted-text" style="margin-bottom:12px;font-size:13px">If a form is raised for one entity but not for others (e.g. others are already onboarded) and new data later applies to those entities, choose how the system should behave:</p>' +
-              '<label class="checkbox-row"><input type="radio" name="whenNewData" value="accept" class="assessment-when-new-data"' + (ASSESSMENT_FORM_CONFIG.whenNewData === 'accept' ? ' checked' : '') + '> <strong>Accept</strong> — Accept new data and allow re-request or update; re-request the form where the new data applies so assessments stay in sync.</label>' +
-              '<label class="checkbox-row" style="margin-top:12px"><input type="radio" name="whenNewData" value="wait"' + (ASSESSMENT_FORM_CONFIG.whenNewData === 'wait' ? ' checked' : '') + '> <strong>Wait</strong> — Do not re-request automatically; keep using the existing response until manually overridden. Use when you want to avoid re-sending forms to already-onboarded entities.</label>' +
-            '</div>' +
-          '</div>' +
           (selectedChannelId === 'external' ? '<div class="card">' +
             '<div class="card-header">External form — email body & sender (external only)</div>' +
             '<div class="card-body">' +
@@ -1886,11 +1876,6 @@
         content.querySelector('.dedup-time-limit-days')?.addEventListener('input', function () {
           var v = this.value.trim();
           DEDUP_CONFIG.timeLimitDays = v === '' ? null : (parseInt(v, 10) || null);
-        });
-        content.querySelectorAll('input[name="whenNewData"]').forEach(function (radio) {
-          radio.addEventListener('change', function () {
-            if (this.checked) ASSESSMENT_FORM_CONFIG.whenNewData = this.value;
-          });
         });
         content.querySelector('.save-branding-preset')?.addEventListener('click', function () {
           var nameEl = content.querySelector('#newBrandingPresetName');

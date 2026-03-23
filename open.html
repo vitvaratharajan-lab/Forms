@@ -1,0 +1,2552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Maxsight – Form Configuration</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    /* Views design system – aligned with xus.maxsight.com/views/portfolio */
+    :root {
+      --views-primary: #0A1264;
+      --views-primary-hover: #081052;
+      --views-text: #3E4260;
+      --views-text-light: #646882;
+      --views-text-secondary: #37474F;
+      --views-bg: #FFFFFF;
+      --views-bg-page: #F6F6FA;
+      --views-border: #F0F0F6;
+      --views-border-light: #E1E2ED;
+      --views-bg-primary-subtle: #D5E4F8;
+      --views-body: 14px;
+      --views-line: 24px;
+      --views-h4: 13px;
+      --views-header-height: 56px;
+      --views-sidebar-width: 280px;
+      --views-content-padding: 32px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Inter", "GT America", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: var(--views-body);
+      line-height: var(--views-line);
+      color: var(--views-text);
+      background: var(--views-bg-page);
+      -webkit-font-smoothing: antialiased;
+    }
+    #app { min-height: 100vh; display: flex; flex-direction: column; }
+
+    /* Global app header – portfolio / views style (xus.maxsight.com) */
+    .global-header {
+      height: var(--views-header-height);
+      background: var(--views-primary);
+      color: #FFFFFF;
+      display: flex;
+      align-items: center;
+      padding: 0 24px 0 20px;
+      flex-shrink: 0;
+      gap: 8px;
+    }
+    .global-header .logo {
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      color: #FFFFFF;
+      padding: 0;
+      margin-right: 24px;
+      border: none;
+      background: transparent;
+      text-decoration: none;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .global-header .logo:hover { color: #FFFFFF; opacity: 0.95; }
+    .global-nav {
+      display: flex;
+      align-items: center;
+      height: 100%;
+      gap: 4px;
+    }
+    .global-nav a {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      padding: 0 14px;
+      color: rgba(255,255,255,0.85);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -1px;
+    }
+    .global-nav a:hover { color: #FFFFFF; }
+    .global-nav a.active { color: #FFFFFF; border-bottom-color: #FFFFFF; background: rgba(255,255,255,0.06); }
+
+    /* Layout below header */
+    .app-body { display: flex; flex: 1; min-height: 0; }
+
+    /* Sidebar – portfolio / views left nav */
+    .sidebar {
+      width: var(--views-sidebar-width);
+      background: var(--views-bg);
+      color: var(--views-text);
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid var(--views-border);
+    }
+    .sidebar-label {
+      padding: 20px 16px 12px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--views-text-light);
+    }
+    .nav { flex: 1; padding: 8px 12px; }
+    .nav a {
+      display: flex;
+      align-items: center;
+      padding: 10px 12px;
+      color: var(--views-text);
+      text-decoration: none;
+      border-radius: 6px;
+      margin-bottom: 2px;
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 22px;
+    }
+    .nav a:hover { background: var(--views-bg-page); color: var(--views-primary); }
+    .nav a.active { background: var(--views-bg-primary-subtle); color: var(--views-primary); border-left: 3px solid var(--views-primary); padding-left: 9px; margin-left: 0; }
+
+    /* Main */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: var(--views-bg-page);
+      min-width: 0;
+    }
+    .header {
+      min-height: 56px;
+      background: var(--views-bg);
+      border-bottom: 1px solid var(--views-border);
+      display: flex;
+      align-items: center;
+      padding: 0 var(--views-content-padding);
+    }
+    .header span { font-size: 18px; font-weight: 600; color: var(--views-text); line-height: 28px; }
+    .content { flex: 1; padding: var(--views-content-padding); overflow: auto; }
+
+    /* Breadcrumb – portfolio / views style */
+    .page-breadcrumb {
+      font-size: 13px;
+      color: var(--views-text-light);
+      margin-bottom: 8px;
+      line-height: 20px;
+    }
+    .page-breadcrumb a {
+      color: var(--views-text-light);
+      text-decoration: none;
+    }
+    .page-breadcrumb a:hover { color: var(--views-primary); text-decoration: underline; }
+    .page-breadcrumb .sep { margin: 0 6px; color: var(--views-border-light); }
+    .page-breadcrumb .current { color: var(--views-text); font-weight: 500; }
+
+    /* Page */
+    .page { max-width: 1200px; margin: 0; }
+    .page-config { max-width: 1000px; }
+    .header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .title { font-size: 20px; font-weight: 600; color: var(--views-text); margin: 0 0 4px; line-height: 28px; }
+    .btn-primary {
+      padding: 8px 16px;
+      background: var(--views-primary);
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      font-family: inherit;
+      line-height: 24px;
+    }
+    .btn-primary:hover { background: var(--views-primary-hover); }
+    .btn-secondary {
+      padding: 8px 16px;
+      background: var(--views-bg);
+      color: var(--views-primary);
+      border: 1px solid var(--views-border-light);
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      font-family: inherit;
+      line-height: 24px;
+    }
+    .btn-secondary:hover { background: var(--views-bg-page); border-color: var(--views-text-light); }
+    .btn-actions { display: flex; gap: 8px; }
+    .card {
+      background: var(--views-bg);
+      border-radius: 8px;
+      box-shadow: 0 1px 0 var(--views-border);
+      border: 1px solid var(--views-border);
+      overflow: hidden;
+      margin-bottom: 24px;
+    }
+    .card-header {
+      padding: 12px 20px;
+      background: var(--views-bg);
+      border-bottom: 1px solid var(--views-border);
+      font-size: var(--views-h4);
+      font-weight: 600;
+      color: var(--views-text);
+      letter-spacing: 0.5px;
+      line-height: 24px;
+    }
+    .card-body { padding: 20px 24px; }
+    table { width: 100%; border-collapse: collapse; }
+    th {
+      text-align: left;
+      padding: 12px 10px;
+      font-size: var(--views-h4);
+      font-weight: 500;
+      color: var(--views-text);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      background: var(--views-bg);
+      border-bottom: 1px solid var(--views-border);
+      line-height: 24px;
+    }
+    td {
+      padding: 12px 10px;
+      border-bottom: 1px solid var(--views-border);
+      font-size: 14px;
+      color: var(--views-text);
+      line-height: 24px;
+    }
+    .badge-active { padding: 3px 10px; border-radius: 4px; font-size: 12px; font-weight: 500; background: #dcfce7; color: #166534; }
+    .badge-draft { padding: 3px 10px; border-radius: 4px; font-size: 12px; font-weight: 500; background: #fef3c7; color: #b45309; }
+    .action-btn {
+      background: none;
+      border: none;
+      color: var(--views-primary);
+      font-size: 13px;
+      padding: 4px 8px;
+      margin-right: 8px;
+      cursor: pointer;
+      font-family: inherit;
+      line-height: 24px;
+    }
+    .action-btn:hover { text-decoration: underline; }
+    .action-btn.muted { color: var(--views-text-light); }
+
+    /* Task list view – portfolio / views table */
+    .page-external-forms { max-width: 100%; }
+    .task-list-header { margin-bottom: 20px; }
+    .task-list-breadcrumb { margin-bottom: 6px; }
+    .task-list-back {
+      font-size: 13px;
+      color: var(--views-text-light);
+      text-decoration: none;
+      line-height: 20px;
+    }
+    .task-list-back:hover { color: var(--views-primary); text-decoration: underline; }
+    .task-list-title { font-size: 20px; font-weight: 600; color: var(--views-text); margin: 0 0 4px; line-height: 28px; }
+    .task-list-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 16px;
+      font-size: 13px;
+      color: var(--views-text-light);
+      line-height: 22px;
+    }
+    .task-list-toolbar-item { display: inline-flex; align-items: center; }
+    .task-list-toolbar-item strong { color: var(--views-text); margin-left: 4px; }
+    .task-list-fullpage { cursor: pointer; }
+    .task-list-fullpage-cb { margin-right: 6px; }
+    .task-list-card { margin-bottom: 24px; border: 1px solid var(--views-border); }
+    .task-list-table { width: 100%; border-collapse: collapse; background: var(--views-bg); }
+    .task-list-th {
+      text-align: left;
+      padding: 12px 10px;
+      font-size: var(--views-h4);
+      font-weight: 500;
+      color: var(--views-text);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      background: var(--views-bg);
+      border-bottom: 1px solid var(--views-border);
+      line-height: 24px;
+    }
+    .task-list-cell-form,
+    .task-list-cell-entity,
+    .task-list-cell-assessment { padding: 12px 10px; border-bottom: 1px solid var(--views-border); font-size: 14px; color: var(--views-text); line-height: 24px; }
+    .task-list-cell-status,
+    .task-list-cell-assigned { padding: 12px 10px; border-bottom: 1px solid var(--views-border); font-size: 14px; color: var(--views-text); line-height: 24px; }
+    .task-list-cell-created { padding: 12px 10px; border-bottom: 1px solid var(--views-border); font-size: 14px; color: var(--views-text); line-height: 24px; }
+    .task-list-cell-actions { padding: 12px 10px; border-bottom: 1px solid var(--views-border); font-size: 13px; line-height: 24px; }
+    .task-list-link {
+      color: var(--views-primary);
+      text-decoration: underline;
+      cursor: pointer;
+    }
+    .task-list-link:hover { color: var(--views-primary-hover); }
+
+    .form-row { margin-bottom: 16px; }
+    .form-label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--views-text-secondary);
+      line-height: 24px;
+    }
+    .form-input {
+      width: 100%;
+      max-width: 400px;
+      padding: 8px 12px;
+      border: 1px solid var(--views-border-light);
+      border-radius: 4px;
+      font-family: inherit;
+      font-size: 14px;
+      color: var(--views-text);
+      line-height: 24px;
+    }
+    .form-input:focus { outline: none; border-color: var(--views-primary); box-shadow: 0 0 0 2px rgba(10,18,100,0.12); }
+    .question-card {
+      padding: 14px 16px;
+      border: 1px solid var(--views-border);
+      border-radius: 6px;
+      margin-bottom: 8px;
+      background: var(--views-bg-page);
+    }
+    .question-badge {
+      display: inline-block;
+      padding: 3px 8px;
+      background: #e8f2ff;
+      color: var(--views-primary);
+      border-radius: 4px;
+      font-size: 12px;
+      margin-right: 8px;
+    }
+    .visibility-note { font-size: 12px; color: var(--views-text-light); margin-top: 4px; }
+    .required-tag { margin-left: 8px; color: #b91c1c; font-size: 12px; }
+    .muted-text { color: var(--views-text-light); font-size: 13px; margin: 0 0 16px; line-height: 24px; }
+    .muted-text:last-child { margin-bottom: 0; }
+
+    /* Branching rules */
+    .branching-rule {
+      display: grid;
+      grid-template-columns: 1fr 120px 1fr 80px;
+      gap: 12px;
+      align-items: center;
+      padding: 12px 16px;
+      border: 1px solid var(--views-border);
+      border-radius: 6px;
+      margin-bottom: 8px;
+      background: var(--views-bg);
+      font-size: 13px;
+    }
+    .branching-rule select, .branching-rule .rule-value { padding: 6px 10px; border: 1px solid var(--views-border-light); border-radius: 6px; font-size: 13px; }
+    .branching-flow { margin: 16px 0; padding: 16px; background: var(--views-bg-page); border-radius: 6px; border-left: 4px solid var(--views-primary); }
+    .branching-flow strong { display: block; margin-bottom: 8px; color: var(--views-text); }
+    .branching-flow code { font-size: 12px; color: var(--views-text-light); }
+
+    /* External dashboard */
+    .badge-sent { padding: 3px 10px; border-radius: 4px; font-size: 12px; font-weight: 500; background: var(--views-bg-primary-subtle); color: var(--views-primary); }
+    .badge-opened { padding: 3px 10px; border-radius: 4px; font-size: 12px; font-weight: 500; background: #fef3c7; color: #b45309; }
+    .badge-completed { padding: 3px 10px; border-radius: 4px; font-size: 12px; font-weight: 500; background: #dcfce7; color: #166534; }
+    .badge-expired { padding: 3px 10px; border-radius: 4px; font-size: 12px; font-weight: 500; background: #fee2e2; color: #b91c1c; }
+
+    /* Send flow */
+    .flow-steps { display: flex; gap: 0; margin-bottom: 24px; }
+    .flow-step {
+      flex: 1;
+      padding: 12px 16px;
+      text-align: center;
+      font-size: 12px; font-weight: 500;
+      color: var(--views-text-light);
+      border-bottom: 3px solid #e5e8ec;
+    }
+    .flow-step.done { color: #166534; border-color: #166534; }
+    .flow-step.current { color: var(--views-primary); border-color: var(--views-primary); }
+    .flow-panel { background: var(--views-bg); border: 1px solid var(--views-border); border-radius: 8px; padding: 24px; margin-bottom: 16px; }
+    .flow-panel h3 { margin: 0 0 16px; font-size: 16px; color: var(--views-text); }
+    .flow-actions { display: flex; justify-content: space-between; margin-top: 24px; }
+    .email-list { margin: 8px 0; }
+    .email-list input { max-width: 100%; }
+    .add-email { margin-top: 8px; font-size: 13px; color: var(--views-primary); cursor: pointer; background: none; border: none; padding: 0; font-family: inherit; }
+    .add-email:hover { text-decoration: underline; }
+    .review-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f1f3f5; font-size: 13px; }
+    .review-row strong { color: #4b5563; }
+
+    /* Form use & mandatory */
+    .form-use-options { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px; }
+    .form-use-option { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+    .form-use-option input { width: auto; margin: 0; }
+    .mandatory-doc-row { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid #f1f3f5; }
+    .mandatory-doc-row select, .mandatory-doc-row .form-input { max-width: 280px; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; font-size: 13px; }
+    .checkbox-row input[type="checkbox"] { width: auto; margin: 0; }
+    .task-form-note { padding: 12px; background: var(--views-bg-primary-subtle); border-radius: 6px; font-size: 13px; color: var(--views-text); margin-bottom: 16px; }
+    .prefill-row { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid #f1f3f5; font-size: 13px; }
+    .prefill-row select, .prefill-row .form-input { max-width: 240px; }
+    .expiry-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .expiry-row input[type="number"] { width: 80px; }
+    .question-card-config { padding: 16px; border: 1px solid var(--views-border); border-radius: 6px; margin-bottom: 12px; background: var(--views-bg); }
+    .question-card-config .q-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 12px; }
+    .question-card-config .q-row:last-child { margin-bottom: 0; }
+    .question-card-config .q-type { width: 140px; }
+    .question-card-config .q-title { flex: 1; min-width: 180px; }
+    .question-card-config .q-name { width: 160px; }
+    .question-card-config .q-visible { flex: 1; min-width: 200px; }
+    .question-card-config .choices-list { margin-top: 8px; }
+    .question-card-config .choice-row { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; }
+    .question-card-config .choice-row input { flex: 1; max-width: 220px; }
+    .form-section-block { border: 1px solid var(--views-border); border-radius: 8px; padding: 20px; margin-bottom: 24px; background: #fafbfc; }
+    .form-section-block .form-section-header { margin-bottom: 8px; }
+    .form-section-block .form-section-questions { margin-top: 8px; }
+    .form-section-block .question-card-config { background: var(--views-bg); margin-bottom: 12px; }
+    .action-menu-btn { background: none; border: none; padding: 4px 8px; cursor: pointer; font-size: 18px; line-height: 1; color: #4b5563; }
+    .action-menu-btn:hover { color: var(--views-text); }
+    .action-menu-dropdown { position: absolute; background: var(--views-bg); border: 1px solid var(--views-border); border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.12); padding: 4px 0; min-width: 160px; z-index: 10; }
+    .action-menu-dropdown button { display: block; width: 100%; text-align: left; padding: 8px 12px; border: none; background: none; font-size: 13px; cursor: pointer; font-family: inherit; color: var(--views-text); }
+    .action-menu-dropdown button:hover { background: #f1f3f5; }
+    .filter-row { display: flex; gap: 12px; align-items: center; margin-bottom: 16px; flex-wrap: wrap; }
+    .filter-row .form-label { margin: 0; margin-right: 4px; }
+    .filter-row select { max-width: 180px; }
+    .toolbar-row {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 10px 20px;
+      background: var(--views-bg);
+      border-bottom: 1px solid var(--views-border);
+      font-size: 13px;
+      color: var(--views-text-light);
+    }
+    .toolbar-item { line-height: 22px; }
+    .toolbar-item strong { color: var(--views-text); margin-left: 4px; }
+    .form-view-row { margin-bottom: 20px; }
+    .form-view-row .form-label { display: block; margin-bottom: 6px; }
+    .form-view-section-title { font-size: 16px; margin: 24px 0 12px; color: var(--views-text); }
+    .form-view-section-wrap { margin-top: 24px; padding-top: 16px; border-top: 1px solid #e5e8ec; }
+    .form-view-section-wrap:first-child { margin-top: 0; padding-top: 0; border-top: 0; }
+    .form-view-panel { margin-bottom: 8px; }
+    .form-view-help { font-size: 12px; color: var(--views-text-light); margin: 4px 0 8px; }
+    .required-asterisk { color: #b91c1c; }
+    .previous-response-block { margin-bottom: 8px; }
+    .info-note { font-size: 12px; color: var(--views-text-light); margin-top: 6px; line-height: 20px; }
+    /* Form view: layout with left section nav */
+    .form-view-layout { display: flex; min-height: 60vh; gap: 0; max-width: 100%; }
+    .form-view-sidebar {
+      width: 220px; flex-shrink: 0; background: var(--views-bg); border-right: 1px solid var(--views-border); padding: 20px 0; position: sticky; top: 0; align-self: flex-start; max-height: 100vh; overflow-y: auto;
+    }
+    .form-view-sidebar-title { font-size: 11px; font-weight: 600; color: var(--views-text-light); text-transform: uppercase; letter-spacing: 0.05em; padding: 0 20px 12px; }
+    .form-view-nav-link {
+      display: block; padding: 10px 20px; font-size: 14px; color: var(--views-text); text-decoration: none; border-left: 3px solid transparent; margin-left: 0;
+    }
+    .form-view-nav-link:hover { background: var(--views-bg-page); color: var(--views-text); }
+    .form-view-nav-link.active { border-left-color: var(--views-primary); background: var(--views-bg-primary-subtle); color: var(--views-primary); font-weight: 500; }
+    .form-view-main { flex: 1; min-width: 0; padding: 0 24px 24px; }
+    .form-view-section-wrap[id] { scroll-margin-top: 16px; }
+    /* Review & Submit prompt (Critical Compliance Gates style) */
+    .review-prompt-box {
+      background: #fef2f2; border: 1px solid #fecaca; border-left: 4px solid #b91c1c; border-radius: 6px; padding: 16px 20px; margin-bottom: 20px;
+    }
+    .review-prompt-box .review-prompt-title { font-size: 14px; font-weight: 600; color: var(--views-text); margin: 0 0 10px; }
+    .review-prompt-box ul { margin: 0 0 10px; padding-left: 20px; font-size: 14px; color: var(--views-text-secondary); line-height: 1.6; }
+    .review-prompt-box .review-prompt-consequence { font-size: 13px; color: var(--views-text-light); margin: 0; }
+    .review-submit-section { margin-top: 32px; padding-top: 24px; border-top: 1px solid #e5e8ec; }
+    .review-confirm-box { background: var(--views-bg); border: 1px solid var(--views-border); border-radius: 6px; padding: 20px; margin-top: 16px; }
+    .review-confirm-box .form-label { margin-bottom: 8px; }
+
+    /* Task bulk select & permissions */
+    .task-list-cb { width: 16px; height: 16px; margin: 0; cursor: pointer; accent-color: var(--views-primary); }
+    .task-list-cell-cb { width: 40px; padding: 12px 6px 12px 12px; border-bottom: 1px solid var(--views-border); }
+    .task-list-th-cb { width: 40px; padding: 12px 6px 12px 12px; }
+    .bulk-bar {
+      display: flex; align-items: center; gap: 12px; padding: 10px 16px;
+      background: var(--views-bg-primary-subtle); border-radius: 6px; margin-bottom: 12px;
+      font-size: 13px; color: var(--views-text); animation: bulkFadeIn .15s ease;
+    }
+    @keyframes bulkFadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+    .bulk-bar strong { margin-right: 4px; }
+    .bulk-bar .bulk-btn {
+      padding: 5px 12px; border-radius: 4px; border: 1px solid var(--views-border-light);
+      background: var(--views-bg); color: var(--views-primary); font-size: 13px;
+      font-weight: 500; cursor: pointer; font-family: inherit;
+    }
+    .bulk-bar .bulk-btn:hover { background: var(--views-bg-page); border-color: var(--views-primary); }
+    .bulk-bar .bulk-btn-clear { background: none; border: none; color: var(--views-text-light); cursor: pointer; margin-left: auto; font-family: inherit; font-size: 13px; }
+    .bulk-bar .bulk-btn-clear:hover { color: var(--views-text); text-decoration: underline; }
+
+    .perm-badge {
+      display: inline-block; padding: 2px 8px; border-radius: 3px; font-size: 11px; font-weight: 500; margin-right: 4px; white-space: nowrap;
+    }
+    .perm-view { background: #e8f2ff; color: var(--views-primary); }
+    .perm-edit { background: #dcfce7; color: #166534; }
+    .perm-action { background: #fef3c7; color: #b45309; }
+    .perm-assign { background: #ede9fe; color: #6d28d9; }
+
+    .assign-dropdown {
+      position: absolute; z-index: 100; background: var(--views-bg); border: 1px solid var(--views-border-light);
+      border-radius: 6px; box-shadow: 0 4px 16px rgba(0,0,0,.12); padding: 8px 0; min-width: 220px; max-height: 260px; overflow-y: auto;
+    }
+    .assign-dropdown-item {
+      display: flex; align-items: center; gap: 10px; padding: 8px 16px; cursor: pointer; font-size: 13px; color: var(--views-text);
+    }
+    .assign-dropdown-item:hover { background: var(--views-bg-page); }
+    .assign-dropdown-item.selected { background: var(--views-bg-primary-subtle); font-weight: 500; }
+    .assign-avatar {
+      width: 26px; height: 26px; border-radius: 50%; background: var(--views-primary); color: #fff;
+      display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; flex-shrink: 0;
+    }
+    .assign-dropdown-search {
+      margin: 0 12px 6px; padding: 6px 10px; border: 1px solid var(--views-border-light); border-radius: 4px;
+      font-size: 13px; width: calc(100% - 24px); font-family: inherit;
+    }
+    .assign-dropdown-search:focus { outline: none; border-color: var(--views-primary); }
+    .assign-dropdown-title { font-size: 11px; font-weight: 600; color: var(--views-text-light); text-transform: uppercase; letter-spacing: .04em; padding: 6px 16px 4px; }
+
+    .task-actions-cell { position: relative; }
+    .task-action-btn {
+      padding: 4px 10px; border-radius: 4px; border: 1px solid var(--views-border-light);
+      background: var(--views-bg); color: var(--views-primary); font-size: 12px;
+      font-weight: 500; cursor: pointer; font-family: inherit; margin-right: 4px;
+    }
+    .task-action-btn:hover { background: var(--views-bg-page); border-color: var(--views-primary); }
+    .task-action-btn.btn-reassign { color: #6d28d9; }
+    .task-action-btn.btn-reassign:hover { border-color: #6d28d9; }
+
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.35); z-index: 200;
+      display: flex; align-items: center; justify-content: center; animation: modalFade .15s ease;
+    }
+    @keyframes modalFade { from { opacity: 0; } to { opacity: 1; } }
+    .modal-box {
+      background: var(--views-bg); border-radius: 8px; box-shadow: 0 8px 32px rgba(0,0,0,.18);
+      padding: 24px; min-width: 420px; max-width: 520px; max-height: 80vh; overflow-y: auto;
+    }
+    .modal-box h3 { margin: 0 0 16px; font-size: 16px; color: var(--views-text); }
+    .modal-box .modal-section { margin-bottom: 16px; }
+    .modal-box .modal-label { font-size: 13px; font-weight: 500; color: var(--views-text-secondary); margin-bottom: 6px; display: block; }
+    .modal-box .perm-toggle { display: flex; flex-wrap: wrap; gap: 8px; }
+    .modal-box .perm-toggle label { display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer; padding: 4px 10px; border: 1px solid var(--views-border-light); border-radius: 4px; }
+    .modal-box .perm-toggle label:has(input:checked) { border-color: var(--views-primary); background: var(--views-bg-primary-subtle); }
+    .modal-box .perm-toggle input { width: auto; margin: 0; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
+    .inherit-note { font-size: 12px; color: var(--views-text-light); background: #ede9fe; border-radius: 4px; padding: 8px 12px; margin-top: 8px; line-height: 1.5; }
+    .assigned-name { font-weight: 500; color: var(--views-primary); cursor: pointer; }
+    .assigned-name:hover { text-decoration: underline; }
+    tr.row-selected td { background: #f0f4ff; }
+    .task-list-cell-task-type { padding: 12px 10px; border-bottom: 1px solid var(--views-border); font-size: 14px; color: var(--views-text); line-height: 24px; }
+    .task-list-cell-sent-to { padding: 12px 10px; border-bottom: 1px solid var(--views-border); font-size: 14px; color: var(--views-text); line-height: 24px; }
+
+    /* Data lane badges */
+    .lane-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 500; margin-right: 6px; }
+    .lane-entity { background: #e0f2fe; color: #0369a1; }
+    .lane-custom { background: #f3e8ff; color: #7c3aed; }
+    .lane-local { background: #f1f3f5; color: #4b5563; }
+    .lane-border-entity { border-left: 3px solid #0369a1; }
+    .lane-border-custom { border-left: 3px solid #7c3aed; }
+    .lane-border-local { border-left: 3px solid #d1d5db; }
+
+    /* Data mapping row */
+    .data-mapping-card { padding: 14px 16px; border: 1px solid var(--views-border); border-radius: 6px; margin-bottom: 8px; background: var(--views-bg); }
+    .data-mapping-meta { margin-top: 8px; padding: 8px 12px; border-radius: 4px; font-size: 12px; }
+    .data-mapping-meta-entity { background: #f0f9ff; }
+    .data-mapping-meta-custom { background: #faf5ff; }
+    .data-mapping-controls { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; }
+    .data-mapping-hint { margin-top: 4px; font-size: 11px; }
+    .data-mapping-hint-override { color: #166534; }
+    .data-mapping-hint-readonly { color: #6b7280; }
+    .data-mapping-hint-prefill { color: #b45309; }
+
+    /* Behaviour badge */
+    .behaviour-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 500; margin-right: 6px; }
+    .behaviour-readonly { background: #f1f3f5; color: #6b7280; }
+    .behaviour-prefill { background: #fef3c7; color: #b45309; }
+    .behaviour-override { background: #dcfce7; color: #166534; }
+
+    /* Data legend */
+    .data-legend { display: flex; gap: 20px; flex-wrap: wrap; padding: 12px 20px; }
+    .data-legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--views-text-secondary); }
+    .data-legend-dot { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+
+    /* Override review task */
+    .override-review-card { padding: 14px 16px; border: 1px solid var(--views-border-light); border-radius: 6px; margin-bottom: 10px; }
+    .override-review-card.pending { border-color: var(--views-border-light); background: var(--views-bg); }
+    .override-review-card.approved { background: #f0fdf4; border-color: #bbf7d0; }
+    .override-review-card.rejected { background: #fef2f2; border-color: #fecaca; }
+    .override-compare { display: grid; grid-template-columns: 1fr 32px 1fr; gap: 8px; align-items: center; margin: 8px 0; }
+    .override-value-box { padding: 8px 12px; border-radius: 4px; border: 1px solid var(--views-border); }
+    .override-value-box.original { background: var(--views-bg-page); }
+    .override-value-box.proposed { background: #fffbeb; border-color: #fde68a; }
+    .override-value-label { font-size: 11px; color: var(--views-text-light); margin-bottom: 2px; }
+    .override-value-text { font-size: 14px; color: var(--views-text); }
+    .override-actions { display: flex; gap: 8px; justify-content: flex-end; }
+    .btn-approve { padding: 4px 14px; border-radius: 4px; border: none; background: #166534; color: #fff; font-size: 12px; font-weight: 500; cursor: pointer; font-family: inherit; }
+    .btn-approve:hover { background: #15803d; }
+    .btn-reject { padding: 4px 14px; border-radius: 4px; border: 1px solid #b91c1c; background: var(--views-bg); color: #b91c1c; font-size: 12px; font-weight: 500; cursor: pointer; font-family: inherit; }
+    .btn-reject:hover { background: #fef2f2; }
+    .badge-pending { padding: 3px 10px; border-radius: 4px; font-size: 12px; font-weight: 500; background: #fef3c7; color: #b45309; }
+    .badge-approved-small { padding: 3px 10px; border-radius: 4px; font-size: 12px; font-weight: 500; background: #dcfce7; color: #166534; }
+    .badge-rejected-small { padding: 3px 10px; border-radius: 4px; font-size: 12px; font-weight: 500; background: #fee2e2; color: #b91c1c; }
+    .review-summary-bar { display: flex; gap: 32px; padding: 16px 20px; align-items: center; }
+    .review-summary-stat { text-align: center; }
+    .review-summary-stat .stat-num { font-size: 20px; font-weight: 700; }
+    .review-summary-stat .stat-label { font-size: 11px; color: var(--views-text-light); }
+    .meta-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
+    .meta-item .meta-label { font-size: 11px; color: var(--views-text-light); margin-bottom: 2px; }
+    .meta-item .meta-value { font-size: 14px; color: var(--views-text); font-weight: 500; }
+    .data-changes-badges .badge-entity-count { display: inline-block; padding: 1px 6px; background: #e0f2fe; color: #0369a1; border-radius: 3px; font-size: 10px; margin-right: 4px; }
+    .data-changes-badges .badge-custom-count { display: inline-block; padding: 1px 6px; background: #f3e8ff; color: #7c3aed; border-radius: 3px; font-size: 10px; }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+  <script>
+    (function () {
+      const FORMS = [
+        { id: '1', name: 'KYB Entity Onboarding', type: 'Internal', formType: 'KYB', status: 'Active', lastModified: '2026-02-28', responses: 124 },
+        { id: '2', name: 'Periodic Review Questionnaire', type: 'Internal', formType: 'Periodic review', status: 'Active', lastModified: '2026-02-26', responses: 89 },
+        { id: '5', name: 'MLRO review', type: 'Internal', formType: 'MLRO review', status: 'Active', lastModified: '2026-02-27', responses: 45 },
+        { id: '3', name: 'Associate Information Request', type: 'External', formType: 'Associate', status: 'Draft', lastModified: '2026-02-25', responses: 0 },
+        { id: '4', name: 'UBO Declaration', type: 'Internal', formType: 'UBO', status: 'Active', lastModified: '2026-02-20', responses: 312 },
+      ];
+      var FIELD_TYPES = ['text', 'longtext', 'number', 'date', 'dropdown', 'radio', 'checkbox', 'boolean', 'panel', 'file'];
+      var FORM_SECTIONS = [
+        { id: 'sec1', title: 'General', description: 'Basic entity information' },
+        { id: 'sec2', title: 'UBO details', description: 'Beneficial ownership and supporting documents' },
+        { id: 'sec3', title: 'Financials', description: 'Financial information' },
+        { id: 'sec4', title: 'Corporate details', description: 'Details specific to corporate entities' },
+        { id: 'sec5', title: 'Financial institution details', description: 'Details specific to financial institutions' },
+      ];
+      var QUESTION_LIST = [
+        { id: 'q1', sectionId: 'sec1', type: 'text', title: 'Entity name', name: 'entityName', isRequired: true, choices: [], placeholder: '', helpText: '' },
+        { id: 'q2', sectionId: 'sec1', type: 'dropdown', title: 'Entity type', name: 'entityType', isRequired: true, choices: ['Corporate', 'Individual', 'Partnership', 'Financial institution'], placeholder: '', helpText: '' },
+        { id: 'q3', sectionId: 'sec1', type: 'boolean', title: 'Has UBOs?', name: 'hasUbo', isRequired: false, choices: [], placeholder: '', helpText: '' },
+        { id: 'q4', sectionId: 'sec2', type: 'panel', title: 'UBO details', name: 'uboDetails', isRequired: false, choices: [], placeholder: '', helpText: '' },
+        { id: 'q5', sectionId: 'sec2', type: 'file', title: 'Supporting documents', name: 'supportingDocs', isRequired: false, accept: 'PDF, images', choices: [], placeholder: '', helpText: '' },
+      ];
+      const DOCUMENT_TYPES = ['ID document', 'Proof of address', 'Certificate of incorporation', 'Board resolution', 'Other'];
+      const MANDATORY_DOCUMENTS_EXAMPLE = [
+        { id: 'd1', type: 'ID document', required: true },
+        { id: 'd2', type: 'Proof of address', required: true },
+      ];
+      const ENTITY_SOURCES = ['Entity name', 'Address', 'Registration number', 'Country', 'Legal form', 'Contact email', '— None'];
+      const PREFILL_MAPPING_EXAMPLE = [
+        { formField: 'entityName', formLabel: 'Entity name', entitySource: 'Entity name' },
+        { formField: 'entityType', formLabel: 'Entity type', entitySource: 'Legal form' },
+      ];
+      var CHANNEL_OPTIONS = [
+        { id: 'internal', name: 'Internal' },
+        { id: 'external', name: 'External' },
+      ];
+      var FORM_TYPE_OPTIONS = ['KYB', 'Periodic review', 'MLRO review', 'Associate', 'UBO'];
+      var manageFormsFormFilter = '';
+      var formConfigChannelId = '';
+      var DEDUP_CONFIG = { enabled: false, timeLimitDays: null };
+      var BRANDING_PRESETS_STORAGE_KEY = 'maxsight_forms_branding_presets';
+      function loadBrandingPresets() {
+        try {
+          var raw = localStorage.getItem(BRANDING_PRESETS_STORAGE_KEY);
+          return raw ? JSON.parse(raw) : [];
+        } catch (e) { return []; }
+      }
+      function saveBrandingPresets(arr) {
+        try { localStorage.setItem(BRANDING_PRESETS_STORAGE_KEY, JSON.stringify(arr)); } catch (e) {}
+      }
+      var BRANDING_PRESETS = loadBrandingPresets();
+      var ASSESSMENT_FORM_CONFIG = { whenNewData: 'accept' };
+      var REVIEW_PROMPT_CONFIG = {
+        enabled: true,
+        title: 'Critical Compliance Gates:',
+        bullets: ['SCS acknowledgement must be "Yes"', 'Forced/bonded labour must be "Yes"'],
+        consequenceText: 'If either of these is "No", the supplier does not meet minimum compliance requirements.',
+      };
+      var BRANCHING_RULES = [
+        { id: 'b1', sourceQuestion: 'hasUbo', sourceLabel: 'Has UBOs?', operator: 'equals', value: 'true', thenShowSectionId: 'sec2', thenShowLabel: 'UBO details' },
+        { id: 'b2', sourceQuestion: 'entityType', sourceLabel: 'Entity type', operator: 'equals', value: 'Corporate', thenShowSectionId: 'sec4', thenShowLabel: 'Corporate details' },
+        { id: 'b3', sourceQuestion: 'entityType', sourceLabel: 'Entity type', operator: 'equals', value: 'Financial institution', thenShowSectionId: 'sec5', thenShowLabel: 'Financial institution details' },
+      ];
+      const SENT_FORMS = [
+        { id: 's1', formId: '3', formName: 'Associate Information Request', entityName: 'Acme Corp', assessmentName: 'Screening', recipient: 'associate@example.com', sentAt: '2026-02-28 10:30', expiresAt: '2026-03-14', status: 'Completed', completedAt: '2026-03-01 14:00', attachments: ['ID document.pdf', 'Proof of address.pdf'], assignedTo: 'Unassigned', assignedUserId: null, permissions: ['View'] },
+        { id: 's2', formId: '3', formName: 'Associate Information Request', entityName: 'Partner Ltd', assessmentName: 'Evolution', recipient: 'j.smith@partner.com', sentAt: '2026-02-27 09:00', expiresAt: '2026-03-13', status: 'Opened', completedAt: null, attachments: [], assignedTo: 'Unassigned', assignedUserId: null, permissions: ['View'] },
+        { id: 's3', formId: '4', formName: 'UBO Declaration', entityName: 'Compliance Co', assessmentName: 'Risk Assessment Demo', recipient: 'compliance@client.com', sentAt: '2026-02-26 16:45', expiresAt: '2026-03-12', status: 'Sent', completedAt: null, attachments: ['Certificate.pdf'], assignedTo: 'Unassigned', assignedUserId: null, permissions: ['View'] },
+        { id: 's4', formId: '3', formName: 'Associate Information Request', entityName: 'Legacy Entity', assessmentName: 'Customer', recipient: 'old@expired.com', sentAt: '2026-02-01 12:00', expiresAt: '2026-02-15', status: 'Expired', completedAt: null, attachments: [], assignedTo: 'Unassigned', assignedUserId: null, permissions: ['View'] },
+      ];
+      var MOCK_USERS = [
+        { id: 'u1', name: 'Sarah Chen', initials: 'SC', role: 'Analyst' },
+        { id: 'u2', name: 'James O\'Brien', initials: 'JO', role: 'Senior Analyst' },
+        { id: 'u3', name: 'Priya Patel', initials: 'PP', role: 'Compliance Officer' },
+        { id: 'u4', name: 'Michael Torres', initials: 'MT', role: 'Manager' },
+        { id: 'u5', name: 'Emma Williams', initials: 'EW', role: 'Analyst' },
+      ];
+      var PERMISSION_TYPES = ['View', 'Edit', 'Action', 'Assign'];
+      var DEFAULT_PERMISSIONS = ['View'];
+
+      var tasksTaskTypeFilter = 'all';
+      var selectedTaskIds = [];
+      var MOCK_TASKS = [
+        { id: 'tr1', taskName: 'KYB Entity Onboarding', entityName: 'Acme Corp', assessmentName: 'KYB Onboarding — Acme Corp', status: 'Pending Review', assignedTo: 'David Reviewer', assignedUserId: 'u2', permissions: ['View', 'Action'], createdAt: '18 Mar 2026 at 2:32 PM', taskType: 'form_review', overrideCount: 2, customDataCount: 2 },
+        { id: 'tr2', taskName: 'Periodic Review Questionnaire', entityName: 'GlobalTech Solutions', assessmentName: 'Annual Review — GlobalTech', status: 'Pending Review', assignedTo: 'David Reviewer', assignedUserId: 'u2', permissions: ['View', 'Action'], createdAt: '17 Mar 2026 at 11:15 AM', taskType: 'form_review', overrideCount: 1, customDataCount: 0 },
+        { id: 'tr3', taskName: 'Supplier Due Diligence', entityName: 'NorthStar Logistics', assessmentName: 'Supplier Onboarding — NorthStar', status: 'Complete', assignedTo: 'Sarah Chen', assignedUserId: 'u1', permissions: ['View'], createdAt: '15 Mar 2026 at 9:00 AM', taskType: 'form_review', overrideCount: 0, customDataCount: 3 },
+        { id: 't1', taskName: 'META - GRID', entityName: 'META', assessmentName: 'Evolution', status: 'Incomplete', assignedTo: 'Unassigned', assignedUserId: null, permissions: ['View'], createdAt: '9 Mar 2026 at 2:50 PM', taskType: 'screening' },
+        { id: 't2', taskName: 'FACEBOOK - GRID', entityName: 'FACEBOOK', assessmentName: 'Evolution', status: 'Incomplete', assignedTo: 'Unassigned', assignedUserId: null, permissions: ['View'], createdAt: '6 Mar 2026 at 9:24 PM', taskType: 'screening' },
+        { id: 't3', taskName: 'DIALOG CORP - GRID', entityName: 'MOODY\'S CORPORATION', assessmentName: 'Evolution', status: 'Incomplete', assignedTo: 'Unassigned', assignedUserId: null, permissions: ['View'], createdAt: '5 Mar 2026 at 11:00 AM', taskType: 'monitoring' },
+      ];
+      var PREFILL_DATA = {
+        s1: { entityName: 'Acme Corp', entityType: 'Corporate', hasUbo: true, uboDetails: 'John Doe, 25%', supportingDocs: '' },
+        s2: { entityName: 'Partner Ltd', entityType: 'Partnership', hasUbo: false, uboDetails: '', supportingDocs: '' },
+        s3: { entityName: 'Compliance Co', entityType: 'Corporate', hasUbo: true, uboDetails: 'Jane Smith, 50%', supportingDocs: '' },
+        s4: { entityName: 'Legacy Entity', entityType: 'Individual', hasUbo: false, uboDetails: '', supportingDocs: '' },
+      };
+      var PREVIOUS_RESPONSES = {
+        s1: [
+          { submittedAt: '2026-01-15 11:00', answers: { entityName: 'Acme Corp (previous)', entityType: 'Corporate', hasUbo: 'true', uboDetails: 'Previous UBO details', supportingDocs: '—' } },
+        ],
+        s2: [
+          { submittedAt: '2026-02-10 14:30', answers: { entityName: 'Partner Ltd', entityType: 'Partnership', hasUbo: 'false', uboDetails: '', supportingDocs: '—' } },
+        ],
+        s3: [],
+        s4: [],
+      };
+
+      function getRoute() {
+        const hash = (window.location.hash || '#/forms').slice(1);
+        const parts = hash.split('/').filter(Boolean);
+        const external = parts[0] === 'external';
+        const sendStep = external && parts[1] === 'send' ? parseInt(parts[2], 10) || 1 : 0;
+        const formView = external && parts[1] === 'form' && parts[2];
+        const views = parts[0] === 'views';
+        const viewsTasks = views && parts[1] === 'tasks';
+        const viewsOnly = views && !parts[1];
+        const viewsRisk = views && parts[1] === 'risk';
+        const viewsFormReview = views && parts[1] === 'form-review' && parts[2];
+        const configData = parts[0] === 'config' && parts[1] === 'data';
+        const configRiskModels = parts[0] === 'config' && parts[1] === 'risk-models';
+        return {
+          views: views,
+          viewsOnly: viewsOnly,
+          viewsTasks: viewsTasks,
+          viewsRisk: viewsRisk,
+          viewsFormReview: viewsFormReview,
+          formReviewTaskId: viewsFormReview ? parts[2] : null,
+          configData: configData,
+          configRiskModels: configRiskModels,
+          list: parts[0] === 'forms' && !parts[1],
+          new: parts[0] === 'forms' && parts[1] === 'new',
+          formId: parts[0] === 'forms' && parts[1] && parts[1] !== 'new' ? parts[1] : null,
+          external: external && !parts[1],
+          sendFlow: external && parts[1] === 'send',
+          sendStep: sendStep >= 1 && sendStep <= 4 ? sendStep : 1,
+          formView: !!formView,
+          formViewSentId: formView ? parts[2] : null,
+        };
+      }
+
+      function setRoute(path) {
+        window.location.hash = path;
+      }
+
+      function renderApp() {
+        const route = getRoute();
+        if (route.external && !route.sendFlow && !route.formView) {
+          tasksTaskTypeFilter = 'external_forms';
+          setRoute('#/views/tasks');
+          setTimeout(renderApp, 0);
+          return;
+        }
+        const app = document.getElementById('app');
+        if (!app) return;
+        const isViews = route.views;
+        const isViewsOnly = route.viewsOnly;
+        const isViewsTasks = route.viewsTasks;
+        const isViewsRisk = route.viewsRisk;
+        const isViewsFormReview = route.viewsFormReview;
+        const isConfigSection = route.configData || route.configRiskModels || route.list || route.new || route.formId;
+        const isList = route.list;
+        const isConfig = route.new || route.formId;
+        const isExternal = route.external;
+        const isSendFlow = route.sendFlow;
+        const isFormView = route.formView;
+        const activeForm = route.formId ? FORMS.find(function (f) { return f.id === route.formId; }) : null;
+        const showConfigSidebar = isConfigSection;
+        const showViewsSidebar = isViews || isViewsTasks || isViewsRisk || isExternal || isSendFlow || isFormView || isViewsFormReview;
+
+        app.innerHTML =
+          '<header class="global-header">' +
+            '<a href="#/views" class="logo">Maxsight</a>' +
+            '<nav class="global-nav">' +
+              '<a href="#/views" class="' + (isViews || isViewsTasks || isExternal || isSendFlow || isFormView ? 'active' : '') + '">Views</a>' +
+              '<a href="#/forms" class="' + (isConfigSection ? 'active' : '') + '">Configuration</a>' +
+            '</nav>' +
+          '</header>' +
+          '<div class="app-body">' +
+          (showViewsSidebar ? '<div class="sidebar">' +
+            '<div class="sidebar-label">Views</div>' +
+            '<nav class="nav">' +
+              '<a href="#/views" class="' + (isViewsOnly ? 'active' : '') + '">Portfolio</a>' +
+              '<a href="#/views/risk" class="' + (route.viewsRisk ? 'active' : '') + '">Risk</a>' +
+              '<a href="#/views/tasks" class="' + (isViewsTasks || isExternal || isSendFlow || isFormView || isViewsFormReview ? 'active' : '') + '">Tasks</a>' +
+            '</nav>' +
+          '</div>' : '') +
+          (showConfigSidebar ? '<div class="sidebar">' +
+            '<div class="sidebar-label">Configuration</div>' +
+            '<nav class="nav">' +
+              '<a href="#/config/data" class="' + (route.configData ? 'active' : '') + '">Data configuration</a>' +
+              '<a href="#/config/risk-models" class="' + (route.configRiskModels ? 'active' : '') + '">Risk models</a>' +
+              '<a href="#/forms" class="' + (isList || isConfig ? 'active' : '') + '">Form configuration</a>' +
+            '</nav>' +
+          '</div>' : '') +
+          '<main class="main">' +
+            (showViewsSidebar ? '<header class="header"><span>' + (isViewsTasks || isExternal || isSendFlow || isFormView || isViewsFormReview ? 'Tasks' : route.viewsRisk ? 'Risk' : 'Views') + '</span></header>' : (showConfigSidebar ? '<header class="header"><span>' + (route.configData ? 'Data configuration' : route.configRiskModels ? 'Risk models' : (isList || isConfig) ? 'Form configuration' : 'Configuration') + '</span></header>' : '')) +
+            '<div class="content" id="content"></div>' +
+          '</main>' +
+          '</div>';
+
+        const content = document.getElementById('content');
+        if (isViewsOnly) {
+          content.innerHTML = renderViews();
+        } else if (route.viewsRisk) {
+          content.innerHTML = renderViewsRisk();
+        } else if (isViewsFormReview) {
+          content.innerHTML = renderFormReviewView(route.formReviewTaskId);
+          bindFormReviewEvents(content);
+        } else if (isViewsTasks) {
+          content.innerHTML = renderTasksView();
+          bindTasksViewEvents();
+        } else if (route.configData) {
+          content.innerHTML = renderConfigData();
+        } else if (route.configRiskModels) {
+          content.innerHTML = renderConfigRiskModels();
+        } else if (isSendFlow) {
+          content.innerHTML = renderSendFlow(route.sendStep);
+          bindSendFlowEvents(route.sendStep);
+        } else if (isFormView && route.formViewSentId) {
+          content.innerHTML = renderExternalFormView(route.formViewSentId);
+          bindExternalFormViewEvents(route.formViewSentId);
+        } else if (isList) {
+          content.innerHTML = renderManageForms();
+          content.querySelector('.btn-new')?.addEventListener('click', function () { setRoute('#/forms/new'); });
+          content.querySelectorAll('.btn-actions-menu').forEach(function (btn) {
+            btn.addEventListener('click', function (e) {
+              e.stopPropagation();
+              var id = this.getAttribute('data-id');
+              var list = content.querySelector('.action-menu-list[data-id="' + id + '"]');
+              var open = content.querySelectorAll('.action-menu-list');
+              open.forEach(function (el) { if (el !== list) el.style.display = 'none'; });
+              list.style.display = list.style.display === 'none' ? 'block' : 'none';
+              if (list.style.display === 'block') {
+                setTimeout(function () {
+                  document.addEventListener('click', function closeMenus() {
+                    content.querySelectorAll('.action-menu-list').forEach(function (el) { el.style.display = 'none'; });
+                    document.removeEventListener('click', closeMenus);
+                  });
+                }, 0);
+              }
+            });
+          });
+          content.querySelectorAll('.menu-action-configure').forEach(function (btn) {
+            btn.addEventListener('click', function () { setRoute('#/forms/' + this.getAttribute('data-id')); });
+          });
+          content.querySelectorAll('.menu-action-send-email').forEach(function (btn) {
+            btn.addEventListener('click', function () { setRoute('#/external/send/1'); });
+          });
+          content.querySelectorAll('.menu-action-duplicate, .menu-action-archive, .menu-action-expire').forEach(function (btn) {
+            btn.addEventListener('click', function () { content.querySelectorAll('.action-menu-list').forEach(function (el) { el.style.display = 'none'; }); });
+          });
+          content.querySelector('.filter-form-type')?.addEventListener('change', function () {
+            manageFormsFormFilter = this.value || '';
+            renderApp();
+          });
+        } else {
+          content.innerHTML = renderFormConfig(route.new ? 'New form' : (activeForm?.name || 'Configure form'), route.new, activeForm);
+          content.querySelector('.btn-cancel')?.addEventListener('click', function () { formConfigChannelId = ''; setRoute('#/forms'); });
+          content.querySelector('.btn-save')?.addEventListener('click', function () { formConfigChannelId = ''; setRoute('#/forms'); });
+          bindFormConfigEvents(content);
+        }
+      }
+
+      function renderViews() {
+        return '<div class="page">' +
+          '<div class="page-breadcrumb"><span class="current">Views</span></div>' +
+          '<h1 class="title">Views</h1>' +
+          '<p class="muted-text" style="margin-top:8px;max-width:560px">Create and manage your views from here. Use Configuration to manage data configuration, risk models, form configuration, and external forms.</p>' +
+        '</div>';
+      }
+
+      function renderConfigData() {
+        return '<div class="page">' +
+          '<div class="page-breadcrumb"><a href="#/forms">Configuration</a><span class="sep">›</span><span class="current">Data configuration</span></div>' +
+          '<h1 class="title">Data configuration</h1>' +
+          '<p class="muted-text" style="margin-top:12px;margin-bottom:20px">Your account has read-only access to these settings. To modify your data configuration, contact Moody\'s Client Service team.</p>' +
+          '<div class="card"><div class="card-header">Data sources</div><div class="card-body">' +
+          '<p class="muted-text" style="margin:0">Registry <span class="badge-active" style="margin-left:8px">Primary</span></p>' +
+          '<p class="muted-text" style="margin:8px 0 0">Curated by Moody\'s <span class="badge-draft" style="margin-left:8px">Secondary</span></p>' +
+          '</div></div>' +
+          '<div class="card"><div class="card-header">Registry configuration</div><div class="card-body"><p class="muted-text" style="margin:0">Registry data refreshes every 30 days.</p></div></div>' +
+          '<div class="card"><div class="card-header">Curated by Moody\'s configuration</div><div class="card-body"><p class="muted-text" style="margin:0">Configuration rules and preferred currency (e.g. EUR).</p></div></div>' +
+        '</div>';
+      }
+
+      function renderConfigRiskModels() {
+        return '<div class="page">' +
+          '<div class="page-breadcrumb"><a href="#/forms">Configuration</a><span class="sep">›</span><span class="current">Risk models</span></div>' +
+          '<h1 class="title">Risk models</h1>' +
+          '<p class="muted-text" style="margin-top:12px">Manage risk models and settings.</p>' +
+        '</div>';
+      }
+
+      function renderViewsRisk() {
+        return '<div class="page">' +
+          '<div class="page-breadcrumb"><a href="#/views">Views</a><span class="sep">›</span><span class="current">Risk</span></div>' +
+          '<h1 class="title">Risk</h1>' +
+          '<p class="muted-text" style="margin-top:8px">Risk views and settings.</p>' +
+        '</div>';
+      }
+
+      function renderPermBadges(perms) {
+        var cls = { View: 'perm-view', Edit: 'perm-edit', Action: 'perm-action', Assign: 'perm-assign' };
+        return (perms || []).map(function (p) {
+          return '<span class="perm-badge ' + (cls[p] || 'perm-view') + '">' + escapeHtml(p) + '</span>';
+        }).join('');
+      }
+
+      function renderAssignedCell(item) {
+        if (!item.assignedUserId) return '<span style="color:var(--views-text-light)">Unassigned</span>';
+        return '<span class="assigned-name" data-task-id="' + escapeHtml(item.id) + '">' + escapeHtml(item.assignedTo) + '</span>';
+      }
+
+      function renderBulkBar() {
+        if (!selectedTaskIds.length) return '';
+        return '<div class="bulk-bar" id="bulkBar">' +
+          '<strong>' + selectedTaskIds.length + '</strong> task' + (selectedTaskIds.length > 1 ? 's' : '') + ' selected' +
+          '<button type="button" class="bulk-btn bulk-assign-btn">Assign</button>' +
+          '<button type="button" class="bulk-btn bulk-permissions-btn">Set permissions</button>' +
+          '<button type="button" class="bulk-btn bulk-reassign-btn">Reassign</button>' +
+          '<button type="button" class="bulk-btn-clear bulk-clear-btn">Clear selection</button>' +
+        '</div>';
+      }
+
+      function getAllTaskItems() {
+        if (tasksTaskTypeFilter === 'external_forms') return SENT_FORMS;
+        if (tasksTaskTypeFilter === 'form_review') return MOCK_TASKS.filter(function (t) { return t.taskType === 'form_review'; });
+        return MOCK_TASKS;
+      }
+
+      function renderTasksView() {
+        var filterCount = (tasksTaskTypeFilter === 'external_forms' || tasksTaskTypeFilter === 'form_review') ? 1 : 0;
+        var taskTypeOptions = '<option value="all"' + (tasksTaskTypeFilter === 'all' ? ' selected' : '') + '>All</option>' +
+          '<option value="form_review"' + (tasksTaskTypeFilter === 'form_review' ? ' selected' : '') + '>Form Review</option>' +
+          '<option value="external_forms"' + (tasksTaskTypeFilter === 'external_forms' ? ' selected' : '') + '>SC Forms</option>';
+        var tableHtml;
+        var colCount = 6;
+        var allItems = getAllTaskItems();
+        var allSelected = allItems.length > 0 && allItems.every(function (i) { return selectedTaskIds.indexOf(i.id) !== -1; });
+
+        if (tasksTaskTypeFilter === 'external_forms') {
+          var statusClass = { Sent: 'badge-sent', Opened: 'badge-opened', Completed: 'badge-completed', Expired: 'badge-expired' };
+          var rows = SENT_FORMS.map(function (s) {
+            var isChecked = selectedTaskIds.indexOf(s.id) !== -1;
+            var taskActions =
+              '<button type="button" class="task-action-btn btn-task-assign" data-id="' + escapeHtml(s.id) + '">Assign</button>' +
+              (s.assignedUserId ? '<button type="button" class="task-action-btn btn-reassign btn-task-reassign" data-id="' + escapeHtml(s.id) + '">Reassign</button>' : '') +
+              (s.status !== 'Completed' && s.status !== 'Expired' ? '<button type="button" class="action-btn btn-resend" data-id="' + escapeHtml(s.id) + '">Resend</button> ' : '') +
+              (s.status === 'Sent' || s.status === 'Opened' ? '<button type="button" class="action-btn btn-remind" data-id="' + escapeHtml(s.id) + '">Remind</button> ' : '') +
+              (s.status !== 'Completed' ? '<button type="button" class="action-btn btn-extend-expiration" data-id="' + escapeHtml(s.id) + '">Extend expiration</button> ' : '') +
+              (s.status !== 'Completed' && s.status !== 'Expired' ? '<button type="button" class="action-btn btn-expire-send" data-id="' + escapeHtml(s.id) + '">Expire</button> ' : '') +
+              '<a href="#/external/form/' + escapeHtml(s.id) + '" class="action-btn task-form-link" data-id="' + escapeHtml(s.id) + '">View</a>';
+            return '<tr class="' + (isChecked ? 'row-selected' : '') + '">' +
+              '<td class="task-list-cell-cb"><input type="checkbox" class="task-list-cb task-row-cb" data-id="' + escapeHtml(s.id) + '"' + (isChecked ? ' checked' : '') + '></td>' +
+              '<td class="task-list-cell-form"><a href="#/external/form/' + escapeHtml(s.id) + '" class="task-list-link task-form-link" data-id="' + escapeHtml(s.id) + '">' + escapeHtml(s.formName) + '</a></td>' +
+              '<td class="task-list-cell-task-type">SC Forms</td>' +
+              '<td class="task-list-cell-entity">' + escapeHtml(s.entityName || '—') + '</td>' +
+              '<td class="task-list-cell-sent-to">' + escapeHtml(s.recipient || '—') + '</td>' +
+              '<td class="task-list-cell-assessment">' + escapeHtml(s.assessmentName || '—') + '</td>' +
+              '<td class="task-list-cell-status"><span class="' + (statusClass[s.status] || 'badge-sent') + '">' + escapeHtml(s.status === 'Completed' ? 'Complete' : s.status) + '</span></td>' +
+              '<td class="task-list-cell-assigned">' + renderAssignedCell(s) + '</td>' +
+              '<td class="task-list-cell-assigned">' + renderPermBadges(s.permissions || DEFAULT_PERMISSIONS) + '</td>' +
+              '<td class="task-list-cell-actions task-actions-cell">' + taskActions + '</td>' +
+            '</tr>';
+          }).join('');
+          colCount = 10;
+          tableHtml = '<table class="task-list-table"><thead><tr>' +
+            '<th class="task-list-th task-list-th-cb"><input type="checkbox" class="task-list-cb task-select-all"' + (allSelected ? ' checked' : '') + '></th>' +
+            '<th class="task-list-th">Task</th><th class="task-list-th">Task type</th><th class="task-list-th">Entity</th><th class="task-list-th">Sent To</th><th class="task-list-th">Assessment</th><th class="task-list-th">Status</th><th class="task-list-th">Assigned to</th><th class="task-list-th">Permissions</th><th class="task-list-th" style="min-width:200px">Actions</th>' +
+            '</tr></thead><tbody>' + rows + '</tbody></table>';
+        } else {
+          var filteredTasks = tasksTaskTypeFilter === 'form_review'
+            ? MOCK_TASKS.filter(function (t) { return t.taskType === 'form_review'; })
+            : MOCK_TASKS;
+          var taskRows = filteredTasks.map(function (t) {
+            var isChecked = selectedTaskIds.indexOf(t.id) !== -1;
+            var statusClass = t.status === 'Pending Review' ? 'badge-pending' : t.status === 'Complete' ? 'badge-completed' : 'badge-sent';
+            var taskTypeLabel = t.taskType === 'form_review' ? '<span class="lane-badge lane-entity">Form Review</span>' : t.taskType === 'screening' ? 'Screening' : t.taskType === 'monitoring' ? 'Monitoring' : t.taskType;
+            var dataChanges = '';
+            if (t.overrideCount > 0) dataChanges += '<span class="badge-entity-count">' + t.overrideCount + ' entity</span>';
+            if (t.customDataCount > 0) dataChanges += '<span class="badge-custom-count">' + t.customDataCount + ' custom</span>';
+            if (!dataChanges) dataChanges = '<span style="color:var(--views-text-light);font-size:12px">\u2014</span>';
+            var taskActions =
+              (t.taskType === 'form_review' && t.status === 'Pending Review' ? '<a href="#/views/form-review/' + escapeHtml(t.id) + '" class="action-btn" style="font-weight:500">Review</a>' : '') +
+              (t.taskType === 'form_review' && t.status === 'Complete' ? '<a href="#/views/form-review/' + escapeHtml(t.id) + '" class="action-btn">View</a>' : '') +
+              '<button type="button" class="task-action-btn btn-task-assign" data-id="' + escapeHtml(t.id) + '">Assign</button>' +
+              (t.assignedUserId ? '<button type="button" class="task-action-btn btn-reassign btn-task-reassign" data-id="' + escapeHtml(t.id) + '">Reassign</button>' : '');
+            var taskNameCell = t.taskType === 'form_review'
+              ? '<a href="#/views/form-review/' + escapeHtml(t.id) + '" class="task-list-link">' + escapeHtml(t.taskName) + '</a><div style="font-size:11px;color:var(--views-text-light)">' + escapeHtml(t.id) + '</div>'
+              : escapeHtml(t.taskName);
+            var rowBg = t.taskType === 'form_review' && t.status === 'Pending Review' ? ' style="background:#fffbeb"' : '';
+            return '<tr class="' + (isChecked ? 'row-selected' : '') + '"' + rowBg + '>' +
+              '<td class="task-list-cell-cb"><input type="checkbox" class="task-list-cb task-row-cb" data-id="' + escapeHtml(t.id) + '"' + (isChecked ? ' checked' : '') + '></td>' +
+              '<td class="task-list-cell-form">' + taskNameCell + '</td>' +
+              '<td class="task-list-cell-task-type">' + taskTypeLabel + '</td>' +
+              '<td class="task-list-cell-entity">' + escapeHtml(t.entityName) + '</td>' +
+              '<td class="task-list-cell-assessment">' + escapeHtml(t.assessmentName) + '</td>' +
+              '<td class="task-list-cell-status"><span class="' + statusClass + '">' + escapeHtml(t.status) + '</span></td>' +
+              '<td class="task-list-cell-form data-changes-badges">' + dataChanges + '</td>' +
+              '<td class="task-list-cell-assigned">' + renderAssignedCell(t) + '</td>' +
+              '<td class="task-list-cell-created">' + escapeHtml(t.createdAt) + '</td>' +
+              '<td class="task-list-cell-actions task-actions-cell">' + taskActions + '</td>' +
+            '</tr>';
+          }).join('');
+          colCount = 10;
+          tableHtml = '<table class="task-list-table"><thead><tr>' +
+            '<th class="task-list-th task-list-th-cb"><input type="checkbox" class="task-list-cb task-select-all"' + (allSelected ? ' checked' : '') + '></th>' +
+            '<th class="task-list-th">Task</th><th class="task-list-th">Task type</th><th class="task-list-th">Entity</th><th class="task-list-th">Assessment</th><th class="task-list-th">Status</th><th class="task-list-th">Data changes</th><th class="task-list-th">Assigned to</th><th class="task-list-th">Created</th><th class="task-list-th" style="min-width:200px">Actions</th>' +
+            '</tr></thead><tbody>' + taskRows + '</tbody></table>';
+        }
+        return '<div class="page page-external-forms">' +
+          '<div class="page-breadcrumb"><a href="#/views">Views</a><span class="sep">›</span><span class="current">Tasks</span></div>' +
+          '<div class="header-row">' +
+            '<h1 class="title">Tasks</h1>' +
+            (tasksTaskTypeFilter === 'external_forms' ? '<button type="button" class="btn-primary" disabled title="V1 (Q3): External forms are auto-sent in a workflow step.">Send form via email</button>' : '') +
+          '</div>' +
+          (tasksTaskTypeFilter === 'form_review' || tasksTaskTypeFilter === 'all' ? '<div class="info-note" style="margin-bottom:16px;padding:12px 16px;background:#f8f9fb;border:1px solid var(--views-border);border-radius:6px"><strong>Note:</strong> Form Review tasks shown below are illustrative of how the <strong>workflow orchestration team</strong> may surface data change reviews. Forms (MPD) feeds tagged responses into the workflow; the review task creation, approval UX, and write-back are owned by the workflow team.</div>' : '') +
+          renderBulkBar() +
+          '<div class="card">' +
+            '<div class="toolbar-row">' +
+              '<span class="toolbar-item">Filter <strong>' + filterCount + '</strong></span>' +
+              '<select class="form-input tasks-task-type-filter" style="max-width:180px;margin-left:8px">' + taskTypeOptions + '</select>' +
+              '<span class="toolbar-item" style="margin-left:20px">Columns <strong>' + colCount + '</strong></span>' +
+              '<span class="toolbar-item">Full page</span>' +
+            '</div>' +
+            tableHtml +
+          '</div>' +
+        '</div>';
+      }
+
+      function findTaskOrSent(id) {
+        var t = MOCK_TASKS.find(function (x) { return x.id === id; });
+        if (t) return t;
+        return SENT_FORMS.find(function (x) { return x.id === id; });
+      }
+
+      function showAssignModal(taskIds, isReassign) {
+        var existing = document.getElementById('assignModal');
+        if (existing) existing.remove();
+        var tasks = taskIds.map(findTaskOrSent).filter(Boolean);
+        if (!tasks.length) return;
+
+        var previousAssignee = isReassign ? tasks[0] : null;
+        var previousPerms = previousAssignee ? (previousAssignee.permissions || DEFAULT_PERMISSIONS).slice() : DEFAULT_PERMISSIONS.slice();
+
+        var inheritNote = isReassign
+          ? '<div class="inherit-note">The new assignee will <strong>inherit all permissions</strong> from the current assignee (' + escapeHtml(previousPerms.join(', ')) + '). You can adjust permissions after reassignment.</div>'
+          : '';
+
+        var userItems = MOCK_USERS.map(function (u) {
+          return '<div class="assign-dropdown-item assign-user-pick" data-user-id="' + u.id + '">' +
+            '<span class="assign-avatar">' + escapeHtml(u.initials) + '</span>' +
+            '<span>' + escapeHtml(u.name) + ' <span style="color:var(--views-text-light);font-size:12px">(' + escapeHtml(u.role) + ')</span></span>' +
+          '</div>';
+        }).join('');
+
+        var permToggles = PERMISSION_TYPES.map(function (p) {
+          var checked = previousPerms.indexOf(p) !== -1 ? ' checked' : '';
+          return '<label><input type="checkbox" class="modal-perm-cb" value="' + p + '"' + checked + '> ' + p + '</label>';
+        }).join('');
+
+        var taskList = tasks.map(function (t) {
+          return '<span class="perm-badge perm-view">' + escapeHtml(t.taskName || t.formName || t.id) + '</span>';
+        }).join(' ');
+
+        var html = '<div class="modal-overlay" id="assignModal">' +
+          '<div class="modal-box">' +
+            '<h3>' + (isReassign ? 'Reassign' : 'Assign') + ' Task' + (tasks.length > 1 ? 's' : '') + '</h3>' +
+            '<div class="modal-section"><span class="modal-label">Task' + (tasks.length > 1 ? 's' : '') + '</span>' + taskList + '</div>' +
+            (isReassign && previousAssignee && previousAssignee.assignedTo !== 'Unassigned'
+              ? '<div class="modal-section"><span class="modal-label">Currently assigned to</span><strong>' + escapeHtml(previousAssignee.assignedTo) + '</strong></div>'
+              : '') +
+            inheritNote +
+            '<div class="modal-section">' +
+              '<span class="modal-label">Select user</span>' +
+              '<input type="text" class="assign-dropdown-search modal-user-search" placeholder="Search users...">' +
+              '<div style="max-height:180px;overflow-y:auto;border:1px solid var(--views-border-light);border-radius:4px;margin-top:4px">' + userItems + '</div>' +
+            '</div>' +
+            '<div class="modal-section">' +
+              '<span class="modal-label">Permissions</span>' +
+              '<div class="perm-toggle">' + permToggles + '</div>' +
+            '</div>' +
+            '<div class="modal-actions">' +
+              '<button type="button" class="btn-secondary modal-cancel-btn">Cancel</button>' +
+              '<button type="button" class="btn-primary modal-confirm-btn" disabled>' + (isReassign ? 'Reassign' : 'Assign') + '</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+
+        document.body.insertAdjacentHTML('beforeend', html);
+        var modal = document.getElementById('assignModal');
+        var selectedUserId = null;
+
+        modal.querySelector('.modal-user-search').addEventListener('input', function () {
+          var q = this.value.toLowerCase();
+          modal.querySelectorAll('.assign-user-pick').forEach(function (el) {
+            var name = (MOCK_USERS.find(function (u) { return u.id === el.getAttribute('data-user-id'); }) || {}).name || '';
+            el.style.display = name.toLowerCase().indexOf(q) !== -1 ? '' : 'none';
+          });
+        });
+
+        modal.querySelectorAll('.assign-user-pick').forEach(function (el) {
+          el.addEventListener('click', function () {
+            modal.querySelectorAll('.assign-user-pick').forEach(function (e) { e.classList.remove('selected'); });
+            this.classList.add('selected');
+            selectedUserId = this.getAttribute('data-user-id');
+            modal.querySelector('.modal-confirm-btn').disabled = false;
+          });
+        });
+
+        modal.querySelector('.modal-cancel-btn').addEventListener('click', function () { modal.remove(); });
+        modal.addEventListener('click', function (e) { if (e.target === modal) modal.remove(); });
+
+        modal.querySelector('.modal-confirm-btn').addEventListener('click', function () {
+          if (!selectedUserId) return;
+          var user = MOCK_USERS.find(function (u) { return u.id === selectedUserId; });
+          if (!user) return;
+
+          var perms = [];
+          modal.querySelectorAll('.modal-perm-cb:checked').forEach(function (cb) { perms.push(cb.value); });
+          if (!perms.length) perms = DEFAULT_PERMISSIONS.slice();
+
+          tasks.forEach(function (task) {
+            if (isReassign) {
+              var inheritedPerms = (task.permissions || DEFAULT_PERMISSIONS).slice();
+              perms.forEach(function (p) { if (inheritedPerms.indexOf(p) === -1) inheritedPerms.push(p); });
+              task.permissions = inheritedPerms;
+            } else {
+              task.permissions = perms;
+            }
+            task.assignedTo = user.name;
+            task.assignedUserId = user.id;
+          });
+
+          selectedTaskIds = [];
+          modal.remove();
+          renderApp();
+        });
+      }
+
+      function showPermissionsModal(taskIds) {
+        var existing = document.getElementById('permModal');
+        if (existing) existing.remove();
+        var tasks = taskIds.map(findTaskOrSent).filter(Boolean);
+        if (!tasks.length) return;
+
+        var commonPerms = PERMISSION_TYPES.filter(function (p) {
+          return tasks.every(function (t) { return (t.permissions || []).indexOf(p) !== -1; });
+        });
+
+        var taskList = tasks.map(function (t) {
+          return '<span class="perm-badge perm-view">' + escapeHtml(t.taskName || t.formName || t.id) + '</span>';
+        }).join(' ');
+
+        var permToggles = PERMISSION_TYPES.map(function (p) {
+          var checked = commonPerms.indexOf(p) !== -1 ? ' checked' : '';
+          return '<label><input type="checkbox" class="modal-perm-cb" value="' + p + '"' + checked + '> ' + p + '</label>';
+        }).join('');
+
+        var html = '<div class="modal-overlay" id="permModal">' +
+          '<div class="modal-box">' +
+            '<h3>Set Permissions</h3>' +
+            '<div class="modal-section"><span class="modal-label">Task' + (tasks.length > 1 ? 's' : '') + '</span>' + taskList + '</div>' +
+            '<div class="modal-section">' +
+              '<span class="modal-label">Permissions</span>' +
+              '<div class="perm-toggle">' + permToggles + '</div>' +
+              '<p style="font-size:12px;color:var(--views-text-light);margin-top:8px">View = read-only access. Edit = modify task data. Action = perform task actions (resend, remind, expire). Assign = can assign/reassign this task to others.</p>' +
+            '</div>' +
+            '<div class="modal-actions">' +
+              '<button type="button" class="btn-secondary modal-cancel-btn">Cancel</button>' +
+              '<button type="button" class="btn-primary modal-confirm-btn">Save permissions</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+
+        document.body.insertAdjacentHTML('beforeend', html);
+        var modal = document.getElementById('permModal');
+
+        modal.querySelector('.modal-cancel-btn').addEventListener('click', function () { modal.remove(); });
+        modal.addEventListener('click', function (e) { if (e.target === modal) modal.remove(); });
+
+        modal.querySelector('.modal-confirm-btn').addEventListener('click', function () {
+          var perms = [];
+          modal.querySelectorAll('.modal-perm-cb:checked').forEach(function (cb) { perms.push(cb.value); });
+          if (!perms.length) perms = DEFAULT_PERMISSIONS.slice();
+          tasks.forEach(function (task) { task.permissions = perms; });
+          selectedTaskIds = [];
+          modal.remove();
+          renderApp();
+        });
+      }
+
+      function bindTasksViewEvents() {
+        var c = document.getElementById('content');
+        if (!c) return;
+
+        c.querySelector('.tasks-task-type-filter')?.addEventListener('change', function () {
+          tasksTaskTypeFilter = this.value || 'all';
+          selectedTaskIds = [];
+          renderApp();
+        });
+
+        // Bulk select: select all
+        c.querySelector('.task-select-all')?.addEventListener('change', function () {
+          var items = getAllTaskItems();
+          if (this.checked) {
+            selectedTaskIds = items.map(function (i) { return i.id; });
+          } else {
+            selectedTaskIds = [];
+          }
+          renderApp();
+        });
+
+        // Bulk select: individual row checkboxes
+        c.querySelectorAll('.task-row-cb').forEach(function (cb) {
+          cb.addEventListener('change', function () {
+            var id = this.getAttribute('data-id');
+            if (this.checked) {
+              if (selectedTaskIds.indexOf(id) === -1) selectedTaskIds.push(id);
+            } else {
+              selectedTaskIds = selectedTaskIds.filter(function (x) { return x !== id; });
+            }
+            renderApp();
+          });
+        });
+
+        // Bulk bar buttons
+        c.querySelector('.bulk-assign-btn')?.addEventListener('click', function () { showAssignModal(selectedTaskIds, false); });
+        c.querySelector('.bulk-permissions-btn')?.addEventListener('click', function () { showPermissionsModal(selectedTaskIds); });
+        c.querySelector('.bulk-reassign-btn')?.addEventListener('click', function () {
+          var assignedIds = selectedTaskIds.filter(function (id) { var t = findTaskOrSent(id); return t && t.assignedUserId; });
+          if (!assignedIds.length) { window.alert('No selected tasks have an existing assignee to reassign from.'); return; }
+          showAssignModal(assignedIds, true);
+        });
+        c.querySelector('.bulk-clear-btn')?.addEventListener('click', function () { selectedTaskIds = []; renderApp(); });
+
+        // Per-row assign / reassign
+        c.querySelectorAll('.btn-task-assign').forEach(function (btn) {
+          btn.addEventListener('click', function () { showAssignModal([this.getAttribute('data-id')], false); });
+        });
+        c.querySelectorAll('.btn-task-reassign').forEach(function (btn) {
+          btn.addEventListener('click', function () { showAssignModal([this.getAttribute('data-id')], true); });
+        });
+
+        // Clicking assigned name to reassign
+        c.querySelectorAll('.assigned-name').forEach(function (el) {
+          el.addEventListener('click', function () { showAssignModal([this.getAttribute('data-task-id')], true); });
+        });
+
+        // SC Forms specific actions
+        c.querySelectorAll('.task-form-link').forEach(function (link) {
+          link.addEventListener('click', function (e) {
+            e.preventDefault();
+            var id = this.getAttribute('data-id');
+            if (id) setRoute('#/external/form/' + id);
+          });
+        });
+        c.querySelectorAll('.btn-resend').forEach(function (btn) {
+          btn.addEventListener('click', function () { setRoute('#/external/form/' + this.getAttribute('data-id')); });
+        });
+        c.querySelectorAll('.btn-remind').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var id = this.getAttribute('data-id');
+            if (window.confirm('Send a reminder email to the recipient for this form?')) {
+              window._remindSentId = id;
+              setRoute('#/external/form/' + id);
+            }
+          });
+        });
+        c.querySelectorAll('.btn-extend-expiration').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            window._extendExpirationSentId = this.getAttribute('data-id');
+            setRoute('#/external/form/' + this.getAttribute('data-id'));
+          });
+        });
+        c.querySelectorAll('.btn-expire-send').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var id = this.getAttribute('data-id');
+            var sent = SENT_FORMS.find(function (s) { return s.id === id; });
+            if (sent && sent.status !== 'Completed' && sent.status !== 'Expired') {
+              sent.status = 'Expired';
+              renderApp();
+            }
+          });
+        });
+      }
+
+      function renderManageForms() {
+        var formTypes = [];
+        for (var i = 0; i < FORMS.length; i++) {
+          if (FORMS[i].formType && formTypes.indexOf(FORMS[i].formType) === -1) formTypes.push(FORMS[i].formType);
+        }
+        var formTypeFilter = '<option value="">All form types</option>' + formTypes.map(function (t) { return '<option value="' + escapeHtml(t) + '"' + (manageFormsFormFilter === t ? ' selected' : '') + '>' + escapeHtml(t) + '</option>'; }).join('');
+        var filtered = FORMS.filter(function (f) {
+          if (manageFormsFormFilter && f.formType !== manageFormsFormFilter) return false;
+          return true;
+        });
+        var rows = filtered.map(function (f) {
+          return '<tr>' +
+            '<td><strong>' + escapeHtml(f.name) + '</strong></td>' +
+            '<td>' + escapeHtml(f.formType || '—') + '</td>' +
+            '<td>' + escapeHtml(f.type) + '</td>' +
+            '<td><span class="' + (f.status === 'Active' ? 'badge-active' : 'badge-draft') + '">' + escapeHtml(f.status) + '</span></td>' +
+            '<td>' + escapeHtml(f.lastModified) + '</td>' +
+            '<td>' + f.responses + '</td>' +
+            '<td style="position:relative">' +
+              '<button type="button" class="action-menu-btn btn-actions-menu" data-id="' + escapeHtml(f.id) + '" title="Actions">⋮</button>' +
+              '<div class="action-menu-dropdown action-menu-list" data-id="' + escapeHtml(f.id) + '" style="display:none">' +
+                '<button type="button" class="menu-action-configure" data-id="' + escapeHtml(f.id) + '">Configure</button>' +
+                (f.type === 'External' ? '<button type="button" class="menu-action-send-email" data-id="' + escapeHtml(f.id) + '" disabled title="V1 (Q3): External forms are auto-sent in a workflow step; manual send is not available.">Send via email</button>' : '') +
+                '<button type="button" class="menu-action-duplicate">Duplicate</button>' +
+                '<button type="button" class="menu-action-archive">Archive</button>' +
+                '<button type="button" class="menu-action-expire">Expire</button>' +
+              '</div>' +
+            '</td>' +
+          '</tr>';
+        }).join('');
+        return '<div class="page">' +
+          '<div class="page-breadcrumb"><a href="#/forms">Configuration</a><span class="sep">›</span><a href="#/forms">Form configuration</a><span class="sep">›</span><span class="current">Manage forms</span></div>' +
+          '<div class="header-row">' +
+            '<h1 class="title">Manage forms</h1>' +
+            '<button type="button" class="btn-primary btn-new">+ New form</button>' +
+          '</div>' +
+          '<p class="muted-text" style="margin-bottom:12px">Form type identifies the form (e.g. KYC, supply chain). Filter by form type to create custom views.</p>' +
+          '<div class="card">' +
+            '<div class="toolbar-row">' +
+              '<span class="toolbar-item">Filter <strong>' + (manageFormsFormFilter ? '1' : '0') + '</strong></span>' +
+              '<span class="toolbar-item">Columns <strong>7</strong></span>' +
+            '</div>' +
+            '<div class="filter-row">' +
+              '<label class="form-label">Form type</label><select class="form-input filter-form-type">' + formTypeFilter + '</select>' +
+            '</div>' +
+            '<table><thead><tr>' +
+              '<th>Form name</th><th>Form type</th><th>Channel</th><th>Status</th><th>Last modified</th><th>Responses</th><th style="width:52px">Actions</th>' +
+            '</tr></thead><tbody>' + rows + '</tbody></table>' +
+          '</div>' +
+        '</div>';
+      }
+
+      function buildQuestionCardHtml(q) {
+        var typeOpts = FIELD_TYPES.map(function (t) {
+          return '<option value="' + escapeHtml(t) + '"' + (q.type === t ? ' selected' : '') + '>' + escapeHtml(t) + '</option>';
+        }).join('');
+        var choicesHtml = '';
+        if (q.type === 'dropdown' || q.type === 'radio' || q.type === 'checkbox') {
+          var ch = (q.choices || []).map(function (c, i) {
+            return '<div class="choice-row">' +
+              '<input type="text" class="form-input q-choice-input" data-question-id="' + escapeHtml(q.id) + '" data-choice-idx="' + i + '" value="' + escapeHtml(c) + '" placeholder="Option ' + (i + 1) + '">' +
+              '<button type="button" class="action-btn muted btn-remove-choice" data-question-id="' + escapeHtml(q.id) + '" data-choice-idx="' + i + '">Remove</button>' +
+            '</div>';
+          }).join('');
+          choicesHtml = '<div class="choices-list">' +
+            '<label class="form-label" style="margin-bottom:6px">Multiple choice options</label>' + ch +
+            '<button type="button" class="btn-secondary btn-add-choice" data-question-id="' + escapeHtml(q.id) + '" style="margin-top:6px">+ Add option</button></div>';
+        }
+        return '<div class="question-card-config" data-question-id="' + escapeHtml(q.id) + '">' +
+          '<div class="q-row">' +
+            '<select class="form-input q-type" data-question-id="' + escapeHtml(q.id) + '">' + typeOpts + '</select>' +
+            '<input type="text" class="form-input q-title" data-question-id="' + escapeHtml(q.id) + '" value="' + escapeHtml(q.title) + '" placeholder="Question title">' +
+            '<input type="text" class="form-input q-name" data-question-id="' + escapeHtml(q.id) + '" value="' + escapeHtml(q.name || '') + '" placeholder="Field name">' +
+            '<label class="checkbox-row" style="margin:0;white-space:nowrap"><input type="checkbox" class="q-required" data-question-id="' + escapeHtml(q.id) + '"' + (q.isRequired ? ' checked' : '') + '> Mandatory</label>' +
+            '<button type="button" class="action-btn muted btn-remove-question" data-question-id="' + escapeHtml(q.id) + '">Remove</button>' +
+          '</div>' +
+          '<div class="q-row"><label class="form-label" style="margin:0">Placeholder / hint</label><input type="text" class="form-input q-placeholder" value="' + escapeHtml(q.placeholder || '') + '" placeholder="Optional" data-question-id="' + escapeHtml(q.id) + '" style="max-width:280px"></div>' +
+          '<div class="q-row"><label class="form-label" style="margin:0">Help text / tooltip</label><input type="text" class="form-input q-help-text" value="' + escapeHtml(q.helpText || '') + '" placeholder="Optional" data-question-id="' + escapeHtml(q.id) + '" style="max-width:280px"></div>' +
+          (q.type === 'file' ? '<div class="q-row"><label class="form-label" style="margin:0">Accept</label><input type="text" class="form-input q-accept" value="' + escapeHtml(q.accept || '') + '" data-question-id="' + escapeHtml(q.id) + '" style="max-width:200px"></div>' : '') +
+          choicesHtml + '</div>';
+      }
+
+      var DATA_MAPPING_CONFIG = [
+        { id: 'dm1', questionTitle: 'Entity name', lane: 'entity', mappedField: 'Entity name', prefillBehaviour: 'prefill_override', isRequired: true },
+        { id: 'dm2', questionTitle: 'Registration number', lane: 'entity', mappedField: 'Registration number', prefillBehaviour: 'prefill_override', isRequired: false },
+        { id: 'dm3', questionTitle: 'Country', lane: 'entity', mappedField: 'Country', prefillBehaviour: 'prefill_readonly', isRequired: false },
+        { id: 'dm4', questionTitle: 'Internal risk rating', lane: 'custom', mappedField: 'internal_risk_rating', prefillBehaviour: 'prefill_edit', isRequired: false },
+        { id: 'dm5', questionTitle: 'Compliance notes', lane: 'custom', mappedField: 'compliance_notes', prefillBehaviour: 'prefill_edit', isRequired: false },
+        { id: 'dm6', questionTitle: 'Has UBOs?', lane: 'local', mappedField: null, prefillBehaviour: 'none', isRequired: false },
+        { id: 'dm7', questionTitle: 'Supporting documents', lane: 'local', mappedField: null, prefillBehaviour: 'none', isRequired: false },
+      ];
+
+      function buildDataMappingRows() {
+        var entityFields = ['Entity name', 'Registration number', 'Country', 'Address', 'Legal form', 'Contact email'];
+        var customFields = ['internal_risk_rating', 'compliance_notes', 'kyb_status', '+ Create new field'];
+        var html = '';
+        DATA_MAPPING_CONFIG.forEach(function (dm) {
+          var laneClass = dm.lane === 'entity' ? 'lane-border-entity' : dm.lane === 'custom' ? 'lane-border-custom' : 'lane-border-local';
+          var laneBadge = dm.lane === 'entity' ? '<span class="lane-badge lane-entity">Entity data</span>' : dm.lane === 'custom' ? '<span class="lane-badge lane-custom">Custom data</span>' : '<span class="lane-badge lane-local">Form-local</span>';
+          var reqTag = dm.isRequired ? '<span class="required-tag">Required</span>' : '';
+          html += '<div class="data-mapping-card ' + laneClass + '">' +
+            '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">' + laneBadge + '<strong>' + escapeHtml(dm.questionTitle) + '</strong>' + reqTag + '</div>' +
+            '<div class="data-mapping-controls">';
+
+          if (dm.lane === 'entity') {
+            var fieldOpts = entityFields.map(function (f) { return '<option' + (dm.mappedField === f ? ' selected' : '') + '>' + escapeHtml(f) + '</option>'; }).join('');
+            var behaviourOpts = '<option' + (dm.prefillBehaviour === 'prefill_override' ? ' selected' : '') + '>Pre-fill &amp; allow override</option>' +
+              '<option' + (dm.prefillBehaviour === 'prefill_readonly' ? ' selected' : '') + '>Pre-fill read-only</option>' +
+              '<option' + (dm.prefillBehaviour === 'none' ? ' selected' : '') + '>No pre-fill</option>';
+            html += '<div><span class="form-label" style="margin:0;font-size:12px">Mapped entity field</span><br><select class="form-input" style="max-width:200px">' + fieldOpts + '</select></div>' +
+              '<div><span class="form-label" style="margin:0;font-size:12px">Pre-fill behaviour</span><br><select class="form-input" style="max-width:200px">' + behaviourOpts + '</select></div>';
+            html += '</div>';
+            if (dm.prefillBehaviour === 'prefill_override') {
+              html += '<div class="data-mapping-meta data-mapping-meta-entity"><span class="behaviour-badge behaviour-override">Tagged: entity</span> Pre-filled from entity service. If edited, the response is <strong>tagged as an entity field change</strong> and passed to the workflow for processing.</div>';
+            } else if (dm.prefillBehaviour === 'prefill_readonly') {
+              html += '<div class="data-mapping-meta data-mapping-meta-entity"><span class="behaviour-badge behaviour-readonly">Read-only</span> Pre-filled from entity service. <strong>Cannot be edited</strong> in the form.</div>';
+            }
+          } else if (dm.lane === 'custom') {
+            var cFieldOpts = customFields.map(function (f) { return '<option' + (dm.mappedField === f ? ' selected' : '') + '>' + escapeHtml(f) + '</option>'; }).join('');
+            var cBehaviourOpts = '<option' + (dm.prefillBehaviour === 'prefill_edit' ? ' selected' : '') + '>Pre-fill &amp; allow edit</option>' +
+              '<option' + (dm.prefillBehaviour === 'prefill_readonly' ? ' selected' : '') + '>Pre-fill read-only</option>' +
+              '<option' + (dm.prefillBehaviour === 'none' ? ' selected' : '') + '>No pre-fill</option>';
+            html += '<div><span class="form-label" style="margin:0;font-size:12px">Mapped custom field</span><br><select class="form-input" style="max-width:200px">' + cFieldOpts + '</select></div>' +
+              '<div><span class="form-label" style="margin:0;font-size:12px">Pre-fill behaviour</span><br><select class="form-input" style="max-width:200px">' + cBehaviourOpts + '</select></div>';
+            html += '</div>';
+            html += '<div class="data-mapping-meta data-mapping-meta-custom"><span class="behaviour-badge behaviour-prefill">Tagged: custom</span> Pre-filled from custom data. If edited, the response is <strong>tagged as a custom field change</strong> and passed to the workflow for processing.</div>';
+          } else {
+            var laneOpts = '<option>Entity data</option><option>Custom data</option><option selected>Form-local</option>';
+            html += '<div><span class="form-label" style="margin:0;font-size:12px">Data lane</span><br><select class="form-input" style="max-width:200px">' + laneOpts + '</select></div>';
+            html += '</div>';
+            html += '<div class="data-mapping-hint data-mapping-hint-readonly">Form-local: data is stored only within the form response. No pre-fill, no write-back.</div>';
+          }
+          html += '</div>';
+        });
+        return html;
+      }
+
+      function renderFormConfig(title, isNew, activeForm) {
+        const formName = title || 'New form';
+        var formStructureHtml = FORM_SECTIONS.map(function (sec) {
+          var sectionQuestions = QUESTION_LIST.filter(function (q) { return (q.sectionId || 'sec1') === sec.id; });
+          var questionsInSectionHtml = sectionQuestions.map(function (q) { return buildQuestionCardHtml(q); }).join('');
+          return '<div class="form-section-block" data-section-id="' + escapeHtml(sec.id) + '">' +
+            '<div class="form-section-header">' +
+              '<label class="form-label" style="margin:0 0 6px;display:block">Section title</label>' +
+              '<input type="text" class="form-input section-title-input" data-section-id="' + escapeHtml(sec.id) + '" value="' + escapeHtml(sec.title) + '" placeholder="e.g. General, UBO details, Financials" style="max-width:320px;font-weight:600">' +
+              '<label class="form-label" style="margin:12px 0 6px;display:block">Description (optional)</label>' +
+              '<textarea class="form-input section-desc-input" data-section-id="' + escapeHtml(sec.id) + '" placeholder="Brief description of this section" rows="2" style="max-width:500px;resize:vertical">' + escapeHtml(sec.description || '') + '</textarea>' +
+              (FORM_SECTIONS.length > 1 ? '<button type="button" class="action-btn muted btn-remove-section" data-section-id="' + escapeHtml(sec.id) + '" style="margin-top:12px">Remove section</button>' : '') +
+            '</div>' +
+            '<div class="form-section-questions">' +
+              (questionsInSectionHtml ? '<p class="form-label" style="margin:16px 0 8px">Questions in this section</p>' + questionsInSectionHtml : '<p class="muted-text" style="margin:16px 0 8px">No questions yet. Add one below.</p>') +
+            '</div>' +
+            '<button type="button" class="btn-secondary add-question-in-section" data-section-id="' + escapeHtml(sec.id) + '" style="margin-top:12px">+ Add question to this section</button>' +
+          '</div>';
+        }).join('') +
+        '<button type="button" class="btn-primary add-section-btn" style="margin-top:16px">+ Add section</button>';
+        var questionsHtml = formStructureHtml;
+        var thStyle = 'text-align:left;padding:8px 16px;font-size:12px;font-weight:600;color:#6b7278;text-transform:uppercase;letter-spacing:0.04em;background:#f0f2f4;border-bottom:1px solid #e4e6e8;';
+        function buildBranchingRuleRow(r) {
+          var sourceOpts = QUESTION_LIST.map(function (q) {
+            return '<option value="' + escapeHtml(q.name) + '"' + (r.sourceQuestion === q.name ? ' selected' : '') + '>' + escapeHtml(q.title) + '</option>';
+          }).join('');
+          var operatorOpts = ['equals', 'notEquals', 'empty'].map(function (op) {
+            return '<option value="' + op + '"' + (r.operator === op ? ' selected' : '') + '>' + (op === 'notEquals' ? 'not equals' : op === 'empty' ? 'is empty' : 'equals') + '</option>';
+          }).join('');
+          var sectionOpts = FORM_SECTIONS.map(function (sec) {
+            return '<option value="' + escapeHtml(sec.id) + '"' + (r.thenShowSectionId === sec.id ? ' selected' : '') + '>' + escapeHtml(sec.title) + '</option>';
+          }).join('');
+          var srcQ = findQuestionByName(r.sourceQuestion);
+          var valueCell;
+          if (srcQ && (srcQ.type === 'boolean' || (srcQ.choices && srcQ.choices.length > 0))) {
+            var valueOpts;
+            if (srcQ.type === 'boolean') {
+              valueOpts = '<option value="true"' + (r.value === 'true' ? ' selected' : '') + '>Yes</option><option value="false"' + (r.value === 'false' ? ' selected' : '') + '>No</option>';
+            } else {
+              valueOpts = (srcQ.choices || []).map(function (c) {
+                return '<option value="' + escapeHtml(c) + '"' + (r.value === c ? ' selected' : '') + '>' + escapeHtml(c) + '</option>';
+              }).join('');
+            }
+            valueCell = '<select class="form-input branch-rule-value" data-rule-id="' + escapeHtml(r.id) + '" style="min-width:140px">' + valueOpts + '</select>';
+          } else {
+            valueCell = '<input type="text" class="form-input branch-rule-value" data-rule-id="' + escapeHtml(r.id) + '" value="' + escapeHtml(r.value || '') + '" placeholder="Value" style="min-width:120px">';
+          }
+          return '<tr data-rule-id="' + escapeHtml(r.id) + '">' +
+            '<td style="padding:12px 16px;border-bottom:1px solid #e4e6e8"><select class="form-input branch-rule-source" data-rule-id="' + escapeHtml(r.id) + '" style="min-width:160px">' + sourceOpts + '</select></td>' +
+            '<td style="padding:12px 16px;border-bottom:1px solid #e4e6e8"><select class="form-input branch-rule-operator" data-rule-id="' + escapeHtml(r.id) + '">' + operatorOpts + '</select></td>' +
+            '<td style="padding:12px 16px;border-bottom:1px solid #e4e6e8">' + valueCell + '</td>' +
+            '<td style="padding:12px 16px;border-bottom:1px solid #e4e6e8"><select class="form-input branch-rule-then-section" data-rule-id="' + escapeHtml(r.id) + '" style="min-width:180px">' + sectionOpts + '</select></td>' +
+            '<td style="padding:12px 16px;border-bottom:1px solid #e4e6e8"><button type="button" class="action-btn muted btn-remove-branch-rule" data-rule-id="' + escapeHtml(r.id) + '">Remove</button></td>' +
+          '</tr>';
+        }
+        var branchingRulesRows = BRANCHING_RULES.map(buildBranchingRuleRow).join('');
+        var mandatoryDocsRows = MANDATORY_DOCUMENTS_EXAMPLE.map(function (d) {
+          var opts = DOCUMENT_TYPES.map(function (t) {
+            return '<option value="' + escapeHtml(t) + '"' + (d.type === t ? ' selected' : '') + '>' + escapeHtml(t) + '</option>';
+          }).join('');
+          return '<div class="mandatory-doc-row">' +
+            '<select class="form-input doc-type">' + opts + '</select>' +
+            '<label class="checkbox-row" style="margin:0"><input type="checkbox" ' + (d.required ? 'checked' : '') + '> Required</label>' +
+            '<button type="button" class="action-btn muted btn-remove-doc">Remove</button>' +
+          '</div>';
+        }).join('');
+        var prefillMappingRows = PREFILL_MAPPING_EXAMPLE.map(function (p) {
+          var opts = ENTITY_SOURCES.map(function (s) {
+            return '<option value="' + escapeHtml(s) + '"' + (p.entitySource === s ? ' selected' : '') + '>' + escapeHtml(s) + '</option>';
+          }).join('');
+          return '<div class="prefill-row">' +
+            '<span style="min-width:140px">' + escapeHtml(p.formLabel) + '</span>' +
+            '<select class="form-input prefill-source">' + opts + '</select>' +
+          '</div>';
+        }).join('');
+        var brandingPresetsRows = BRANDING_PRESETS.map(function (p) {
+          return '<div class="form-row branding-preset-row" style="align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--views-border)">' +
+            '<span class="form-label" style="margin:0">' + escapeHtml(p.name) + '</span>' +
+            '<span>' +
+              '<button type="button" class="btn-secondary apply-branding-preset" data-preset-id="' + escapeHtml(p.id) + '">Apply</button> ' +
+              '<button type="button" class="btn-secondary delete-branding-preset" data-preset-id="' + escapeHtml(p.id) + '">Delete</button>' +
+            '</span>' +
+          '</div>';
+        }).join('');
+        var selectedChannelId = formConfigChannelId || (isNew ? 'internal' : (activeForm && activeForm.type === 'External' ? 'external' : 'internal'));
+        var channelOptions = CHANNEL_OPTIONS.map(function (c) {
+          return '<option value="' + escapeHtml(c.id) + '"' + (c.id === selectedChannelId ? ' selected' : '') + '>' + escapeHtml(c.name) + '</option>';
+        }).join('');
+        var formTypeOpts = FORM_TYPE_OPTIONS.map(function (t) {
+          return '<option value="' + escapeHtml(t) + '"' + (activeForm && activeForm.formType === t ? ' selected' : '') + '>' + escapeHtml(t) + '</option>';
+        }).join('');
+        return '<div class="page page-config">' +
+          '<div class="page-breadcrumb">' +
+            '<a href="#/forms">Configuration</a><span class="sep">›</span><a href="#/forms">Form configuration</a><span class="sep">›</span><span class="current">' + escapeHtml(formName) + '</span>' +
+          '</div>' +
+          '<div class="header-row">' +
+            '<h1 class="title">' + escapeHtml(isNew ? 'New form' : 'Configure form') + '</h1>' +
+            '<div class="btn-actions">' +
+              '<button type="button" class="btn-secondary btn-cancel">Cancel</button>' +
+              '<button type="button" class="btn-primary btn-save">Save</button>' +
+            '</div>' +
+          '</div>' +
+          '<div class="card">' +
+            '<div class="card-header">Form details</div>' +
+            '<div class="card-body">' +
+              '<div class="form-row">' +
+                '<label class="form-label">Form name</label>' +
+                '<input type="text" class="form-input" value="' + escapeHtml(formName) + '" placeholder="e.g. KYB Entity Onboarding">' +
+              '</div>' +
+              '<div class="form-row">' +
+                '<label class="form-label">Description</label>' +
+                '<input type="text" class="form-input" value="Configure sections, questions and branching for this form." placeholder="Brief description">' +
+              '</div>' +
+              '<div class="form-row">' +
+                '<label class="form-label">Form type</label>' +
+                '<p class="muted-text" style="margin:4px 0 8px">Identifies the form (e.g. KYC, UBO, Associate). Used for filtering and custom views.</p>' +
+                '<select class="form-input form-type-select" style="max-width:280px">' + formTypeOpts + '</select>' +
+              '</div>' +
+              '<div class="form-row">' +
+                '<label class="form-label">Channel</label>' +
+                '<p class="muted-text" style="margin:4px 0 8px">Internal forms are completed in the platform. External forms are sent to recipients via workflow (V1); send via email will be available in a later release.</p>' +
+                '<select class="form-input channel-select" style="max-width:280px">' + channelOptions + '</select>' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="card">' +
+            '<div class="card-header">Cross-form deduplication</div>' +
+            '<div class="card-body">' +
+              '<p class="muted-text">When the same company or individual appears in the portfolio multiple times (e.g. in more than one assessment or case), you can reuse a single form response across all linked assessments. <strong>Rule:</strong> Deduplication is by form name and only within the <strong>same form type</strong>. The same form used in multiple places with the same form type is deduplicated (one response feeds all). When there is a <strong>different form type</strong>, deduplication does not apply.</p>' +
+              '<div class="checkbox-row">' +
+                '<input type="checkbox" id="enableDeduplication" class="dedup-enable"' + (DEDUP_CONFIG.enabled ? ' checked' : '') + '>' +
+                '<label for="enableDeduplication">Enable deduplication for this form (same form type only)</label>' +
+              '</div>' +
+              '<div class="form-row dedup-options" style="margin-top:16px;padding:16px;background:#f8f9fb;border-radius:6px;border:1px solid #e5e8ec">' +
+                '<p class="form-label" style="margin:0 0 8px">Time limit (optional)</p>' +
+                '<p class="muted-text" style="margin-bottom:12px;font-size:13px">Set a time limit so that historical forms and entities are not impacted. Only responses from within the last X days are considered for reuse.</p>' +
+                '<div class="expiry-row" style="align-items:center">' +
+                  '<label class="form-label" style="margin:0">Only deduplicate responses from the last</label>' +
+                  '<input type="number" class="form-input dedup-time-limit-days" placeholder="No limit" min="1" max="3650" style="width:80px" value="' + (DEDUP_CONFIG.timeLimitDays != null && DEDUP_CONFIG.timeLimitDays !== '' ? escapeHtml(String(DEDUP_CONFIG.timeLimitDays)) : '') + '">' +
+                  '<span>days (leave empty for no limit)</span>' +
+                '</div>' +
+              '</div>' +
+              '<p class="info-note" style="margin-top:12px">Recipients receive a single form link per entity per form type. When they submit, the response is stored once and linked to every relevant assessment. Different form types never share responses.</p>' +
+            '</div>' +
+          '</div>' +
+          '<div class="card">' +
+            '<div class="card-header">Data mapping &amp; pre-fill</div>' +
+            '<div class="card-body">' +
+              '<p class="muted-text">Each question can be mapped to a <strong>data lane</strong> that determines where it reads from (pre-fill) and how the response is tagged when passed to the workflow. Questions not mapped to a lane are treated as form-local data.</p>' +
+              '<p class="info-note" style="margin-bottom:12px"><strong>Scope note:</strong> Forms (MPD) is responsible for pre-filling data and tagging responses with their data lane. The response data is then fed into the workflow. How data is written back to the Entity Service or Custom Data Service (overrides, approvals) is owned by the <strong>workflow orchestration team</strong>.</p>' +
+              '<div class="data-legend" style="margin:-4px -20px 16px;border-bottom:1px solid var(--views-border)">' +
+                '<div class="data-legend-item"><span class="data-legend-dot" style="background:#0369a1"></span> Entity data — pre-fills from entity service; edits tagged for workflow</div>' +
+                '<div class="data-legend-item"><span class="data-legend-dot" style="background:#7c3aed"></span> Custom data — pre-fills from custom fields; edits tagged for workflow</div>' +
+                '<div class="data-legend-item"><span class="data-legend-dot" style="background:#d1d5db"></span> Form-local — only stored with the form response</div>' +
+              '</div>' +
+              buildDataMappingRows() +
+              '<button type="button" class="btn-secondary" style="margin-top:12px">+ Add data mapping</button>' +
+            '</div>' +
+          '</div>' +
+          '<div class="card" style="border-left:3px solid #d1d5db">' +
+            '<div class="card-header" style="color:var(--views-text-light)">Data write-back &amp; override management <span style="font-size:11px;background:#f1f3f5;padding:2px 8px;border-radius:3px;margin-left:8px;font-weight:500;color:var(--views-text-light)">Workflow team scope</span></div>' +
+            '<div class="card-body">' +
+              '<p class="muted-text">Forms (MPD) feeds tagged response data into the workflow. How that data is subsequently processed is owned by the <strong>workflow orchestration team</strong>:</p>' +
+              '<ul style="margin:8px 0 0;padding-left:20px;font-size:13px;color:var(--views-text-secondary);line-height:1.7">' +
+                '<li><strong>Entity data overrides</strong> — the workflow team defines whether edits to entity-mapped fields create overrides, how they are reviewed/approved, and how they are written back to the Entity Service.</li>' +
+                '<li><strong>Custom data write-back</strong> — the workflow team defines how custom field changes are committed to the Custom Data Service (approval flow, auto-apply, etc.).</li>' +
+                '<li><strong>Review tasks</strong> — if the workflow requires human review of data changes, the workflow team owns the review task creation and UX.</li>' +
+              '</ul>' +
+              '<p class="info-note" style="margin-top:12px">Forms provides the tagged response payload with data lane metadata (entity / custom / form-local), the mapped field identifiers, original pre-filled values, and the user-submitted values. This is the contract between Forms and the workflow.</p>' +
+            '</div>' +
+          '</div>' +
+          '<div class="card">' +
+            '<div class="card-header">Form expiry</div>' +
+            '<div class="card-body">' +
+              '<p class="muted-text">Set when form links are no longer accepted. For external forms, the link expires after the specified days from sending.</p>' +
+              '<div class="form-row">' +
+                '<label class="form-label">Links expire after (days)</label>' +
+                '<div class="expiry-row">' +
+                  '<input type="number" class="form-input" id="linksExpireDays" value="14" min="1" max="365" style="width:80px"> days after form is sent (external only)' +
+                '</div>' +
+              '</div>' +
+              '<p class="info-note" style="margin-top:12px">Reminders before expiry are configurable below.</p>' +
+            '</div>' +
+          '</div>' +
+          '<div class="card">' +
+            '<div class="card-header">Forms in assessments</div>' +
+            '<div class="card-body">' +
+              '<p class="muted-text">Forms are raised in a workflow step per entity or assessment. When the same form type is needed for multiple assessments, deduplication can reuse one response across them (see Cross-form deduplication above).</p>' +
+              '<p class="form-label" style="margin:12px 0 8px">When new data arrives and a form impacts multiple assessments</p>' +
+              '<p class="muted-text" style="margin-bottom:12px;font-size:13px">If a form is raised for one entity but not for others (e.g. others are already onboarded) and new data later applies to those entities, choose how the system should behave:</p>' +
+              '<label class="checkbox-row"><input type="radio" name="whenNewData" value="accept" class="assessment-when-new-data"' + (ASSESSMENT_FORM_CONFIG.whenNewData === 'accept' ? ' checked' : '') + '> <strong>Accept</strong> — Accept new data and allow re-request or update; re-request the form where the new data applies so assessments stay in sync.</label>' +
+              '<label class="checkbox-row" style="margin-top:12px"><input type="radio" name="whenNewData" value="wait"' + (ASSESSMENT_FORM_CONFIG.whenNewData === 'wait' ? ' checked' : '') + '> <strong>Wait</strong> — Do not re-request automatically; keep using the existing response until manually overridden. Use when you want to avoid re-sending forms to already-onboarded entities.</label>' +
+            '</div>' +
+          '</div>' +
+          (selectedChannelId === 'external' ? '<div class="card">' +
+            '<div class="card-header">External form — email body & sender (external only)</div>' +
+            '<div class="card-body">' +
+              '<p class="muted-text">Define the default email body and sender for when this form is sent to recipients. These apply only to external forms.</p>' +
+              '<div class="form-row">' +
+                '<label class="form-label">Sender email address</label>' +
+                '<input type="email" class="form-input" id="senderEmail" placeholder="forms@yourcompany.com" style="max-width:320px">' +
+              '</div>' +
+              '<p class="muted-text" style="margin-top:4px;font-size:12px">Used as the "From" address for the form invite and for reminder emails.</p>' +
+              '<div class="form-row" style="margin-top:16px">' +
+                '<label class="form-label">Default form invite email body</label>' +
+                '<textarea class="form-input" id="defaultFormEmailBody" rows="4" placeholder="Please complete the form by the requested date. Click the link below to open the form." style="max-width:500px;resize:vertical"></textarea>' +
+              '</div>' +
+              '<p class="muted-text" style="margin-top:4px;font-size:12px">Default body for the email when this form is sent. The form link is inserted automatically. Can be overridden when sending.</p>' +
+            '</div>' +
+          '</div>' +
+          '<div class="card">' +
+            '<div class="card-header">External form URL & branding (external only)</div>' +
+            '<div class="card-body">' +
+              '<p class="muted-text">Configure the form link URL and how the email appears. The sender display name and branding apply to both the initial form email and any reminder emails.</p>' +
+              '<div class="form-row">' +
+                '<label class="form-label">External form URL</label>' +
+                '<input type="url" class="form-input" id="externalFormUrl" placeholder="https://forms.yourcompany.com/complete" style="max-width:400px">' +
+              '</div>' +
+              '<p class="muted-text" style="margin-top:4px;font-size:12px">Base URL for the form completion link in emails. The unique form link is appended by the system.</p>' +
+              '<h4 style="margin:20px 0 8px;font-size:14px">Email branding</h4>' +
+              '<div class="form-row">' +
+                '<label class="form-label">Sender display name</label>' +
+                '<input type="text" class="form-input" id="senderDisplayName" placeholder="Your Company Compliance" style="max-width:280px">' +
+              '</div>' +
+              '<div class="form-row" style="margin-top:12px">' +
+                '<label class="form-label">Logo URL</label>' +
+                '<input type="url" class="form-input" id="emailLogoUrl" placeholder="https://yourcompany.com/logo.png" style="max-width:400px">' +
+              '</div>' +
+              '<div class="form-row" style="margin-top:12px">' +
+                '<label class="form-label">Primary colour (hex)</label>' +
+                '<input type="text" class="form-input" id="emailBrandColor" placeholder="#0A1264" style="max-width:120px">' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="card">' +
+            '<div class="card-header">Branding & URL presets (external only)</div>' +
+            '<div class="card-body">' +
+              '<p class="muted-text">Save the current sender, URL, and email branding so you can reuse the same configuration on another form—similar to <a href="https://surveyjs.io/survey-creator/examples/save-custom-theme/documentation" target="_blank" rel="noopener">SurveyJS custom themes</a>. Presets are stored in your browser and can be applied to any external form.</p>' +
+              '<h4 style="margin:16px 0 8px;font-size:14px">Saved presets</h4>' +
+              (brandingPresetsRows ? '<div class="branding-presets-list">' + brandingPresetsRows + '</div>' : '<p class="muted-text" style="margin:0;font-size:13px">No presets saved yet. Configure the sender, URL, and branding above, then save as a preset below.</p>') +
+              '<h4 style="margin:20px 0 8px;font-size:14px">Save current configuration as preset</h4>' +
+              '<div class="form-row" style="align-items:center;gap:12px">' +
+                '<input type="text" class="form-input" id="newBrandingPresetName" placeholder="e.g. Company Compliance" style="max-width:240px">' +
+                '<button type="button" class="btn-primary save-branding-preset">Save as preset</button>' +
+              '</div>' +
+              '<p class="muted-text" style="margin-top:4px;font-size:12px">Captures sender email, default email body, external form URL, sender display name, logo URL, and primary colour from the cards above.</p>' +
+            '</div>' +
+          '</div>' +
+          '<div class="card">' +
+            '<div class="card-header">Automated reminders (external only)</div>' +
+            '<div class="card-body">' +
+              '<p class="muted-text">Send reminder emails automatically before the form link expires. The sender email and display name are taken from the card above.</p>' +
+              '<div class="checkbox-row">' +
+                '<input type="checkbox" id="enableReminders">' +
+                '<label for="enableReminders">Enable automated reminders before link expiry</label>' +
+              '</div>' +
+              '<div class="form-row" style="margin-top:16px">' +
+                '<label class="form-label">Send reminder after (days)</label>' +
+                '<div class="expiry-row">' +
+                  '<input type="number" class="form-input" id="reminderDaysAfterSend" value="7" min="1" max="365" style="width:80px"> days after form is sent' +
+                '</div>' +
+              '</div>' +
+              '<p class="muted-text" style="margin-top:4px;font-size:12px">The reminder email is sent this many days after the form was sent (e.g. 7 = one week after send).</p>' +
+              '<div class="form-row" style="margin-top:16px">' +
+                '<label class="form-label">Reminder email body (predefined)</label>' +
+                '<textarea class="form-input" id="reminderEmailBody" rows="4" placeholder="Please complete the form before the link expires. If you have any questions, contact us." style="max-width:500px;resize:vertical"></textarea>' +
+              '</div>' +
+              '<p class="muted-text" style="margin-top:4px;font-size:12px">This text is used as the body of reminder emails. The form link is inserted automatically.</p>' +
+            '</div>' +
+          '</div>' : '') +
+          '<div class="card">' +
+            '<div class="card-header">Form structure (sections & questions)</div>' +
+            '<div class="card-body">' +
+              '<p class="muted-text">Organise the form into sections (e.g. General, UBO details, Financials). Add a section, give it a title and optional description, then add questions to that section. Each section is a clear block for respondents.</p>' +
+              '<p class="info-note">Form completion: statuses Opened / Started / Completed; input is auto-saved; users can view and reuse previous responses.</p>' +
+              questionsHtml +
+            '</div>' +
+          '</div>' +
+          '<div class="card">' +
+            '<div class="card-header">Mandatory fields, mandatory documents & file upload</div>' +
+            '<div class="card-body">' +
+              '<p class="muted-text">For internal and external forms, define which fields and documents are required and whether file upload is allowed.</p>' +
+              '<div class="task-form-note">Forms for both channels (internal and external) use the same configuration. Set mandatory fields in the Form structure above by marking questions as required.</div>' +
+              '<h4 style="margin:0 0 8px;font-size:14px">Mandatory fields</h4>' +
+              '<p class="muted-text" style="margin-bottom:16px">Mark questions as required in the Form structure. Submissions (and task completion) will require all mandatory fields to be completed.</p>' +
+              '<div class="checkbox-row">' +
+                '<input type="checkbox" id="enforceMandatory" checked>' +
+                '<label for="enforceMandatory">Enforce mandatory fields before form can be submitted / task completed (internal or external)</label>' +
+              '</div>' +
+              '<h4 style="margin:20px 0 8px;font-size:14px">Mandatory documents</h4>' +
+              '<p class="muted-text" style="margin-bottom:12px">Specify document types that must be uploaded with this form (e.g. ID document, proof of address).</p>' +
+              mandatoryDocsRows +
+              '<button type="button" class="btn-secondary add-mandatory-doc" style="margin-top:8px">+ Add mandatory document</button>' +
+              '<h4 style="margin:20px 0 8px;font-size:14px">File upload</h4>' +
+              '<div class="checkbox-row">' +
+                '<input type="checkbox" id="allowFileUpload" checked>' +
+                '<label for="allowFileUpload">Allow file upload in this form</label>' +
+              '</div>' +
+              '<div class="checkbox-row">' +
+                '<input type="checkbox" id="requireOneFile">' +
+                '<label for="requireOneFile">Require at least one file to be uploaded (when file upload is used)</label>' +
+              '</div>' +
+              '<p class="muted-text" style="margin-top:8px">When enabled, add a "File upload" or "Supporting documents" question in the Form structure (see example above). Accepted types (e.g. PDF, images) can be configured per question.</p>' +
+            '</div>' +
+          '</div>' +
+          '<div class="card">' +
+            '<div class="card-header">Branching & validation</div>' +
+            '<div class="card-body">' +
+              '<p class="muted-text">Branching is configured in the section below. Validation rules can be added in the full config UI.</p>' +
+            '</div>' +
+          '</div>' +
+          '<div class="card">' +
+            '<div class="card-header">Set up branching within this form</div>' +
+            '<div class="card-body">' +
+              '<p class="muted-text">Define when sections are shown based on answers to questions. Each rule says: <strong>When</strong> [question] <strong>[condition]</strong> [value], <strong>then show</strong> [section]. Add sections above (e.g. Corporate details, Financial institution details), then add rules here so that section is shown only when the condition matches (e.g. Entity type = Corporate → show Corporate details).</p>' +
+              '<div class="branching-flow">' +
+                '<strong>How it works</strong>' +
+                '<code>When "Entity type" equals "Corporate" → show "Corporate details" section. When "Entity type" equals "Financial institution" → show "Financial institution details" section. Sections not matched by any rule can be hidden or shown by default depending on config.</code>' +
+              '</div>' +
+              '<table style="margin-top:16px"><thead><tr>' +
+                '<th style="' + thStyle + '">When (question)</th><th style="' + thStyle + '">Condition</th><th style="' + thStyle + '">Value</th><th style="' + thStyle + '">Then show (section)</th><th style="' + thStyle + 'width:80px"></th></tr></thead><tbody>' +
+              branchingRulesRows +
+              '</tbody></table>' +
+              '<button type="button" class="btn-secondary add-branching-rule" style="margin-top:12px">+ Add branching rule</button>' +
+            '</div>' +
+          '</div>' +
+          '<div class="card">' +
+            '<div class="card-header">Review &amp; submit prompt</div>' +
+            '<div class="card-body">' +
+              '<p class="muted-text">Configure a prompt shown on the Review &amp; Submit step before submission (e.g. critical compliance gates). Not in plan for Q2/Q3; configurable here for later.</p>' +
+              '<div class="checkbox-row">' +
+                '<input type="checkbox" id="reviewPromptEnabled" class="review-prompt-enabled"' + (REVIEW_PROMPT_CONFIG.enabled ? ' checked' : '') + '>' +
+                '<label for="reviewPromptEnabled">Show review prompt before submit</label>' +
+              '</div>' +
+              '<div class="form-row" style="margin-top:16px">' +
+                '<label class="form-label">Prompt title</label>' +
+                '<input type="text" class="form-input review-prompt-title" value="' + escapeHtml(REVIEW_PROMPT_CONFIG.title || '') + '" placeholder="e.g. Critical Compliance Gates:" style="max-width:400px">' +
+              '</div>' +
+              '<div class="form-row" style="margin-top:16px">' +
+                '<label class="form-label">Bullet points (one per line)</label>' +
+                '<textarea class="form-input review-prompt-bullets" rows="4" placeholder="e.g. SCS acknowledgement must be &quot;Yes&quot;" style="max-width:500px;resize:vertical">' + escapeHtml((REVIEW_PROMPT_CONFIG.bullets || []).join('\n')) + '</textarea>' +
+              '</div>' +
+              '<div class="form-row" style="margin-top:16px">' +
+                '<label class="form-label">Consequence text (shown below bullets)</label>' +
+                '<input type="text" class="form-input review-prompt-consequence" value="' + escapeHtml(REVIEW_PROMPT_CONFIG.consequenceText || '') + '" placeholder="e.g. If either of these is No, the supplier does not meet..." style="max-width:500px">' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+      }
+
+      function findQuestion(id) {
+        for (var i = 0; i < QUESTION_LIST.length; i++) if (QUESTION_LIST[i].id === id) return QUESTION_LIST[i];
+        return null;
+      }
+      function findQuestionByName(name) {
+        for (var i = 0; i < QUESTION_LIST.length; i++) if (QUESTION_LIST[i].name === name) return QUESTION_LIST[i];
+        return null;
+      }
+
+      function bindFormConfigEvents(content) {
+        if (!content) return;
+        content.querySelector('.channel-select')?.addEventListener('change', function () {
+          formConfigChannelId = this.value || '';
+          renderApp();
+        });
+        content.querySelector('.add-section-btn')?.addEventListener('click', function () {
+          var newId = 'sec' + Date.now();
+          FORM_SECTIONS.push({ id: newId, title: 'New section', description: '' });
+          renderApp();
+        });
+        content.querySelector('.add-branching-rule')?.addEventListener('click', function () {
+          var firstQ = QUESTION_LIST[0];
+          var firstSec = FORM_SECTIONS[1] || FORM_SECTIONS[0];
+          BRANCHING_RULES.push({
+            id: 'b' + Date.now(),
+            sourceQuestion: firstQ ? firstQ.name : '',
+            sourceLabel: firstQ ? firstQ.title : '—',
+            operator: 'equals',
+            value: (firstQ && firstQ.choices && firstQ.choices[0]) ? firstQ.choices[0] : (firstQ && firstQ.type === 'boolean' ? 'true' : ''),
+            thenShowSectionId: firstSec ? firstSec.id : '',
+            thenShowLabel: firstSec ? firstSec.title : '—',
+          });
+          renderApp();
+        });
+        content.querySelectorAll('.btn-remove-branch-rule').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var id = this.getAttribute('data-rule-id');
+            for (var i = 0; i < BRANCHING_RULES.length; i++) {
+              if (BRANCHING_RULES[i].id === id) { BRANCHING_RULES.splice(i, 1); break; }
+            }
+            renderApp();
+          });
+        });
+        content.querySelectorAll('.branch-rule-source').forEach(function (sel) {
+          sel.addEventListener('change', function () {
+            var id = this.getAttribute('data-rule-id');
+            var q = findQuestionByName(this.value);
+            var r = BRANCHING_RULES.find(function (x) { return x.id === id; });
+            if (r && q) {
+              r.sourceQuestion = q.name;
+              r.sourceLabel = q.title;
+              r.value = (q.choices && q.choices[0]) ? q.choices[0] : (q.type === 'boolean' ? 'true' : r.value || '');
+              renderApp();
+            }
+          });
+        });
+        content.querySelectorAll('.branch-rule-operator').forEach(function (sel) {
+          sel.addEventListener('change', function () {
+            var id = this.getAttribute('data-rule-id');
+            var r = BRANCHING_RULES.find(function (x) { return x.id === id; });
+            if (r) { r.operator = this.value; }
+          });
+        });
+        content.querySelectorAll('.branch-rule-value').forEach(function (el) {
+          var ev = el.tagName === 'SELECT' ? 'change' : 'input';
+          el.addEventListener(ev, function () {
+            var id = this.getAttribute('data-rule-id');
+            var r = BRANCHING_RULES.find(function (x) { return x.id === id; });
+            if (r) { r.value = this.value; }
+          });
+        });
+        content.querySelectorAll('.branch-rule-then-section').forEach(function (sel) {
+          sel.addEventListener('change', function () {
+            var id = this.getAttribute('data-rule-id');
+            var secId = this.value;
+            var sec = FORM_SECTIONS.find(function (s) { return s.id === secId; });
+            var r = BRANCHING_RULES.find(function (x) { return x.id === id; });
+            if (r && sec) {
+              r.thenShowSectionId = sec.id;
+              r.thenShowLabel = sec.title;
+            }
+          });
+        });
+        content.querySelector('#reviewPromptEnabled')?.addEventListener('change', function () {
+          REVIEW_PROMPT_CONFIG.enabled = this.checked;
+        });
+        content.querySelector('#enableDeduplication')?.addEventListener('change', function () {
+          DEDUP_CONFIG.enabled = this.checked;
+        });
+        content.querySelector('.dedup-time-limit-days')?.addEventListener('input', function () {
+          var v = this.value.trim();
+          DEDUP_CONFIG.timeLimitDays = v === '' ? null : (parseInt(v, 10) || null);
+        });
+        content.querySelectorAll('input[name="whenNewData"]').forEach(function (radio) {
+          radio.addEventListener('change', function () {
+            if (this.checked) ASSESSMENT_FORM_CONFIG.whenNewData = this.value;
+          });
+        });
+        content.querySelector('.save-branding-preset')?.addEventListener('click', function () {
+          var nameEl = content.querySelector('#newBrandingPresetName');
+          var name = nameEl && nameEl.value.trim();
+          if (!name) { alert('Enter a name for the preset.'); return; }
+          var senderEmailEl = content.querySelector('#senderEmail');
+          var defaultBodyEl = content.querySelector('#defaultFormEmailBody');
+          var urlEl = content.querySelector('#externalFormUrl');
+          var displayNameEl = content.querySelector('#senderDisplayName');
+          var logoEl = content.querySelector('#emailLogoUrl');
+          var colorEl = content.querySelector('#emailBrandColor');
+          BRANDING_PRESETS.push({
+            id: 'bp' + Date.now(),
+            name: name,
+            senderEmail: senderEmailEl ? senderEmailEl.value : '',
+            defaultFormEmailBody: defaultBodyEl ? defaultBodyEl.value : '',
+            externalFormUrl: urlEl ? urlEl.value : '',
+            senderDisplayName: displayNameEl ? displayNameEl.value : '',
+            logoUrl: logoEl ? logoEl.value : '',
+            primaryColor: colorEl ? colorEl.value : ''
+          });
+          saveBrandingPresets(BRANDING_PRESETS);
+          if (nameEl) nameEl.value = '';
+          renderApp();
+        });
+        content.querySelectorAll('.apply-branding-preset').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var id = this.getAttribute('data-preset-id');
+            var p = BRANDING_PRESETS.filter(function (x) { return x.id === id; })[0];
+            if (!p) return;
+            var set = function (sel, val) { var el = content.querySelector(sel); if (el) el.value = val || ''; };
+            set('#senderEmail', p.senderEmail);
+            set('#defaultFormEmailBody', p.defaultFormEmailBody);
+            set('#externalFormUrl', p.externalFormUrl);
+            set('#senderDisplayName', p.senderDisplayName);
+            set('#emailLogoUrl', p.logoUrl);
+            set('#emailBrandColor', p.primaryColor);
+          });
+        });
+        content.querySelectorAll('.delete-branding-preset').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var id = this.getAttribute('data-preset-id');
+            for (var i = 0; i < BRANDING_PRESETS.length; i++) {
+              if (BRANDING_PRESETS[i].id === id) { BRANDING_PRESETS.splice(i, 1); break; }
+            }
+            saveBrandingPresets(BRANDING_PRESETS);
+            renderApp();
+          });
+        });
+        content.querySelector('.review-prompt-title')?.addEventListener('input', function () {
+          REVIEW_PROMPT_CONFIG.title = this.value;
+        });
+        content.querySelector('.review-prompt-bullets')?.addEventListener('input', function () {
+          REVIEW_PROMPT_CONFIG.bullets = this.value.split('\n').map(function (s) { return s.trim(); }).filter(Boolean);
+        });
+        content.querySelector('.review-prompt-consequence')?.addEventListener('input', function () {
+          REVIEW_PROMPT_CONFIG.consequenceText = this.value;
+        });
+        content.querySelectorAll('.add-question-in-section').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var sectionId = this.getAttribute('data-section-id');
+            QUESTION_LIST.push({
+              id: 'q' + Date.now(),
+              sectionId: sectionId,
+              type: 'text',
+              title: 'New question',
+              name: '',
+              isRequired: false,
+              visibleIf: '',
+              choices: [],
+              placeholder: '',
+              helpText: '',
+            });
+            renderApp();
+          });
+        });
+        content.querySelectorAll('.section-title-input').forEach(function (inp) {
+          inp.addEventListener('input', function () {
+            var sectionId = inp.getAttribute('data-section-id');
+            var sec = FORM_SECTIONS.find(function (s) { return s.id === sectionId; });
+            if (sec) sec.title = inp.value;
+          });
+        });
+        content.querySelectorAll('.section-desc-input').forEach(function (inp) {
+          inp.addEventListener('input', function () {
+            var sectionId = inp.getAttribute('data-section-id');
+            var sec = FORM_SECTIONS.find(function (s) { return s.id === sectionId; });
+            if (sec) sec.description = inp.value;
+          });
+        });
+        content.querySelectorAll('.btn-remove-section').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var sectionId = this.getAttribute('data-section-id');
+            var firstOther = FORM_SECTIONS.find(function (s) { return s.id !== sectionId; });
+            if (firstOther) {
+              QUESTION_LIST.forEach(function (q) { if (q.sectionId === sectionId) q.sectionId = firstOther.id; });
+            }
+            for (var i = 0; i < FORM_SECTIONS.length; i++) {
+              if (FORM_SECTIONS[i].id === sectionId) { FORM_SECTIONS.splice(i, 1); break; }
+            }
+            renderApp();
+          });
+        });
+        content.querySelectorAll('.btn-remove-question').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var id = this.getAttribute('data-question-id');
+            for (var i = 0; i < QUESTION_LIST.length; i++) {
+              if (QUESTION_LIST[i].id === id) { QUESTION_LIST.splice(i, 1); break; }
+            }
+            renderApp();
+          });
+        });
+        content.querySelectorAll('.btn-add-choice').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var q = findQuestion(this.getAttribute('data-question-id'));
+            if (q) { q.choices = q.choices || []; q.choices.push(''); renderApp(); }
+          });
+        });
+        content.querySelectorAll('.btn-remove-choice').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var q = findQuestion(this.getAttribute('data-question-id'));
+            var idx = parseInt(this.getAttribute('data-choice-idx'), 10);
+            if (q && q.choices && !isNaN(idx)) { q.choices.splice(idx, 1); renderApp(); }
+          });
+        });
+        content.querySelectorAll('.q-type').forEach(function (sel) {
+          sel.addEventListener('change', function () {
+            var q = findQuestion(this.getAttribute('data-question-id'));
+            if (!q) return;
+            q.type = this.value;
+            if ((q.type === 'dropdown' || q.type === 'radio' || q.type === 'checkbox') && (!q.choices || !q.choices.length)) q.choices = [''];
+            renderApp();
+          });
+        });
+        content.querySelectorAll('.q-title').forEach(function (inp) {
+          inp.addEventListener('input', function () { var q = findQuestion(this.getAttribute('data-question-id')); if (q) q.title = this.value; });
+        });
+        content.querySelectorAll('.q-name').forEach(function (inp) {
+          inp.addEventListener('input', function () { var q = findQuestion(this.getAttribute('data-question-id')); if (q) q.name = this.value; });
+        });
+        content.querySelectorAll('.q-required').forEach(function (cb) {
+          cb.addEventListener('change', function () { var q = findQuestion(this.getAttribute('data-question-id')); if (q) q.isRequired = this.checked; });
+        });
+        content.querySelectorAll('.q-choice-input').forEach(function (inp) {
+          inp.addEventListener('input', function () {
+            var q = findQuestion(this.getAttribute('data-question-id'));
+            var idx = parseInt(this.getAttribute('data-choice-idx'), 10);
+            if (q && q.choices && !isNaN(idx)) q.choices[idx] = this.value;
+          });
+        });
+        content.querySelectorAll('.q-accept').forEach(function (inp) {
+          inp.addEventListener('input', function () { var q = findQuestion(this.getAttribute('data-question-id')); if (q) q.accept = this.value; });
+        });
+        content.querySelectorAll('.q-placeholder').forEach(function (inp) {
+          inp.addEventListener('input', function () { var q = findQuestion(this.getAttribute('data-question-id')); if (q) q.placeholder = this.value; });
+        });
+        content.querySelectorAll('.q-help-text').forEach(function (inp) {
+          inp.addEventListener('input', function () { var q = findQuestion(this.getAttribute('data-question-id')); if (q) q.helpText = this.value; });
+        });
+      }
+
+      var FORM_REVIEW_DATA = {
+        tr1: {
+          taskId: 'tr1', formName: 'KYB Entity Onboarding', entityName: 'Acme Corp', assessment: 'KYB Onboarding — Acme Corp',
+          submittedBy: 'analyst@company.com', submittedAt: '18 Mar 2026 at 2:30 PM', assignedTo: 'David Reviewer',
+          entityOverrides: [
+            { id: 'eo1', field: 'Entity name', source: 'Entity Service', original: 'ACME CORPORATION', proposed: 'Acme Corp', status: 'pending' },
+            { id: 'eo2', field: 'Registration number', source: 'Entity Service', original: 'REG-2020-00451', proposed: 'REG-2024-00451', status: 'pending' },
+          ],
+          customDataChanges: [
+            { id: 'cd1', field: 'Internal risk rating', source: 'Custom Data Service', original: 'Medium', proposed: 'Low', status: 'pending' },
+            { id: 'cd2', field: 'Compliance notes', source: 'Custom Data Service', original: '(empty)', proposed: 'Reviewed — no concerns identified during KYB onboarding.', status: 'pending' },
+          ],
+          formLocalFields: [
+            { field: 'Has UBOs?', value: 'Yes' },
+            { field: 'UBO details', value: 'John Doe, 25%' },
+            { field: 'Supporting documents', value: '2 files uploaded' },
+          ],
+        },
+        tr2: {
+          taskId: 'tr2', formName: 'Periodic Review Questionnaire', entityName: 'GlobalTech Solutions', assessment: 'Annual Review — GlobalTech',
+          submittedBy: 'reviewer@company.com', submittedAt: '17 Mar 2026 at 11:10 AM', assignedTo: 'David Reviewer',
+          entityOverrides: [
+            { id: 'eo3', field: 'Country', source: 'Entity Service', original: 'United Kingdom', proposed: 'Ireland', status: 'pending' },
+          ],
+          customDataChanges: [],
+          formLocalFields: [
+            { field: 'Review outcome', value: 'Satisfactory' },
+            { field: 'Next review date', value: '17 Mar 2027' },
+          ],
+        },
+        tr3: {
+          taskId: 'tr3', formName: 'Supplier Due Diligence', entityName: 'NorthStar Logistics', assessment: 'Supplier Onboarding — NorthStar',
+          submittedBy: 'procurement@company.com', submittedAt: '15 Mar 2026 at 9:00 AM', assignedTo: 'Sarah Chen',
+          entityOverrides: [],
+          customDataChanges: [
+            { id: 'cd3', field: 'Supplier tier', source: 'Custom Data Service', original: '(empty)', proposed: 'Tier 1', status: 'approved' },
+            { id: 'cd4', field: 'Contract value', source: 'Custom Data Service', original: '(empty)', proposed: '$2.4M', status: 'approved' },
+            { id: 'cd5', field: 'ESG score', source: 'Custom Data Service', original: '(empty)', proposed: 'B+', status: 'approved' },
+          ],
+          formLocalFields: [
+            { field: 'Assessor comments', value: 'Approved — meets all supplier requirements.' },
+          ],
+        },
+      };
+
+      function renderFormReviewView(taskId) {
+        var data = FORM_REVIEW_DATA[taskId];
+        if (!data) {
+          return '<div class="page"><div class="page-breadcrumb"><a href="#/views/tasks">Tasks</a><span class="sep">\u203A</span><span class="current">Form Review</span></div><h1 class="title">Task not found</h1><p class="muted-text">No form review task with this ID.</p></div>';
+        }
+        var totalChanges = data.entityOverrides.length + data.customDataChanges.length;
+        var pendingCount = data.entityOverrides.filter(function (o) { return o.status === 'pending'; }).length + data.customDataChanges.filter(function (c) { return c.status === 'pending'; }).length;
+        var approvedCount = data.entityOverrides.filter(function (o) { return o.status === 'approved'; }).length + data.customDataChanges.filter(function (c) { return c.status === 'approved'; }).length;
+        var rejectedCount = data.entityOverrides.filter(function (o) { return o.status === 'rejected'; }).length + data.customDataChanges.filter(function (c) { return c.status === 'rejected'; }).length;
+
+        function overrideCard(item, laneLabel, laneClass) {
+          var statusBadge = item.status === 'pending' ? '<span class="badge-pending">Pending</span>' : item.status === 'approved' ? '<span class="badge-approved-small">Approved</span>' : '<span class="badge-rejected-small">Rejected</span>';
+          var actionBtns = item.status === 'pending' ? '<div class="override-actions"><button type="button" class="btn-approve btn-review-approve" data-id="' + escapeHtml(item.id) + '">Approve</button><button type="button" class="btn-reject btn-review-reject" data-id="' + escapeHtml(item.id) + '">Reject</button></div>' : '';
+          return '<div class="override-review-card ' + item.status + '" data-review-id="' + escapeHtml(item.id) + '">' +
+            '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">' +
+              '<div><span class="lane-badge ' + laneClass + '">' + laneLabel + '</span><strong>' + escapeHtml(item.field) + '</strong></div>' +
+              statusBadge +
+            '</div>' +
+            '<div style="font-size:12px;color:var(--views-text-light);margin-bottom:6px">Source: ' + escapeHtml(item.source) + '</div>' +
+            '<div class="override-compare">' +
+              '<div class="override-value-box original"><div class="override-value-label">Current value</div><div class="override-value-text">' + escapeHtml(item.original) + '</div></div>' +
+              '<div style="text-align:center;font-size:18px;color:var(--views-text-light)">\u2192</div>' +
+              '<div class="override-value-box proposed"><div class="override-value-label">Proposed value</div><div class="override-value-text">' + escapeHtml(item.proposed) + '</div></div>' +
+            '</div>' +
+            actionBtns +
+          '</div>';
+        }
+
+        var entityCards = data.entityOverrides.map(function (o) { return overrideCard(o, 'Entity override', 'lane-entity'); }).join('');
+        var customCards = data.customDataChanges.map(function (c) { return overrideCard(c, 'Custom data', 'lane-custom'); }).join('');
+        var localRows = data.formLocalFields.map(function (f) {
+          return '<tr><td style="padding:10px 16px;border-bottom:1px solid var(--views-border);font-size:13px;color:var(--views-text-light)">' + escapeHtml(f.field) + '</td><td style="padding:10px 16px;border-bottom:1px solid var(--views-border);font-size:14px">' + escapeHtml(f.value) + '</td></tr>';
+        }).join('');
+
+        var allDone = pendingCount === 0 && totalChanges > 0;
+
+        return '<div class="page" style="max-width:900px">' +
+          '<div class="page-breadcrumb"><a href="#/views/tasks">Tasks</a><span class="sep">\u203A</span><span class="current">Form Review \u2014 ' + escapeHtml(data.formName) + '</span></div>' +
+          '<div class="header-row">' +
+            '<h1 class="title">Review: ' + escapeHtml(data.formName) + '</h1>' +
+            (allDone ? '<button type="button" class="btn-primary btn-complete-review">Complete review</button>' : '') +
+          '</div>' +
+          '<div class="info-note" style="margin-bottom:16px;padding:12px 16px;background:#f8f9fb;border:1px solid var(--views-border);border-radius:6px"><span style="font-size:11px;background:#f1f3f5;padding:2px 8px;border-radius:3px;font-weight:500;color:var(--views-text-light);margin-right:8px">Workflow team scope</span> This review task and its approval/rejection flow are owned by the <strong>workflow orchestration team</strong>. Forms (MPD) provides the tagged response data shown below. The write-back to Entity Service or Custom Data Service is not managed by Forms.</div>' +
+          '<div class="card">' +
+            '<div class="card-header">Task details</div>' +
+            '<div class="card-body">' +
+              '<div class="meta-grid">' +
+                '<div class="meta-item"><div class="meta-label">Entity</div><div class="meta-value">' + escapeHtml(data.entityName) + '</div></div>' +
+                '<div class="meta-item"><div class="meta-label">Assessment</div><div class="meta-value">' + escapeHtml(data.assessment) + '</div></div>' +
+                '<div class="meta-item"><div class="meta-label">Submitted by</div><div class="meta-value">' + escapeHtml(data.submittedBy) + '</div></div>' +
+                '<div class="meta-item"><div class="meta-label">Submitted at</div><div class="meta-value">' + escapeHtml(data.submittedAt) + '</div></div>' +
+                '<div class="meta-item"><div class="meta-label">Assigned to</div><div class="meta-value">' + escapeHtml(data.assignedTo) + '</div></div>' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="card">' +
+            '<div class="card-header">Review summary</div>' +
+            '<div class="review-summary-bar">' +
+              '<div class="review-summary-stat"><div class="stat-num">' + totalChanges + '</div><div class="stat-label">Total changes</div></div>' +
+              '<div class="review-summary-stat"><div class="stat-num" style="color:#b45309">' + pendingCount + '</div><div class="stat-label">Pending</div></div>' +
+              '<div class="review-summary-stat"><div class="stat-num" style="color:#166534">' + approvedCount + '</div><div class="stat-label">Approved</div></div>' +
+              '<div class="review-summary-stat"><div class="stat-num" style="color:#b91c1c">' + rejectedCount + '</div><div class="stat-label">Rejected</div></div>' +
+            '</div>' +
+          '</div>' +
+          (entityCards ? '<div class="card"><div class="card-header"><span class="lane-badge lane-entity" style="margin-right:6px">Entity</span> Entity data overrides (' + data.entityOverrides.length + ')</div><div class="card-body">' + entityCards + '</div></div>' : '') +
+          (customCards ? '<div class="card"><div class="card-header"><span class="lane-badge lane-custom" style="margin-right:6px">Custom</span> Custom data changes (' + data.customDataChanges.length + ')</div><div class="card-body">' + customCards + '</div></div>' : '') +
+          (localRows ? '<div class="card"><div class="card-header"><span class="lane-badge lane-local" style="margin-right:6px">Local</span> Form-local data (read-only)</div><div class="card-body"><table style="width:100%"><thead><tr><th style="text-align:left;padding:10px 16px;font-size:12px;font-weight:500;color:var(--views-text-light);text-transform:uppercase;letter-spacing:0.05em;border-bottom:1px solid var(--views-border)">Field</th><th style="text-align:left;padding:10px 16px;font-size:12px;font-weight:500;color:var(--views-text-light);text-transform:uppercase;letter-spacing:0.05em;border-bottom:1px solid var(--views-border)">Value</th></tr></thead><tbody>' + localRows + '</tbody></table></div></div>' : '') +
+          '<div class="card"><div class="card-header">Audit trail</div><div class="card-body"><p class="muted-text" style="margin:0">Task created: ' + escapeHtml(data.submittedAt) + ' \u2022 Submitted by: ' + escapeHtml(data.submittedBy) + '</p></div></div>' +
+        '</div>';
+      }
+
+      function bindFormReviewEvents(content) {
+        if (!content) return;
+        content.querySelectorAll('.btn-review-approve').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var id = this.getAttribute('data-id');
+            setReviewItemStatus(id, 'approved');
+            renderApp();
+          });
+        });
+        content.querySelectorAll('.btn-review-reject').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var id = this.getAttribute('data-id');
+            setReviewItemStatus(id, 'rejected');
+            renderApp();
+          });
+        });
+        content.querySelector('.btn-complete-review')?.addEventListener('click', function () {
+          alert('Review completed! All approved changes will be written to the respective data services.');
+          setRoute('#/views/tasks');
+        });
+      }
+
+      function setReviewItemStatus(itemId, status) {
+        for (var key in FORM_REVIEW_DATA) {
+          var d = FORM_REVIEW_DATA[key];
+          for (var i = 0; i < d.entityOverrides.length; i++) {
+            if (d.entityOverrides[i].id === itemId) { d.entityOverrides[i].status = status; return; }
+          }
+          for (var j = 0; j < d.customDataChanges.length; j++) {
+            if (d.customDataChanges[j].id === itemId) { d.customDataChanges[j].status = status; return; }
+          }
+        }
+      }
+
+      function renderExternalDashboard() {
+        var statusClass = { Sent: 'badge-sent', Opened: 'badge-opened', Completed: 'badge-completed', Expired: 'badge-expired' };
+        var rows = SENT_FORMS.map(function (s) {
+          var form = FORMS.find(function (f) { return f.id === s.formId; });
+          var formType = form ? (form.formType || '—') : '—';
+          var attachmentsDisplay = (s.attachments && s.attachments.length) ? s.attachments.length + ' (' + s.attachments.join(', ') + ')' : '—';
+          return '<tr>' +
+            '<td class="task-list-cell-form"><a href="#/external/form/' + escapeHtml(s.id) + '" class="task-list-link external-form-view-link" data-id="' + escapeHtml(s.id) + '">' + escapeHtml(s.formName) + '</a></td>' +
+            '<td class="task-list-cell-form-type">' + escapeHtml(formType) + '</td>' +
+            '<td class="task-list-cell-entity"><a href="#/external/form/' + escapeHtml(s.id) + '" class="task-list-link external-form-view-link" data-id="' + escapeHtml(s.id) + '">' + escapeHtml(s.entityName || '—') + '</a></td>' +
+            '<td class="task-list-cell-sent-to">' + escapeHtml(s.recipient || '—') + '</td>' +
+            '<td class="task-list-cell-sent">' + escapeHtml(s.sentAt || '—') + '</td>' +
+            '<td class="task-list-cell-expires">' + escapeHtml(s.expiresAt || '—') + '</td>' +
+            '<td class="task-list-cell-status"><span class="' + (statusClass[s.status] || 'badge-sent') + '">' + escapeHtml(s.status === 'Completed' ? 'Complete' : s.status) + '</span></td>' +
+            '<td class="task-list-cell-completed">' + escapeHtml(s.completedAt || '—') + '</td>' +
+            '<td class="task-list-cell-attachments">' + escapeHtml(attachmentsDisplay) + '</td>' +
+            '<td class="task-list-cell-actions">' +
+              (s.status !== 'Completed' && s.status !== 'Expired' ? '<button type="button" class="action-btn btn-resend" data-id="' + escapeHtml(s.id) + '">Resend</button> ' : '') +
+              (s.status !== 'Completed' && s.status !== 'Expired' ? '<button type="button" class="action-btn btn-remind" data-id="' + escapeHtml(s.id) + '">Remind</button> ' : '') +
+              (s.status !== 'Completed' ? '<button type="button" class="action-btn btn-extend-expiration" data-id="' + escapeHtml(s.id) + '">Extend expiration</button> ' : '') +
+              (s.status !== 'Completed' && s.status !== 'Expired' ? '<button type="button" class="action-btn muted btn-cancel-send" data-id="' + escapeHtml(s.id) + '">Cancel</button> ' : '') +
+              (s.status !== 'Completed' && s.status !== 'Expired' ? '<button type="button" class="action-btn muted btn-expire-send" data-id="' + escapeHtml(s.id) + '">Expire</button>' : '') +
+            '</td>' +
+          '</tr>';
+        }).join('');
+        return '<div class="page">' +
+          '<div class="page-breadcrumb"><a href="#/forms">Configuration</a><span class="sep">›</span><span class="current">External forms view</span></div>' +
+          '<div class="header-row">' +
+            '<h1 class="title">External forms view</h1>' +
+            '<button type="button" class="btn-primary btn-start-send" disabled title="V1 (Q3): External forms are auto-sent in a workflow step.">Send form via email</button>' +
+          '</div>' +
+          '<p class="muted-text" style="margin-bottom:16px">Track forms you’ve sent to external recipients. Resend or cancel pending sends.</p>' +
+          '<p class="info-note" style="margin-bottom:16px"><strong>V1 (Q3) scope:</strong> Sending forms via email manually is not available. External forms are auto-sent within a workflow step. Manual send will be considered for a later release.</p>' +
+          '<div class="card">' +
+            '<div class="toolbar-row">' +
+              '<span class="toolbar-item">Filter <strong>0</strong></span>' +
+              '<span class="toolbar-item">Columns <strong>10</strong></span>' +
+            '</div>' +
+            '<table><thead><tr>' +
+              '<th>Form</th><th>Form type</th><th>Recipient</th><th>Sent to</th><th>Sent</th><th>Expires</th><th>Status</th><th>Completed</th><th>Attachments</th><th style="width:220px">Actions</th>' +
+            '</tr></thead><tbody>' + rows + '</tbody></table>' +
+          '</div>' +
+        '</div>';
+      }
+
+      function bindExternalDashboardEvents() {
+        var c = document.getElementById('content');
+        if (!c) return;
+        c.querySelectorAll('.external-form-view-link').forEach(function (link) {
+          link.addEventListener('click', function (e) {
+            e.preventDefault();
+            setRoute('#/external/form/' + this.getAttribute('data-id'));
+          });
+        });
+        c.querySelectorAll('.btn-resend').forEach(function (btn) {
+          btn.addEventListener('click', function () { setRoute('#/external/form/' + this.getAttribute('data-id')); });
+        });
+        c.querySelectorAll('.btn-remind').forEach(function (btn) {
+          btn.addEventListener('click', function () { /* Remind */ });
+        });
+        c.querySelectorAll('.btn-cancel-send').forEach(function (btn) {
+          btn.addEventListener('click', function () { /* Cancel send */ });
+        });
+        c.querySelectorAll('.btn-expire-send').forEach(function (btn) {
+          btn.addEventListener('click', function () { /* Expire */ });
+        });
+        c.querySelectorAll('.btn-extend-expiration').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            window._extendExpirationSentId = this.getAttribute('data-id');
+            setRoute('#/external/form/' + this.getAttribute('data-id'));
+          });
+        });
+      }
+
+      function renderExternalFormView(sentId) {
+        var sent = SENT_FORMS.find(function (s) { return s.id === sentId; });
+        if (!sent) return '<div class="page"><p>Form not found.</p><a href="#/views/tasks">Back to Tasks</a></div>';
+        var prefill = PREFILL_DATA[sentId] || {};
+        var previousList = PREVIOUS_RESPONSES[sentId] || [];
+        var statusBadge = sent.status === 'Completed' ? 'badge-completed' : sent.status === 'Expired' ? 'badge-expired' : sent.status === 'Opened' ? 'badge-opened' : 'badge-sent';
+        var fieldsHtml = FORM_SECTIONS.map(function (sec) {
+          var sectionQuestions = QUESTION_LIST.filter(function (q) { return (q.sectionId || 'sec1') === sec.id; });
+          if (sectionQuestions.length === 0) return '';
+          var sectionTitleHtml = '<div class="form-view-section-wrap" id="section-' + escapeHtml(sec.id) + '"><h3 class="form-view-section-title">' + escapeHtml(sec.title) + '</h3>' + (sec.description ? '<p class="muted-text" style="margin-top:4px;margin-bottom:16px">' + escapeHtml(sec.description) + '</p>' : '') + '</div>';
+          var sectionFields = sectionQuestions.map(function (q) {
+          if (q.type === 'panel') {
+            return '<div class="form-view-panel" data-question-name="' + escapeHtml(q.name) + '">' +
+              '<h3 class="form-view-section-title">' + escapeHtml(q.title) + '</h3></div>';
+          }
+          var val = prefill[q.name];
+          if (val === undefined || val === null) val = '';
+          var label = escapeHtml(q.title) + (q.isRequired ? ' <span class="required-asterisk">*</span>' : '');
+          var inputHtml;
+          if (q.type === 'boolean') {
+            var checked = val === true || val === 'true' || val === 'yes';
+            inputHtml = '<label class="checkbox-row"><input type="checkbox" class="form-input form-view-field" data-name="' + escapeHtml(q.name) + '"' + (checked ? ' checked' : '') + '> ' + (q.placeholder || 'Yes') + '</label>';
+          } else if (q.type === 'dropdown' && q.choices && q.choices.length) {
+            var opts = '<option value="">— Select —</option>' + q.choices.map(function (c) {
+              return '<option value="' + escapeHtml(c) + '"' + (String(val) === String(c) ? ' selected' : '') + '>' + escapeHtml(c) + '</option>';
+            }).join('');
+            inputHtml = '<select class="form-input form-view-field" data-name="' + escapeHtml(q.name) + '">' + opts + '</select>';
+          } else if (q.type === 'longtext') {
+            inputHtml = '<textarea class="form-input form-view-field" data-name="' + escapeHtml(q.name) + '" rows="3" placeholder="' + escapeHtml(q.placeholder || '') + '">' + escapeHtml(val) + '</textarea>';
+          } else if (q.type === 'file') {
+            inputHtml = '<input type="text" class="form-input form-view-field" data-name="' + escapeHtml(q.name) + '" value="' + escapeHtml(val) + '" placeholder="' + escapeHtml(q.accept || 'Upload file') + '" readonly style="background:#f8f9fa">';
+          } else {
+            inputHtml = '<input type="' + (q.type === 'number' ? 'number' : q.type === 'date' ? 'date' : 'text') + '" class="form-input form-view-field" data-name="' + escapeHtml(q.name) + '" value="' + escapeHtml(val) + '" placeholder="' + escapeHtml(q.placeholder || '') + '">';
+          }
+          var help = q.helpText ? '<p class="form-view-help">' + escapeHtml(q.helpText) + '</p>' : '';
+          return '<div class="form-view-row" data-question-name="' + escapeHtml(q.name) + '">' +
+            '<label class="form-label">' + label + '</label>' + help + inputHtml + '</div>';
+          }).join('');
+          return sectionTitleHtml + sectionFields;
+        }).join('');
+        var previousHtml = '';
+        if (previousList.length > 0) {
+          previousHtml = '<div class="card">' +
+            '<div class="card-header">Previous responses</div>' +
+            '<div class="card-body">' +
+              '<p class="muted-text">You can view and reuse answers from earlier submissions.</p>' +
+              previousList.map(function (pr, idx) {
+                var rows = Object.keys(pr.answers || {}).map(function (k) {
+                  var label = QUESTION_LIST.find(function (q) { return q.name === k; });
+                  return '<tr><td style="padding:6px 12px 6px 0;vertical-align:top;font-weight:500">' + escapeHtml((label && label.title) || k) + '</td><td style="padding:6px 0">' + escapeHtml(String(pr.answers[k])) + '</td></tr>';
+                }).join('');
+                return '<div class="previous-response-block" data-response-idx="' + idx + '">' +
+                  '<p class="form-label" style="margin-bottom:8px">Submitted ' + escapeHtml(pr.submittedAt) + '</p>' +
+                  '<table style="width:100%;font-size:13px">' + rows + '</table>' +
+                  '<button type="button" class="btn-secondary btn-use-response" data-response-idx="' + idx + '" style="margin-top:12px">Use this response</button>' +
+                  '</div>';
+              }).join('<hr style="margin:20px 0;border:0;border-top:1px solid #e5e8ec">') +
+            '</div></div>';
+        } else {
+          previousHtml = '<div class="card">' +
+            '<div class="card-header">Previous responses</div>' +
+            '<div class="card-body"><p class="muted-text">No previous submissions for this form. Your answers will be saved when you submit.</p></div></div>';
+        }
+        var sectionsWithQuestions = FORM_SECTIONS.filter(function (sec) {
+          return QUESTION_LIST.some(function (q) { return (q.sectionId || 'sec1') === sec.id; });
+        });
+        var sidebarNavHtml = sectionsWithQuestions.map(function (sec) {
+          return '<a href="#section-' + escapeHtml(sec.id) + '" class="form-view-nav-link" data-section-id="' + escapeHtml(sec.id) + '">' + escapeHtml(sec.title) + '</a>';
+        }).join('') +
+          '<a href="#section-review-submit" class="form-view-nav-link" data-section-id="review-submit">Review &amp; Submit</a>';
+        var reviewPromptHtml = '';
+        if (REVIEW_PROMPT_CONFIG.enabled && (REVIEW_PROMPT_CONFIG.title || (REVIEW_PROMPT_CONFIG.bullets && REVIEW_PROMPT_CONFIG.bullets.length))) {
+          var bullets = (REVIEW_PROMPT_CONFIG.bullets || []).map(function (b) { return '<li>' + escapeHtml(b) + '</li>'; }).join('');
+          reviewPromptHtml = '<div class="review-prompt-box">' +
+            (REVIEW_PROMPT_CONFIG.title ? '<p class="review-prompt-title">' + escapeHtml(REVIEW_PROMPT_CONFIG.title) + '</p>' : '') +
+            (bullets ? '<ul>' + bullets + '</ul>' : '') +
+            (REVIEW_PROMPT_CONFIG.consequenceText ? '<p class="review-prompt-consequence">' + escapeHtml(REVIEW_PROMPT_CONFIG.consequenceText) + '</p>' : '') +
+            '</div>';
+        }
+        var reviewSubmitBlock = '<div class="review-submit-section" id="section-review-submit">' +
+          '<h2 class="form-view-section-title" style="margin-top:0">Review &amp; Submit</h2>' +
+          '<p class="muted-text">Please review your submission before proceeding.</p>' +
+          reviewPromptHtml +
+          '<div class="review-confirm-box">' +
+          '<p class="form-label">Please confirm that all information provided above is true and accurate to the best of your knowledge.</p>' +
+          '<label class="checkbox-row"><input type="checkbox" class="form-input review-confirm-checkbox"> I confirm that all information provided in this questionnaire is true and accurate to the best of my knowledge.</label>' +
+          '</div>' +
+          '</div>';
+        return '<div class="page" style="max-width:100%">' +
+          '<div class="page-breadcrumb"><a href="#/views">Views</a><span class="sep">›</span><a href="#/views/tasks">Tasks</a><span class="sep">›</span><span class="current">' + escapeHtml(sent.formName || 'Form') + '</span></div>' +
+          '<div class="header-row" style="margin-bottom:16px">' +
+            '<a href="#/views/tasks" class="btn-secondary task-list-back task-back-to-tasks" style="text-decoration:none;display:inline-flex;align-items:center">← Tasks</a>' +
+          '</div>' +
+          '<div class="form-view-layout">' +
+            '<nav class="form-view-sidebar" aria-label="Form sections">' +
+              '<div class="form-view-sidebar-title">Sections</div>' +
+              sidebarNavHtml +
+            '</nav>' +
+            '<div class="form-view-main">' +
+              '<div class="card">' +
+                '<div class="card-body">' +
+                  '<h1 class="title" style="margin-bottom:8px">' + escapeHtml(sent.formName) + '</h1>' +
+                  '<p class="muted-text">Entity: ' + escapeHtml(sent.entityName || sent.recipient) + ' · Assessment: ' + escapeHtml(sent.assessmentName || '—') + ' · Recipient: ' + escapeHtml(sent.recipient) + ' · Sent ' + escapeHtml(sent.sentAt) + ' · Expires ' + escapeHtml(sent.expiresAt || '—') + ' <span class="' + statusBadge + '">' + escapeHtml(sent.status) + '</span></p>' +
+                  (sent.status === 'Expired' ? '<p class="info-note" style="margin-top:12px">This form has expired for the recipient. As an internal user you can still fill in the form on behalf of the recipient and submit.</p>' : '') +
+                  '<p class="info-note" style="margin-top:12px">This view shows the form and any submitted responses in one place. Fields are pre-filled from entity data; you can edit, submit, or reuse previous responses below.</p>' +
+                  (sent.status !== 'Completed' ? '<p style="margin-top:8px"><button type="button" class="btn-secondary btn-extend-expiration-form-view" data-sent-id="' + escapeHtml(sent.id) + '">Extend expiration</button></p>' : '') +
+                  '<div id="extend-expiration-panel" class="card" style="margin-top:16px;display:none">' +
+                    '<div class="card-body">' +
+                      '<h4 style="margin:0 0 8px;font-size:14px">Extend expiration date</h4>' +
+                      '<p class="muted-text" style="margin-bottom:12px">Give the recipient additional time to complete the form. Data already entered is always preserved.</p>' +
+                      '<div class="form-row" style="align-items:center;gap:12px">' +
+                        '<label class="form-label" style="margin:0">New expiration date</label>' +
+                        '<input type="date" class="form-input" id="extendExpirationDate" style="max-width:180px">' +
+                        '<button type="button" class="btn-primary btn-extend-expiration-confirm" data-sent-id="' + escapeHtml(sent.id) + '">Extend</button>' +
+                        '<button type="button" class="btn-secondary btn-extend-expiration-cancel">Cancel</button>' +
+                      '</div>' +
+                    '</div>' +
+                  '</div>' +
+                  '<form class="form-view-form" id="externalFormViewForm">' + fieldsHtml + '</form>' +
+                  reviewSubmitBlock +
+                  '<div style="margin-top:24px">' +
+                    '<button type="button" class="btn-primary btn-submit-form-view">Submit</button> ' +
+                    '<button type="button" class="btn-secondary btn-save-draft-form-view">Save draft</button>' +
+                  '</div>' +
+                '</div>' +
+              '</div>' +
+              previousHtml +
+            '</div>' +
+          '</div>' +
+        '</div>';
+      }
+
+      function bindExternalFormViewEvents(sentId) {
+        var c = document.getElementById('content');
+        if (!c) return;
+        c.querySelector('a[href="#/views/tasks"]')?.addEventListener('click', function (e) { e.preventDefault(); tasksTaskTypeFilter = 'external_forms'; setRoute('#/views/tasks'); });
+        c.querySelector('.task-back-to-tasks')?.addEventListener('click', function (e) { e.preventDefault(); tasksTaskTypeFilter = 'external_forms'; setRoute('#/views/tasks'); });
+        c.querySelectorAll('.form-view-nav-link').forEach(function (a) {
+          a.addEventListener('click', function (e) {
+            var id = this.getAttribute('href');
+            if (id && id.indexOf('#section-') === 0) {
+              e.preventDefault();
+              var el = document.getElementById(id.slice(1));
+              if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+          });
+        });
+        var prefill = PREFILL_DATA[sentId] || {};
+        var previousList = PREVIOUS_RESPONSES[sentId] || [];
+        var hasUboEl = c.querySelector('.form-view-field[data-name="hasUbo"]');
+        var uboPanel = c.querySelector('.form-view-panel[data-question-name="uboDetails"]');
+        function toggleUboPanel() {
+          if (uboPanel) uboPanel.style.display = (hasUboEl && hasUboEl.checked) ? 'block' : 'none';
+        }
+        if (hasUboEl) hasUboEl.addEventListener('change', toggleUboPanel);
+        toggleUboPanel();
+        c.querySelectorAll('.btn-use-response').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var idx = parseInt(this.getAttribute('data-response-idx'), 10);
+            var pr = previousList[idx];
+            if (!pr || !pr.answers) return;
+            Object.keys(pr.answers).forEach(function (name) {
+              var field = c.querySelector('.form-view-field[data-name="' + name + '"]');
+              if (field) {
+                if (field.type === 'checkbox') field.checked = (pr.answers[name] === 'true' || pr.answers[name] === true);
+                else field.value = pr.answers[name];
+              }
+            });
+          });
+        });
+        c.querySelector('.btn-submit-form-view')?.addEventListener('click', function () { tasksTaskTypeFilter = 'external_forms'; setRoute('#/views/tasks'); });
+        c.querySelector('.btn-save-draft-form-view')?.addEventListener('click', function () { tasksTaskTypeFilter = 'external_forms'; setRoute('#/views/tasks'); });
+        if (window._extendExpirationSentId === sentId) {
+          window._extendExpirationSentId = null;
+          var extPanel = c.querySelector('#extend-expiration-panel');
+          if (extPanel) extPanel.style.display = 'block';
+        }
+        c.querySelector('.btn-extend-expiration-form-view')?.addEventListener('click', function () {
+          var panel = c.querySelector('#extend-expiration-panel');
+          if (panel) panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+        });
+        c.querySelector('.btn-extend-expiration-cancel')?.addEventListener('click', function () {
+          var panel = c.querySelector('#extend-expiration-panel');
+          if (panel) panel.style.display = 'none';
+        });
+        c.querySelector('.btn-extend-expiration-confirm')?.addEventListener('click', function () {
+          var id = this.getAttribute('data-sent-id');
+          var dateEl = c.querySelector('#extendExpirationDate');
+          var newDate = dateEl && dateEl.value;
+          if (!newDate) { alert('Please select a new expiration date.'); return; }
+          var sent = SENT_FORMS.find(function (s) { return s.id === id; });
+          if (sent) {
+            sent.expiresAt = newDate;
+            if (sent.status === 'Expired') sent.status = 'Opened';
+            var panel = c.querySelector('#extend-expiration-panel');
+            if (panel) panel.style.display = 'none';
+            renderApp();
+          }
+        });
+      }
+
+      function renderSendFlow(step) {
+        var steps = ['Select form', 'Recipients', 'Message', 'Review & send'];
+        var stepHtml = steps.map(function (label, i) {
+          var n = i + 1;
+          var cls = 'flow-step' + (n < step ? ' done' : n === step ? ' current' : '');
+          return '<div class="' + cls + '">' + n + '. ' + label + '</div>';
+        }).join('');
+        var formOptions = FORMS.filter(function (f) { return f.type === 'External'; }).map(function (f) {
+          return '<option value="' + escapeHtml(f.id) + '">' + escapeHtml(f.name) + '</option>';
+        }).join('');
+        var panel1 = step >= 1 ? '<div class="flow-panel">' +
+          '<h3>Select a form to send</h3>' +
+          '<p class="muted-text">Only forms configured for external use can be sent via email. (V1 sends forms via workflow; this flow shows how email send will work when available.)</p>' +
+          '<div class="form-row"><label class="form-label">Form</label><select class="form-input flow-form-select" style="max-width:400px">' + formOptions + '</select></div>' +
+          '</div>' : '';
+        var panel2 = step >= 2 ? '<div class="flow-panel">' +
+          '<h3>Recipient email addresses</h3>' +
+          '<p class="muted-text">Add one or more recipients. Each will receive a unique link to complete the form.</p>' +
+          '<div class="email-list"><input type="email" class="form-input flow-email-1" placeholder="email@example.com" style="margin-bottom:8px"></div>' +
+          '<button type="button" class="add-email">+ Add another recipient</button>' +
+          '</div>' : '';
+        var panel3 = step >= 3 ? '<div class="flow-panel">' +
+          '<h3>Email message (optional)</h3>' +
+          '<p class="muted-text">This text will appear in the email body. The form link is added automatically.</p>' +
+          '<div class="checkbox-row" style="margin-bottom:12px"><input type="checkbox" id="preNotification" class="flow-prenotify"><label for="preNotification">Send pre-notification email to inform recipients about the incoming form</label></div>' +
+          '<div class="form-row"><label class="form-label">Subject</label><input type="text" class="form-input flow-subject" value="Please complete the form" placeholder="Email subject"></div>' +
+          '<div class="form-row"><label class="form-label">Message</label><textarea class="form-input flow-message" rows="3" placeholder="Add instructions or context for the recipient...">Please complete the attached form by the requested date.</textarea></div>' +
+          '<p class="info-note" style="margin-top:12px">Sender email, form URL and branding are configured in the form’s External form URL, sender & branding section.</p>' +
+          '</div>' : '';
+        var panel4 = step >= 4 ? '<div class="flow-panel">' +
+          '<h3>Review and send</h3>' +
+          '<p class="muted-text">Confirm details before sending. Recipients will receive an email with a link to the form.</p>' +
+          '<div class="review-row"><strong>Form</strong><span class="flow-review-form">Associate Information Request</span></div>' +
+          '<div class="review-row"><strong>Recipients</strong><span class="flow-review-recipients">1 address</span></div>' +
+          '<div class="review-row"><strong>Subject</strong><span class="flow-review-subject">Please complete the form</span></div>' +
+          '<div class="review-row"><strong>Link expires</strong><span>14 days after send</span></div>' +
+          '<div class="review-row"><strong>From</strong><span>Uses sender and branding from form configuration</span></div>' +
+          '</div>' : '';
+        var prevBtn = step > 1 ? '<button type="button" class="btn-secondary flow-prev">Back</button>' : '<span></span>';
+        var nextBtn = step < 4 ? '<button type="button" class="btn-primary flow-next">Next</button>' : '<button type="button" class="btn-primary flow-send">Send form</button>';
+        return '<div class="page" style="max-width:640px">' +
+          '<div class="page-breadcrumb"><a href="#/views">Views</a><span class="sep">›</span><a href="#/views/tasks">Tasks</a><span class="sep">›</span><span class="current">Send form via email</span></div>' +
+          '<div class="header-row"><h1 class="title">Send form via email</h1><a href="#/views/tasks" class="send-flow-cancel-link" style="font-size:13px;color:var(--views-text-light)">Cancel</a></div>' +
+          '<p class="info-note" style="margin-bottom:16px"><strong>V1 (Q3):</strong> Manual send is not available. External forms are auto-sent within a workflow step.</p>' +
+          '<div class="flow-steps">' + stepHtml + '</div>' +
+          panel1 + panel2 + panel3 + panel4 +
+          '<div class="flow-actions">' + prevBtn + '<div>' + nextBtn + '</div></div>' +
+        '</div>';
+      }
+
+      function bindSendFlowEvents(step) {
+        var c = document.getElementById('content');
+        if (!c) return;
+        c.querySelector('.send-flow-cancel-link')?.addEventListener('click', function (e) { e.preventDefault(); tasksTaskTypeFilter = 'external_forms'; setRoute('#/views/tasks'); });
+        c.querySelector('.flow-prev')?.addEventListener('click', function () { setRoute('#/external/send/' + (step - 1)); });
+        c.querySelector('.flow-next')?.addEventListener('click', function () { setRoute('#/external/send/' + (step + 1)); });
+        c.querySelector('.flow-send')?.addEventListener('click', function () { tasksTaskTypeFilter = 'external_forms'; setRoute('#/views/tasks'); });
+      }
+
+      function escapeHtml(s) {
+        if (s == null) return '';
+        var div = document.createElement('div');
+        div.textContent = s;
+        return div.innerHTML;
+      }
+
+      window.addEventListener('hashchange', renderApp);
+      if (!window.location.hash || window.location.hash === '#') window.location.hash = '#/forms';
+      renderApp();
+    })();
+  </script>
+</body>
+</html>

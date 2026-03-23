@@ -1,0 +1,6 @@
+node_modules/
+dist/
+.DS_Store
+*.log
+open.html.bak
+open.html.bak2

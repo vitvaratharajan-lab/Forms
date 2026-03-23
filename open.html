@@ -235,8 +235,26 @@
       color: var(--views-text);
       line-height: 24px;
     }
-    .badge-active { padding: 3px 10px; border-radius: 4px; font-size: 12px; font-weight: 500; background: #dcfce7; color: #166534; }
+    .badge-active, .badge-published { padding: 3px 10px; border-radius: 4px; font-size: 12px; font-weight: 500; background: #dcfce7; color: #166534; }
     .badge-draft { padding: 3px 10px; border-radius: 4px; font-size: 12px; font-weight: 500; background: #fef3c7; color: #b45309; }
+    .version-indicator { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--views-text-light); margin-left: 12px; }
+    .version-indicator .version-num { font-weight: 600; color: var(--views-text); }
+    .validation-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 999; display: flex; align-items: center; justify-content: center; }
+    .validation-modal { background: #fff; border-radius: 10px; box-shadow: 0 8px 30px rgba(0,0,0,0.18); width: 520px; max-height: 80vh; overflow-y: auto; }
+    .validation-modal-header { padding: 20px 24px 0; display: flex; align-items: center; justify-content: space-between; }
+    .validation-modal-header h2 { margin: 0; font-size: 16px; }
+    .validation-modal-body { padding: 16px 24px 24px; }
+    .validation-item { display: flex; align-items: flex-start; gap: 8px; padding: 8px 0; border-bottom: 1px solid #f0f0f6; font-size: 13px; }
+    .validation-item:last-child { border-bottom: none; }
+    .validation-icon-pass { color: #16a34a; font-weight: 700; }
+    .validation-icon-fail { color: #dc2626; font-weight: 700; }
+    .validation-icon-warn { color: #d97706; font-weight: 700; }
+    .validation-modal-footer { padding: 12px 24px 20px; display: flex; justify-content: flex-end; gap: 8px; }
+    .version-history-list { list-style: none; padding: 0; margin: 0; }
+    .version-history-list li { padding: 10px 0; border-bottom: 1px solid var(--views-border); display: flex; align-items: center; justify-content: space-between; font-size: 13px; }
+    .version-history-list li:last-child { border-bottom: none; }
+    .version-history-list .vh-version { font-weight: 600; color: var(--views-text); min-width: 36px; }
+    .version-history-list .vh-meta { color: var(--views-text-light); }
     .action-btn {
       background: none;
       border: none;
@@ -621,11 +639,11 @@
   <script>
     (function () {
       const FORMS = [
-        { id: '1', name: 'KYB Entity Onboarding', type: 'Internal', formType: 'KYB', status: 'Active', lastModified: '2026-02-28', responses: 124 },
-        { id: '2', name: 'Periodic Review Questionnaire', type: 'Internal', formType: 'Periodic review', status: 'Active', lastModified: '2026-02-26', responses: 89 },
-        { id: '5', name: 'MLRO review', type: 'Internal', formType: 'MLRO review', status: 'Active', lastModified: '2026-02-27', responses: 45 },
-        { id: '3', name: 'Associate Information Request', type: 'External', formType: 'Associate', status: 'Draft', lastModified: '2026-02-25', responses: 0 },
-        { id: '4', name: 'UBO Declaration', type: 'Internal', formType: 'UBO', status: 'Active', lastModified: '2026-02-20', responses: 312 },
+        { id: '1', name: 'KYB Entity Onboarding', type: 'Internal', formType: 'KYB', status: 'Published', version: 3, lastModified: '2026-02-28', responses: 124, publishedAt: '2026-02-28 09:15', publishedBy: 'Sarah Chen' },
+        { id: '2', name: 'Periodic Review Questionnaire', type: 'Internal', formType: 'Periodic review', status: 'Published', version: 2, lastModified: '2026-02-26', responses: 89, publishedAt: '2026-02-26 14:30', publishedBy: 'David Reviewer' },
+        { id: '5', name: 'MLRO review', type: 'Internal', formType: 'MLRO review', status: 'Published', version: 1, lastModified: '2026-02-27', responses: 45, publishedAt: '2026-02-27 11:00', publishedBy: 'Sarah Chen' },
+        { id: '3', name: 'Associate Information Request', type: 'External', formType: 'Associate', status: 'Draft', version: 1, lastModified: '2026-02-25', responses: 0, publishedAt: null, publishedBy: null },
+        { id: '4', name: 'UBO Declaration', type: 'Internal', formType: 'UBO', status: 'Published', version: 5, lastModified: '2026-02-20', responses: 312, publishedAt: '2026-02-20 16:45', publishedBy: 'David Reviewer' },
       ];
       var FIELD_TYPES = ['text', 'longtext', 'number', 'date', 'dropdown', 'radio', 'checkbox', 'boolean', 'panel', 'file'];
       var FORM_SECTIONS = [
@@ -877,7 +895,72 @@
         } else {
           content.innerHTML = renderFormConfig(route.new ? 'New form' : (activeForm?.name || 'Configure form'), route.new, activeForm);
           content.querySelector('.btn-cancel')?.addEventListener('click', function () { formConfigChannelId = ''; setRoute('#/forms'); });
-          content.querySelector('.btn-save')?.addEventListener('click', function () { formConfigChannelId = ''; setRoute('#/forms'); });
+          content.querySelector('.btn-save')?.addEventListener('click', function () {
+            var overlay = document.createElement('div');
+            overlay.className = 'validation-overlay';
+            overlay.innerHTML = '<div class="validation-modal">' +
+              '<div class="validation-modal-header"><h2>Draft saved</h2></div>' +
+              '<div class="validation-modal-body"><p style="margin:0;font-size:14px;color:var(--views-text)">Your changes have been saved as a draft. The current published version continues to be used by workflows. Publish when ready.</p></div>' +
+              '<div class="validation-modal-footer"><button type="button" class="btn-primary btn-close-modal">OK</button></div></div>';
+            document.body.appendChild(overlay);
+            overlay.querySelector('.btn-close-modal').addEventListener('click', function () { overlay.remove(); });
+            overlay.addEventListener('click', function (e) { if (e.target === overlay) overlay.remove(); });
+          });
+          content.querySelector('.btn-publish')?.addEventListener('click', function () {
+            var checks = [];
+            var hasErrors = false;
+            if (FORM_SECTIONS.length === 0) { checks.push({ status: 'fail', text: 'No sections defined. Add at least one section.' }); hasErrors = true; }
+            else checks.push({ status: 'pass', text: 'At least one section exists (' + FORM_SECTIONS.length + ' sections).' });
+            if (QUESTION_LIST.length === 0) { checks.push({ status: 'fail', text: 'No questions defined. Add at least one question.' }); hasErrors = true; }
+            else checks.push({ status: 'pass', text: 'Questions defined (' + QUESTION_LIST.length + ' questions).' });
+            var noType = QUESTION_LIST.filter(function (q) { return !q.type; });
+            if (noType.length > 0) { checks.push({ status: 'fail', text: noType.length + ' question(s) missing a field type.' }); hasErrors = true; }
+            else if (QUESTION_LIST.length > 0) checks.push({ status: 'pass', text: 'All questions have a field type assigned.' });
+            var names = {}; var dupes = [];
+            QUESTION_LIST.forEach(function (q) { if (q.name) { if (names[q.name]) dupes.push(q.name); names[q.name] = true; } });
+            if (dupes.length > 0) { checks.push({ status: 'fail', text: 'Duplicate field names: ' + dupes.join(', ') + '.' }); hasErrors = true; }
+            else if (QUESTION_LIST.length > 0) checks.push({ status: 'pass', text: 'All field names are unique.' });
+            var emptySections = FORM_SECTIONS.filter(function (s) { return !QUESTION_LIST.some(function (q) { return q.sectionId === s.id; }); });
+            if (emptySections.length > 0) checks.push({ status: 'warn', text: emptySections.length + ' section(s) have no questions: ' + emptySections.map(function (s) { return s.title; }).join(', ') + '.' });
+            BRANCHING_RULES.forEach(function (r) {
+              if (!QUESTION_LIST.some(function (q) { return q.name === r.sourceQuestion; })) {
+                checks.push({ status: 'fail', text: 'Branching rule references missing question "' + r.sourceLabel + '".' }); hasErrors = true;
+              }
+            });
+            if (BRANCHING_RULES.length > 0 && !hasErrors) checks.push({ status: 'pass', text: 'All branching rules reference valid questions.' });
+            var selectedChannelId = formConfigChannelId || (activeForm && activeForm.type === 'External' ? 'external' : 'internal');
+            if (selectedChannelId === 'external') {
+              checks.push({ status: 'pass', text: 'Channel set to External — sender and URL checks apply.' });
+            }
+            var itemsHtml = checks.map(function (c) {
+              var icon = c.status === 'pass' ? '<span class="validation-icon-pass">✓</span>' : c.status === 'fail' ? '<span class="validation-icon-fail">✗</span>' : '<span class="validation-icon-warn">⚠</span>';
+              return '<div class="validation-item">' + icon + '<span>' + c.text + '</span></div>';
+            }).join('');
+            var overlay = document.createElement('div');
+            overlay.className = 'validation-overlay';
+            overlay.innerHTML = '<div class="validation-modal">' +
+              '<div class="validation-modal-header"><h2>' + (hasErrors ? 'Cannot publish — validation failed' : 'Validation passed') + '</h2></div>' +
+              '<div class="validation-modal-body">' +
+                (hasErrors ? '<p style="margin:0 0 12px;font-size:13px;color:#dc2626">Resolve the errors below before publishing.</p>' : '<p style="margin:0 0 12px;font-size:13px;color:#166534">All checks passed. This will create a new published version.</p>') +
+                itemsHtml +
+              '</div>' +
+              '<div class="validation-modal-footer">' +
+                '<button type="button" class="btn-secondary btn-close-modal">Cancel</button>' +
+                (hasErrors ? '' : '<button type="button" class="btn-primary btn-confirm-publish">Publish</button>') +
+              '</div></div>';
+            document.body.appendChild(overlay);
+            overlay.querySelector('.btn-close-modal').addEventListener('click', function () { overlay.remove(); });
+            overlay.addEventListener('click', function (e) { if (e.target === overlay) overlay.remove(); });
+            var confirmBtn = overlay.querySelector('.btn-confirm-publish');
+            if (confirmBtn) {
+              confirmBtn.addEventListener('click', function () {
+                if (activeForm) { activeForm.version = (activeForm.version || 1) + 1; activeForm.status = 'Published'; activeForm.publishedAt = new Date().toISOString().slice(0, 16).replace('T', ' '); activeForm.publishedBy = 'You'; activeForm.lastModified = new Date().toISOString().slice(0, 10); }
+                overlay.remove();
+                formConfigChannelId = '';
+                setRoute('#/forms');
+              });
+            }
+          });
           bindFormConfigEvents(content);
         }
       }
@@ -1317,11 +1400,13 @@
           return true;
         });
         var rows = filtered.map(function (f) {
+          var statusClass = f.status === 'Published' ? 'badge-published' : f.status === 'Active' ? 'badge-active' : 'badge-draft';
           return '<tr>' +
             '<td><strong>' + escapeHtml(f.name) + '</strong></td>' +
             '<td>' + escapeHtml(f.formType || '—') + '</td>' +
             '<td>' + escapeHtml(f.type) + '</td>' +
-            '<td><span class="' + (f.status === 'Active' ? 'badge-active' : 'badge-draft') + '">' + escapeHtml(f.status) + '</span></td>' +
+            '<td>v' + (f.version || 1) + '</td>' +
+            '<td><span class="' + statusClass + '">' + escapeHtml(f.status) + '</span></td>' +
             '<td>' + escapeHtml(f.lastModified) + '</td>' +
             '<td>' + f.responses + '</td>' +
             '<td style="position:relative">' +
@@ -1346,13 +1431,13 @@
           '<div class="card">' +
             '<div class="toolbar-row">' +
               '<span class="toolbar-item">Filter <strong>' + (manageFormsFormFilter ? '1' : '0') + '</strong></span>' +
-              '<span class="toolbar-item">Columns <strong>7</strong></span>' +
+              '<span class="toolbar-item">Columns <strong>8</strong></span>' +
             '</div>' +
             '<div class="filter-row">' +
               '<label class="form-label">Form type</label><select class="form-input filter-form-type">' + formTypeFilter + '</select>' +
             '</div>' +
             '<table><thead><tr>' +
-              '<th>Form name</th><th>Form type</th><th>Channel</th><th>Status</th><th>Last modified</th><th>Responses</th><th style="width:52px">Actions</th>' +
+              '<th>Form name</th><th>Form type</th><th>Channel</th><th>Version</th><th>Status</th><th>Last modified</th><th>Responses</th><th style="width:52px">Actions</th>' +
             '</tr></thead><tbody>' + rows + '</tbody></table>' +
           '</div>' +
         '</div>';
@@ -1534,17 +1619,28 @@
         var formTypeOpts = FORM_TYPE_OPTIONS.map(function (t) {
           return '<option value="' + escapeHtml(t) + '"' + (activeForm && activeForm.formType === t ? ' selected' : '') + '>' + escapeHtml(t) + '</option>';
         }).join('');
+        var formVersion = activeForm ? activeForm.version : 1;
+        var formStatus = activeForm ? activeForm.status : 'Draft';
+        var isDraft = formStatus === 'Draft';
+        var versionLabel = 'v' + formVersion + (isDraft ? ' (Draft)' : '');
+        var statusBadge = '<span class="' + (isDraft ? 'badge-draft' : 'badge-published') + '">' + escapeHtml(formStatus) + '</span>';
         return '<div class="page page-config">' +
           '<div class="page-breadcrumb">' +
             '<a href="#/forms">Configuration</a><span class="sep">›</span><a href="#/forms">Form configuration</a><span class="sep">›</span><span class="current">' + escapeHtml(formName) + '</span>' +
           '</div>' +
           '<div class="header-row">' +
-            '<h1 class="title">' + escapeHtml(isNew ? 'New form' : 'Configure form') + '</h1>' +
+            '<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">' +
+              '<h1 class="title" style="margin:0">' + escapeHtml(isNew ? 'New form' : 'Configure form') + '</h1>' +
+              '<span class="version-indicator"><span class="version-num">' + escapeHtml(versionLabel) + '</span>' + statusBadge + '</span>' +
+            '</div>' +
             '<div class="btn-actions">' +
               '<button type="button" class="btn-secondary btn-cancel">Cancel</button>' +
-              '<button type="button" class="btn-primary btn-save">Save</button>' +
+              '<button type="button" class="btn-secondary btn-save">Save draft</button>' +
+              '<button type="button" class="btn-primary btn-publish">Publish</button>' +
             '</div>' +
           '</div>' +
+          (isDraft && !isNew ? '<div class="info-note" style="margin-bottom:16px;padding:12px 16px;background:#fef3c7;border:1px solid #fde68a;border-radius:6px;color:#92400e">You are editing a draft. ' + (formVersion > 1 ? 'The published version (v' + (formVersion - 1) + ') continues to be used by workflows until you publish.' : 'This form has not been published yet.') + '</div>' : '') +
+          (!isDraft && !isNew ? '<div class="info-note" style="margin-bottom:16px;padding:12px 16px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:6px;color:#166534">Published as v' + formVersion + (activeForm && activeForm.publishedAt ? ' on ' + escapeHtml(activeForm.publishedAt) + ' by ' + escapeHtml(activeForm.publishedBy || 'Unknown') : '') + '. Editing will create a new draft (v' + (formVersion + 1) + ').</div>' : '') +
           '<div class="card">' +
             '<div class="card-header">Form details</div>' +
             '<div class="card-body">' +
@@ -1767,6 +1863,18 @@
                 '<label class="form-label">Consequence text (shown below bullets)</label>' +
                 '<input type="text" class="form-input review-prompt-consequence" value="' + escapeHtml(REVIEW_PROMPT_CONFIG.consequenceText || '') + '" placeholder="e.g. If either of these is No, the supplier does not meet..." style="max-width:500px">' +
               '</div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="card">' +
+            '<div class="card-header">Version history</div>' +
+            '<div class="card-body">' +
+              '<p class="muted-text" style="margin-bottom:12px">Each publish creates an immutable version. In-flight forms always use the version they were sent with.</p>' +
+              '<ul class="version-history-list">' +
+                (isDraft ? '<li><span class="vh-version">v' + formVersion + '</span><span class="badge-draft">Draft</span><span class="vh-meta">In progress</span></li>' : '') +
+                (formVersion >= 1 && !isDraft ? '<li><span class="vh-version">v' + formVersion + '</span><span class="badge-published">Published</span><span class="vh-meta">' + (activeForm && activeForm.publishedAt ? escapeHtml(activeForm.publishedAt) + ' by ' + escapeHtml(activeForm.publishedBy || '') : '') + '</span></li>' : '') +
+                (formVersion >= 2 ? '<li><span class="vh-version">v' + (formVersion - 1) + '</span><span class="vh-meta" style="color:var(--views-text-secondary)">Published</span><span class="vh-meta">' + escapeHtml(activeForm ? activeForm.lastModified : '') + '</span></li>' : '') +
+                (formVersion >= 3 ? '<li><span class="vh-version">v' + (formVersion - 2) + '</span><span class="vh-meta" style="color:var(--views-text-secondary)">Published</span><span class="vh-meta">2026-01-15</span></li>' : '') +
+              '</ul>' +
             '</div>' +
           '</div>' +
         '</div>';

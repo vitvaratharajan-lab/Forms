@@ -702,10 +702,10 @@
         { id: 'b3', sourceQuestion: 'entityType', sourceLabel: 'Entity type', operator: 'equals', value: 'Financial institution', thenShowSectionId: 'sec5', thenShowLabel: 'Financial institution details' },
       ];
       const SENT_FORMS = [
-        { id: 's1', formId: '3', formName: 'Associate Information Request', entityName: 'Acme Corp', assessmentName: 'Screening', recipient: 'associate@example.com', sentAt: '2026-02-28 10:30', expiresAt: '2026-03-14', status: 'Completed', completedAt: '2026-03-01 14:00', attachments: ['ID document.pdf', 'Proof of address.pdf'], assignedTo: 'Unassigned', assignedUserId: null, permissions: ['View'] },
-        { id: 's2', formId: '3', formName: 'Associate Information Request', entityName: 'Partner Ltd', assessmentName: 'Evolution', recipient: 'j.smith@partner.com', sentAt: '2026-02-27 09:00', expiresAt: '2026-03-13', status: 'Opened', completedAt: null, attachments: [], assignedTo: 'Unassigned', assignedUserId: null, permissions: ['View'] },
-        { id: 's3', formId: '4', formName: 'UBO Declaration', entityName: 'Compliance Co', assessmentName: 'Risk Assessment Demo', recipient: 'compliance@client.com', sentAt: '2026-02-26 16:45', expiresAt: '2026-03-12', status: 'Sent', completedAt: null, attachments: ['Certificate.pdf'], assignedTo: 'Unassigned', assignedUserId: null, permissions: ['View'] },
-        { id: 's4', formId: '3', formName: 'Associate Information Request', entityName: 'Legacy Entity', assessmentName: 'Customer', recipient: 'old@expired.com', sentAt: '2026-02-01 12:00', expiresAt: '2026-02-15', status: 'Expired', completedAt: null, attachments: [], assignedTo: 'Unassigned', assignedUserId: null, permissions: ['View'] },
+        { id: 's1', formId: '3', formName: 'Associate Information Request', formVersion: 1, entityName: 'Acme Corp', assessmentName: 'Screening', recipient: 'associate@example.com', sentAt: '2026-02-28 10:30', expiresAt: '2026-03-14', status: 'Completed', completedAt: '2026-03-01 14:00', attachments: ['ID document.pdf', 'Proof of address.pdf'], assignedTo: 'Unassigned', assignedUserId: null, permissions: ['View'] },
+        { id: 's2', formId: '3', formName: 'Associate Information Request', formVersion: 1, entityName: 'Partner Ltd', assessmentName: 'Evolution', recipient: 'j.smith@partner.com', sentAt: '2026-02-27 09:00', expiresAt: '2026-03-13', status: 'Opened', completedAt: null, attachments: [], assignedTo: 'Unassigned', assignedUserId: null, permissions: ['View'] },
+        { id: 's3', formId: '4', formName: 'UBO Declaration', formVersion: 4, entityName: 'Compliance Co', assessmentName: 'Risk Assessment Demo', recipient: 'compliance@client.com', sentAt: '2026-02-26 16:45', expiresAt: '2026-03-12', status: 'Sent', completedAt: null, attachments: ['Certificate.pdf'], assignedTo: 'Unassigned', assignedUserId: null, permissions: ['View'] },
+        { id: 's4', formId: '3', formName: 'Associate Information Request', formVersion: 1, entityName: 'Legacy Entity', assessmentName: 'Customer', recipient: 'old@expired.com', sentAt: '2026-02-01 12:00', expiresAt: '2026-02-15', status: 'Expired', completedAt: null, attachments: [], assignedTo: 'Unassigned', assignedUserId: null, permissions: ['View'] },
       ];
       var MOCK_USERS = [
         { id: 'u1', name: 'Sarah Chen', initials: 'SC', role: 'Analyst' },
@@ -892,6 +892,38 @@
             manageFormsFormFilter = this.value || '';
             renderApp();
           });
+          content.querySelectorAll('.btn-toggle-versions').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+              var id = this.getAttribute('data-id');
+              var rows = content.querySelectorAll('.version-rows-' + id);
+              var showing = rows.length > 0 && rows[0].style.display !== 'none';
+              rows.forEach(function (r) { r.style.display = showing ? 'none' : 'table-row'; });
+              this.textContent = showing ? '▾' : '▴';
+            });
+          });
+          content.querySelectorAll('.btn-view-old-version').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+              var formId = this.getAttribute('data-form-id');
+              var ver = this.getAttribute('data-version');
+              var form = FORMS.find(function (f) { return f.id === formId; });
+              var overlay = document.createElement('div');
+              overlay.className = 'validation-overlay';
+              overlay.innerHTML = '<div class="validation-modal">' +
+                '<div class="validation-modal-header"><h2>' + escapeHtml(form ? form.name : 'Form') + ' — v' + escapeHtml(ver) + '</h2></div>' +
+                '<div class="validation-modal-body">' +
+                  '<p style="margin:0 0 12px;font-size:13px;color:var(--views-text-light)">Read-only view of a previous version. This version is immutable.</p>' +
+                  '<div class="validation-item"><span class="validation-icon-pass">✓</span><span>Version v' + escapeHtml(ver) + ' — Published</span></div>' +
+                  '<div class="validation-item"><span>Sections: General, UBO details, Financials</span></div>' +
+                  '<div class="validation-item"><span>Questions: 5</span></div>' +
+                  '<div class="validation-item"><span>Branching rules: 2</span></div>' +
+                  '<div class="validation-item"><span>Channel: ' + escapeHtml(form ? form.type : '—') + '</span></div>' +
+                '</div>' +
+                '<div class="validation-modal-footer"><button type="button" class="btn-secondary btn-close-modal">Close</button></div></div>';
+              document.body.appendChild(overlay);
+              overlay.querySelector('.btn-close-modal').addEventListener('click', function () { overlay.remove(); });
+              overlay.addEventListener('click', function (e) { if (e.target === overlay) overlay.remove(); });
+            });
+          });
         } else {
           content.innerHTML = renderFormConfig(route.new ? 'New form' : (activeForm?.name || 'Configure form'), route.new, activeForm);
           content.querySelector('.btn-cancel')?.addEventListener('click', function () { formConfigChannelId = ''; setRoute('#/forms'); });
@@ -909,6 +941,7 @@
           content.querySelector('.btn-publish')?.addEventListener('click', function () {
             var checks = [];
             var hasErrors = false;
+            checks.push({ status: 'info', text: 'Publish-time checks (form structure via SurveyJS)' });
             if (FORM_SECTIONS.length === 0) { checks.push({ status: 'fail', text: 'No sections defined. Add at least one section.' }); hasErrors = true; }
             else checks.push({ status: 'pass', text: 'At least one section exists (' + FORM_SECTIONS.length + ' sections).' });
             if (QUESTION_LIST.length === 0) { checks.push({ status: 'fail', text: 'No questions defined. Add at least one question.' }); hasErrors = true; }
@@ -932,16 +965,21 @@
             if (selectedChannelId === 'external') {
               checks.push({ status: 'pass', text: 'Channel set to External — sender and URL checks apply.' });
             }
+            var mappedCount = DATA_MAPPING_CONFIG.filter(function (dm) { return dm.lane !== 'local'; }).length;
+            if (mappedCount > 0) {
+              checks.push({ status: 'info', text: 'Runtime checks (validated when the workflow sends/displays this form)' });
+              checks.push({ status: 'info', text: mappedCount + ' pre-fill mapping(s) configured. Type consistency will be validated at runtime against the actual entity/custom data available in the workflow context.' });
+            }
             var itemsHtml = checks.map(function (c) {
-              var icon = c.status === 'pass' ? '<span class="validation-icon-pass">✓</span>' : c.status === 'fail' ? '<span class="validation-icon-fail">✗</span>' : '<span class="validation-icon-warn">⚠</span>';
-              return '<div class="validation-item">' + icon + '<span>' + c.text + '</span></div>';
+              var icon = c.status === 'pass' ? '<span class="validation-icon-pass">✓</span>' : c.status === 'fail' ? '<span class="validation-icon-fail">✗</span>' : c.status === 'warn' ? '<span class="validation-icon-warn">⚠</span>' : '<span style="color:var(--views-primary);font-weight:700">ℹ</span>';
+              return '<div class="validation-item"' + (c.status === 'info' ? ' style="border-bottom:1px solid #e1e2ed;padding:10px 0;font-weight:500;color:var(--views-text)"' : '') + '>' + icon + '<span>' + c.text + '</span></div>';
             }).join('');
             var overlay = document.createElement('div');
             overlay.className = 'validation-overlay';
             overlay.innerHTML = '<div class="validation-modal">' +
               '<div class="validation-modal-header"><h2>' + (hasErrors ? 'Cannot publish — validation failed' : 'Validation passed') + '</h2></div>' +
               '<div class="validation-modal-body">' +
-                (hasErrors ? '<p style="margin:0 0 12px;font-size:13px;color:#dc2626">Resolve the errors below before publishing.</p>' : '<p style="margin:0 0 12px;font-size:13px;color:#166534">All checks passed. This will create a new published version.</p>') +
+                (hasErrors ? '<p style="margin:0 0 12px;font-size:13px;color:#dc2626">Resolve the errors below before publishing.</p>' : '<p style="margin:0 0 12px;font-size:13px;color:#166534">All publish-time checks passed. Pre-fill mappings will be validated at runtime when the form is used in a workflow.</p>') +
                 itemsHtml +
               '</div>' +
               '<div class="validation-modal-footer">' +
@@ -1058,6 +1096,7 @@
               '<td class="task-list-cell-cb"><input type="checkbox" class="task-list-cb task-row-cb" data-id="' + escapeHtml(s.id) + '"' + (isChecked ? ' checked' : '') + '></td>' +
               '<td class="task-list-cell-form"><a href="#/external/form/' + escapeHtml(s.id) + '" class="task-list-link task-form-link" data-id="' + escapeHtml(s.id) + '">' + escapeHtml(s.formName) + '</a></td>' +
               '<td class="task-list-cell-task-type">SC Forms</td>' +
+              '<td class="task-list-cell-version">v' + (s.formVersion || 1) + '</td>' +
               '<td class="task-list-cell-entity">' + escapeHtml(s.entityName || '—') + '</td>' +
               '<td class="task-list-cell-sent-to">' + escapeHtml(s.recipient || '—') + '</td>' +
               '<td class="task-list-cell-assessment">' + escapeHtml(s.assessmentName || '—') + '</td>' +
@@ -1067,10 +1106,10 @@
               '<td class="task-list-cell-actions task-actions-cell">' + taskActions + '</td>' +
             '</tr>';
           }).join('');
-          colCount = 10;
+          colCount = 11;
           tableHtml = '<table class="task-list-table"><thead><tr>' +
             '<th class="task-list-th task-list-th-cb"><input type="checkbox" class="task-list-cb task-select-all"' + (allSelected ? ' checked' : '') + '></th>' +
-            '<th class="task-list-th">Task</th><th class="task-list-th">Task type</th><th class="task-list-th">Entity</th><th class="task-list-th">Sent To</th><th class="task-list-th">Assessment</th><th class="task-list-th">Status</th><th class="task-list-th">Assigned to</th><th class="task-list-th">Permissions</th><th class="task-list-th" style="min-width:200px">Actions</th>' +
+            '<th class="task-list-th">Task</th><th class="task-list-th">Task type</th><th class="task-list-th">Version</th><th class="task-list-th">Entity</th><th class="task-list-th">Sent To</th><th class="task-list-th">Assessment</th><th class="task-list-th">Status</th><th class="task-list-th">Assigned to</th><th class="task-list-th">Permissions</th><th class="task-list-th" style="min-width:200px">Actions</th>' +
             '</tr></thead><tbody>' + rows + '</tbody></table>';
         } else {
           var filteredTasks = tasksTaskTypeFilter === 'form_review'
@@ -1401,11 +1440,27 @@
         });
         var rows = filtered.map(function (f) {
           var statusClass = f.status === 'Published' ? 'badge-published' : f.status === 'Active' ? 'badge-active' : 'badge-draft';
+          var ver = f.version || 1;
+          var prevVersionRows = '';
+          for (var v = ver - 1; v >= 1 && v >= ver - 3; v--) {
+            var sentOnVersion = SENT_FORMS.filter(function (s) { return s.formId === f.id && s.formVersion === v; });
+            var responseCount = sentOnVersion.length;
+            prevVersionRows += '<tr class="version-history-row version-rows-' + escapeHtml(f.id) + '" style="display:none;background:#fafbfc">' +
+              '<td style="padding-left:32px;color:var(--views-text-light)">' + escapeHtml(f.name) + '</td>' +
+              '<td>' + escapeHtml(f.formType || '—') + '</td>' +
+              '<td>' + escapeHtml(f.type) + '</td>' +
+              '<td>v' + v + '</td>' +
+              '<td><span style="padding:3px 10px;border-radius:4px;font-size:12px;font-weight:500;background:#f3f4f6;color:#6b7280">Previous</span></td>' +
+              '<td>—</td>' +
+              '<td>' + responseCount + '</td>' +
+              '<td><button type="button" class="action-btn btn-view-old-version" data-form-id="' + escapeHtml(f.id) + '" data-version="' + v + '">View</button></td>' +
+            '</tr>';
+          }
           return '<tr>' +
             '<td><strong>' + escapeHtml(f.name) + '</strong></td>' +
             '<td>' + escapeHtml(f.formType || '—') + '</td>' +
             '<td>' + escapeHtml(f.type) + '</td>' +
-            '<td>v' + (f.version || 1) + '</td>' +
+            '<td>v' + ver + (ver > 1 ? ' <button type="button" class="action-btn btn-toggle-versions" data-id="' + escapeHtml(f.id) + '" style="font-size:11px;padding:1px 6px;margin-left:4px" title="Show previous versions">▾</button>' : '') + '</td>' +
             '<td><span class="' + statusClass + '">' + escapeHtml(f.status) + '</span></td>' +
             '<td>' + escapeHtml(f.lastModified) + '</td>' +
             '<td>' + f.responses + '</td>' +
@@ -1419,7 +1474,7 @@
                 '<button type="button" class="menu-action-expire">Expire</button>' +
               '</div>' +
             '</td>' +
-          '</tr>';
+          '</tr>' + prevVersionRows;
         }).join('');
         return '<div class="page">' +
           '<div class="page-breadcrumb"><a href="#/forms">Configuration</a><span class="sep">›</span><a href="#/forms">Form configuration</a><span class="sep">›</span><span class="current">Manage forms</span></div>' +
@@ -2292,6 +2347,7 @@
           return '<tr>' +
             '<td class="task-list-cell-form"><a href="#/external/form/' + escapeHtml(s.id) + '" class="task-list-link external-form-view-link" data-id="' + escapeHtml(s.id) + '">' + escapeHtml(s.formName) + '</a></td>' +
             '<td class="task-list-cell-form-type">' + escapeHtml(formType) + '</td>' +
+            '<td class="task-list-cell-version">v' + (s.formVersion || 1) + '</td>' +
             '<td class="task-list-cell-entity"><a href="#/external/form/' + escapeHtml(s.id) + '" class="task-list-link external-form-view-link" data-id="' + escapeHtml(s.id) + '">' + escapeHtml(s.entityName || '—') + '</a></td>' +
             '<td class="task-list-cell-sent-to">' + escapeHtml(s.recipient || '—') + '</td>' +
             '<td class="task-list-cell-sent">' + escapeHtml(s.sentAt || '—') + '</td>' +
@@ -2319,10 +2375,10 @@
           '<div class="card">' +
             '<div class="toolbar-row">' +
               '<span class="toolbar-item">Filter <strong>0</strong></span>' +
-              '<span class="toolbar-item">Columns <strong>10</strong></span>' +
+              '<span class="toolbar-item">Columns <strong>11</strong></span>' +
             '</div>' +
             '<table><thead><tr>' +
-              '<th>Form</th><th>Form type</th><th>Recipient</th><th>Sent to</th><th>Sent</th><th>Expires</th><th>Status</th><th>Completed</th><th>Attachments</th><th style="width:220px">Actions</th>' +
+              '<th>Form</th><th>Form type</th><th>Version</th><th>Recipient</th><th>Sent to</th><th>Sent</th><th>Expires</th><th>Status</th><th>Completed</th><th>Attachments</th><th style="width:220px">Actions</th>' +
             '</tr></thead><tbody>' + rows + '</tbody></table>' +
           '</div>' +
         '</div>';
@@ -2446,9 +2502,9 @@
           '</div>' +
           '</div>';
         return '<div class="page" style="max-width:100%">' +
-          '<div class="page-breadcrumb"><a href="#/views">Views</a><span class="sep">›</span><a href="#/views/tasks">Tasks</a><span class="sep">›</span><span class="current">' + escapeHtml(sent.formName || 'Form') + '</span></div>' +
+          '<div class="page-breadcrumb"><a href="#/views">Views</a><span class="sep">›</span><a href="#/views/tasks">Tasks</a><span class="sep">›</span><span class="current">' + escapeHtml(sent.formName || 'Form') + ' (v' + (sent.formVersion || 1) + ')</span></div>' +
           '<div class="header-row" style="margin-bottom:16px">' +
-            '<a href="#/views/tasks" class="btn-secondary task-list-back task-back-to-tasks" style="text-decoration:none;display:inline-flex;align-items:center">← Tasks</a>' +
+            '<div style="display:flex;align-items:center;gap:12px"><a href="#/views/tasks" class="btn-secondary task-list-back task-back-to-tasks" style="text-decoration:none;display:inline-flex;align-items:center">← Tasks</a><span class="version-indicator"><span class="version-num">v' + (sent.formVersion || 1) + '</span><span style="font-size:12px;color:var(--views-text-light)">Sent ' + escapeHtml(sent.sentAt || '') + '</span></span></div>' +
           '</div>' +
           '<div class="form-view-layout">' +
             '<nav class="form-view-sidebar" aria-label="Form sections">' +

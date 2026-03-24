@@ -840,12 +840,12 @@
       var tasksTaskTypeFilter = 'all';
       var selectedTaskIds = [];
       var MOCK_TASKS = [
-        { id: 'tr1', taskName: 'KYB Entity Onboarding', entityName: 'Acme Corp', assessmentName: 'KYB Onboarding — Acme Corp', status: 'Pending Review', assignedTo: 'David Reviewer', assignedUserId: 'u2', permissions: ['View', 'Action'], createdAt: '18 Mar 2026 at 2:32 PM', taskType: 'form_review', overrideCount: 2, customDataCount: 2 },
-        { id: 'tr2', taskName: 'Periodic Review Questionnaire', entityName: 'GlobalTech Solutions', assessmentName: 'Annual Review — GlobalTech', status: 'Pending Review', assignedTo: 'David Reviewer', assignedUserId: 'u2', permissions: ['View', 'Action'], createdAt: '17 Mar 2026 at 11:15 AM', taskType: 'form_review', overrideCount: 1, customDataCount: 0 },
-        { id: 'tr3', taskName: 'Supplier Due Diligence', entityName: 'NorthStar Logistics', assessmentName: 'Supplier Onboarding — NorthStar', status: 'Complete', assignedTo: 'Sarah Chen', assignedUserId: 'u1', permissions: ['View'], createdAt: '15 Mar 2026 at 9:00 AM', taskType: 'form_review', overrideCount: 0, customDataCount: 3 },
-        { id: 't1', taskName: 'META - GRID', entityName: 'META', assessmentName: 'Evolution', status: 'Incomplete', assignedTo: 'Unassigned', assignedUserId: null, permissions: ['View'], createdAt: '9 Mar 2026 at 2:50 PM', taskType: 'screening' },
-        { id: 't2', taskName: 'FACEBOOK - GRID', entityName: 'FACEBOOK', assessmentName: 'Evolution', status: 'Incomplete', assignedTo: 'Unassigned', assignedUserId: null, permissions: ['View'], createdAt: '6 Mar 2026 at 9:24 PM', taskType: 'screening' },
-        { id: 't3', taskName: 'DIALOG CORP - GRID', entityName: 'MOODY\'S CORPORATION', assessmentName: 'Evolution', status: 'Incomplete', assignedTo: 'Unassigned', assignedUserId: null, permissions: ['View'], createdAt: '5 Mar 2026 at 11:00 AM', taskType: 'monitoring' },
+        { id: 'tr1', taskName: 'KYB Entity Onboarding', entityName: 'Acme Corp', assessmentName: 'KYB Onboarding — Acme Corp', status: 'Pending Review', assignedTo: 'David Reviewer', assignedUserId: 'u2', permissions: ['View', 'Action'], createdAt: '18 Mar 2026 at 2:32 PM', connector: 'Forms', taskType: 'KYB', overrideCount: 2, customDataCount: 2 },
+        { id: 'tr2', taskName: 'Periodic Review Questionnaire', entityName: 'GlobalTech Solutions', assessmentName: 'Annual Review — GlobalTech', status: 'Pending Review', assignedTo: 'David Reviewer', assignedUserId: 'u2', permissions: ['View', 'Action'], createdAt: '17 Mar 2026 at 11:15 AM', connector: 'Forms', taskType: 'Periodic review', overrideCount: 1, customDataCount: 0 },
+        { id: 'tr3', taskName: 'Supplier Due Diligence', entityName: 'NorthStar Logistics', assessmentName: 'Supplier Onboarding — NorthStar', status: 'Complete', assignedTo: 'Sarah Chen', assignedUserId: 'u1', permissions: ['View'], createdAt: '15 Mar 2026 at 9:00 AM', connector: 'Forms', taskType: 'UBO', overrideCount: 0, customDataCount: 3 },
+        { id: 't1', taskName: 'META - GRID', entityName: 'META', assessmentName: 'Evolution', status: 'Incomplete', assignedTo: 'Unassigned', assignedUserId: null, permissions: ['View'], createdAt: '9 Mar 2026 at 2:50 PM', connector: 'Screening', taskType: 'GRID workflow' },
+        { id: 't2', taskName: 'FACEBOOK - GRID', entityName: 'FACEBOOK', assessmentName: 'Evolution', status: 'Incomplete', assignedTo: 'Unassigned', assignedUserId: null, permissions: ['View'], createdAt: '6 Mar 2026 at 9:24 PM', connector: 'Screening', taskType: 'GRID workflow' },
+        { id: 't3', taskName: 'DIALOG CORP - GRID', entityName: 'MOODY\'S CORPORATION', assessmentName: 'Evolution', status: 'Incomplete', assignedTo: 'Unassigned', assignedUserId: null, permissions: ['View'], createdAt: '5 Mar 2026 at 11:00 AM', connector: 'Monitoring', taskType: 'Alert feed' },
       ];
       var PREFILL_DATA = {
         s1: { entityName: 'Acme Corp', entityType: 'Corporate', hasUbo: true, uboDetails: 'John Doe, 25%', supportingDocs: '' },
@@ -1207,15 +1207,17 @@
 
       function getAllTaskItems() {
         if (tasksTaskTypeFilter === 'external_forms') return SENT_FORMS;
-        if (tasksTaskTypeFilter === 'form_review') return MOCK_TASKS.filter(function (t) { return t.taskType === 'form_review'; });
-        return MOCK_TASKS;
+        if (tasksTaskTypeFilter === 'all') return MOCK_TASKS;
+        return MOCK_TASKS.filter(function (t) { return t.taskType === tasksTaskTypeFilter || t.connector === tasksTaskTypeFilter; });
       }
 
       function renderTasksView() {
-        var filterCount = (tasksTaskTypeFilter === 'external_forms' || tasksTaskTypeFilter === 'form_review') ? 1 : 0;
-        var taskTypeOptions = '<option value="all"' + (tasksTaskTypeFilter === 'all' ? ' selected' : '') + '>All</option>' +
-          '<option value="form_review"' + (tasksTaskTypeFilter === 'form_review' ? ' selected' : '') + '>Form Review</option>' +
-          '<option value="external_forms"' + (tasksTaskTypeFilter === 'external_forms' ? ' selected' : '') + '>SC Forms</option>';
+        var filterCount = tasksTaskTypeFilter !== 'all' ? 1 : 0;
+        var allTaskTypes = [];
+        MOCK_TASKS.forEach(function (t) { if (allTaskTypes.indexOf(t.taskType) === -1) allTaskTypes.push(t.taskType); });
+        var taskTypeOptions = '<option value="all"' + (tasksTaskTypeFilter === 'all' ? ' selected' : '') + '>All task types</option>' +
+          allTaskTypes.map(function (tt) { return '<option value="' + escapeHtml(tt) + '"' + (tasksTaskTypeFilter === tt ? ' selected' : '') + '>' + escapeHtml(tt) + '</option>'; }).join('') +
+          '<option value="external_forms"' + (tasksTaskTypeFilter === 'external_forms' ? ' selected' : '') + '>SC Forms (external)</option>';
         var tableHtml;
         var colCount = 6;
         var allItems = getAllTaskItems();
@@ -1225,6 +1227,8 @@
           var statusClass = { Sent: 'badge-sent', Opened: 'badge-opened', Completed: 'badge-completed', Expired: 'badge-expired' };
           var rows = SENT_FORMS.map(function (s) {
             var isChecked = selectedTaskIds.indexOf(s.id) !== -1;
+            var form = FORMS.find(function (f) { return f.id === s.formId; });
+            var formTaskType = form ? (form.formType || '—') : '—';
             var taskActions =
               '<button type="button" class="task-action-btn btn-task-assign" data-id="' + escapeHtml(s.id) + '">Assign</button>' +
               (s.assignedUserId ? '<button type="button" class="task-action-btn btn-reassign btn-task-reassign" data-id="' + escapeHtml(s.id) + '">Reassign</button>' : '') +
@@ -1236,7 +1240,8 @@
             return '<tr class="' + (isChecked ? 'row-selected' : '') + '">' +
               '<td class="task-list-cell-cb"><input type="checkbox" class="task-list-cb task-row-cb" data-id="' + escapeHtml(s.id) + '"' + (isChecked ? ' checked' : '') + '></td>' +
               '<td class="task-list-cell-form"><a href="#/external/form/' + escapeHtml(s.id) + '" class="task-list-link task-form-link" data-id="' + escapeHtml(s.id) + '">' + escapeHtml(s.formName) + '</a></td>' +
-              '<td class="task-list-cell-task-type">SC Forms</td>' +
+              '<td class="task-list-cell-task-type">Forms</td>' +
+              '<td class="task-list-cell-task-type">' + escapeHtml(formTaskType) + '</td>' +
               '<td class="task-list-cell-version">v' + (s.formVersion || 1) + '</td>' +
               '<td class="task-list-cell-entity">' + escapeHtml(s.entityName || '—') + '</td>' +
               '<td class="task-list-cell-sent-to">' + escapeHtml(s.recipient || '—') + '</td>' +
@@ -1247,36 +1252,35 @@
               '<td class="task-list-cell-actions task-actions-cell">' + taskActions + '</td>' +
             '</tr>';
           }).join('');
-          colCount = 11;
+          colCount = 12;
           tableHtml = '<table class="task-list-table"><thead><tr>' +
             '<th class="task-list-th task-list-th-cb"><input type="checkbox" class="task-list-cb task-select-all"' + (allSelected ? ' checked' : '') + '></th>' +
-            '<th class="task-list-th">Task</th><th class="task-list-th">Task type</th><th class="task-list-th">Version</th><th class="task-list-th">Entity</th><th class="task-list-th">Sent To</th><th class="task-list-th">Assessment</th><th class="task-list-th">Status</th><th class="task-list-th">Assigned to</th><th class="task-list-th">Permissions</th><th class="task-list-th" style="min-width:200px">Actions</th>' +
+            '<th class="task-list-th">Task</th><th class="task-list-th">Connector</th><th class="task-list-th">Task type</th><th class="task-list-th">Version</th><th class="task-list-th">Entity</th><th class="task-list-th">Sent To</th><th class="task-list-th">Assessment</th><th class="task-list-th">Status</th><th class="task-list-th">Assigned to</th><th class="task-list-th">Permissions</th><th class="task-list-th" style="min-width:200px">Actions</th>' +
             '</tr></thead><tbody>' + rows + '</tbody></table>';
         } else {
-          var filteredTasks = tasksTaskTypeFilter === 'form_review'
-            ? MOCK_TASKS.filter(function (t) { return t.taskType === 'form_review'; })
-            : MOCK_TASKS;
+          var filteredTasks = getAllTaskItems();
           var taskRows = filteredTasks.map(function (t) {
             var isChecked = selectedTaskIds.indexOf(t.id) !== -1;
             var statusClass = t.status === 'Pending Review' ? 'badge-pending' : t.status === 'Complete' ? 'badge-completed' : 'badge-sent';
-            var taskTypeLabel = t.taskType === 'form_review' ? '<span class="lane-badge lane-entity">Form Review</span>' : t.taskType === 'screening' ? 'Screening' : t.taskType === 'monitoring' ? 'Monitoring' : t.taskType;
+            var connectorBadge = t.connector === 'Forms' ? '<span class="lane-badge lane-entity">' + escapeHtml(t.connector) + '</span>' : t.connector === 'Screening' ? '<span class="lane-badge lane-custom">' + escapeHtml(t.connector) + '</span>' : '<span class="lane-badge">' + escapeHtml(t.connector) + '</span>';
             var dataChanges = '';
             if (t.overrideCount > 0) dataChanges += '<span class="badge-entity-count">' + t.overrideCount + ' entity</span>';
             if (t.customDataCount > 0) dataChanges += '<span class="badge-custom-count">' + t.customDataCount + ' custom</span>';
             if (!dataChanges) dataChanges = '<span style="color:var(--views-text-light);font-size:12px">\u2014</span>';
             var taskActions =
-              (t.taskType === 'form_review' && t.status === 'Pending Review' ? '<a href="#/views/form-review/' + escapeHtml(t.id) + '" class="action-btn" style="font-weight:500">Review</a>' : '') +
-              (t.taskType === 'form_review' && t.status === 'Complete' ? '<a href="#/views/form-review/' + escapeHtml(t.id) + '" class="action-btn">View</a>' : '') +
+              (t.connector === 'Forms' && t.status === 'Pending Review' ? '<a href="#/views/form-review/' + escapeHtml(t.id) + '" class="action-btn" style="font-weight:500">Review</a>' : '') +
+              (t.connector === 'Forms' && t.status === 'Complete' ? '<a href="#/views/form-review/' + escapeHtml(t.id) + '" class="action-btn">View</a>' : '') +
               '<button type="button" class="task-action-btn btn-task-assign" data-id="' + escapeHtml(t.id) + '">Assign</button>' +
               (t.assignedUserId ? '<button type="button" class="task-action-btn btn-reassign btn-task-reassign" data-id="' + escapeHtml(t.id) + '">Reassign</button>' : '');
-            var taskNameCell = t.taskType === 'form_review'
+            var taskNameCell = t.connector === 'Forms'
               ? '<a href="#/views/form-review/' + escapeHtml(t.id) + '" class="task-list-link">' + escapeHtml(t.taskName) + '</a><div style="font-size:11px;color:var(--views-text-light)">' + escapeHtml(t.id) + '</div>'
               : escapeHtml(t.taskName);
-            var rowBg = t.taskType === 'form_review' && t.status === 'Pending Review' ? ' style="background:#fffbeb"' : '';
+            var rowBg = t.connector === 'Forms' && t.status === 'Pending Review' ? ' style="background:#fffbeb"' : '';
             return '<tr class="' + (isChecked ? 'row-selected' : '') + '"' + rowBg + '>' +
               '<td class="task-list-cell-cb"><input type="checkbox" class="task-list-cb task-row-cb" data-id="' + escapeHtml(t.id) + '"' + (isChecked ? ' checked' : '') + '></td>' +
               '<td class="task-list-cell-form">' + taskNameCell + '</td>' +
-              '<td class="task-list-cell-task-type">' + taskTypeLabel + '</td>' +
+              '<td class="task-list-cell-task-type">' + connectorBadge + '</td>' +
+              '<td class="task-list-cell-task-type">' + escapeHtml(t.taskType) + '</td>' +
               '<td class="task-list-cell-entity">' + escapeHtml(t.entityName) + '</td>' +
               '<td class="task-list-cell-assessment">' + escapeHtml(t.assessmentName) + '</td>' +
               '<td class="task-list-cell-status"><span class="' + statusClass + '">' + escapeHtml(t.status) + '</span></td>' +
@@ -1286,10 +1290,10 @@
               '<td class="task-list-cell-actions task-actions-cell">' + taskActions + '</td>' +
             '</tr>';
           }).join('');
-          colCount = 10;
+          colCount = 11;
           tableHtml = '<table class="task-list-table"><thead><tr>' +
             '<th class="task-list-th task-list-th-cb"><input type="checkbox" class="task-list-cb task-select-all"' + (allSelected ? ' checked' : '') + '></th>' +
-            '<th class="task-list-th">Task</th><th class="task-list-th">Task type</th><th class="task-list-th">Entity</th><th class="task-list-th">Assessment</th><th class="task-list-th">Status</th><th class="task-list-th">Data changes</th><th class="task-list-th">Assigned to</th><th class="task-list-th">Created</th><th class="task-list-th" style="min-width:200px">Actions</th>' +
+            '<th class="task-list-th">Task</th><th class="task-list-th">Connector</th><th class="task-list-th">Task type</th><th class="task-list-th">Entity</th><th class="task-list-th">Assessment</th><th class="task-list-th">Status</th><th class="task-list-th">Data changes</th><th class="task-list-th">Assigned to</th><th class="task-list-th">Created</th><th class="task-list-th" style="min-width:200px">Actions</th>' +
             '</tr></thead><tbody>' + taskRows + '</tbody></table>';
         }
         return '<div class="page page-external-forms">' +
@@ -1298,13 +1302,15 @@
             '<h1 class="title">Tasks</h1>' +
             (tasksTaskTypeFilter === 'external_forms' ? '<button type="button" class="btn-primary" disabled title="V1 (Q3): External forms are auto-sent in a workflow step.">Send form via email</button>' : '') +
           '</div>' +
-          (tasksTaskTypeFilter === 'form_review' || tasksTaskTypeFilter === 'all' ? '<div class="info-note" style="margin-bottom:16px;padding:12px 16px;background:#f8f9fb;border:1px solid var(--views-border);border-radius:6px"><strong>Note:</strong> Form Review tasks shown below are illustrative of how the <strong>workflow orchestration team</strong> may surface data change reviews. Forms (MPD) feeds tagged responses into the workflow; the review task creation, approval UX, and write-back are owned by the workflow team.</div>' : '') +
+          '<div class="info-note" style="margin-bottom:16px;padding:12px 16px;background:#f8f9fb;border:1px solid var(--views-border);border-radius:6px">' +
+            '<strong>Connector</strong> identifies which system created the task. <strong>Task type</strong> segments work within that connector\u2019s domain (e.g. for Forms, the task type is the <em>form type</em>). Each task has exactly one task type, defined by the connector at creation.' +
+          '</div>' +
           renderBulkBar() +
           '<div class="card">' +
             '<div class="toolbar-row">' +
-              '<span class="toolbar-item">⫧ Filter <strong>' + filterCount + '</strong></span>' +
-              '<select class="form-input tasks-task-type-filter" style="max-width:180px;margin-left:8px">' + taskTypeOptions + '</select>' +
-              '<span class="toolbar-item" style="margin-left:8px">▤ Columns <strong>' + colCount + '</strong></span>' +
+              '<span class="toolbar-item">\u2AE7 Filter <strong>' + filterCount + '</strong></span>' +
+              '<select class="form-input tasks-task-type-filter" style="max-width:200px;margin-left:8px">' + taskTypeOptions + '</select>' +
+              '<span class="toolbar-item" style="margin-left:8px">\u25A4 Columns <strong>' + colCount + '</strong></span>' +
             '</div>' +
             tableHtml +
           '</div>' +
@@ -1573,7 +1579,7 @@
         for (var i = 0; i < FORMS.length; i++) {
           if (FORMS[i].formType && formTypes.indexOf(FORMS[i].formType) === -1) formTypes.push(FORMS[i].formType);
         }
-        var formTypeFilter = '<option value="">All form types</option>' + formTypes.map(function (t) { return '<option value="' + escapeHtml(t) + '"' + (manageFormsFormFilter === t ? ' selected' : '') + '>' + escapeHtml(t) + '</option>'; }).join('');
+        var formTypeFilter = '<option value="">All task types</option>' + formTypes.map(function (t) { return '<option value="' + escapeHtml(t) + '"' + (manageFormsFormFilter === t ? ' selected' : '') + '>' + escapeHtml(t) + '</option>'; }).join('');
         var filtered = FORMS.filter(function (f) {
           if (manageFormsFormFilter && f.formType !== manageFormsFormFilter) return false;
           return true;
@@ -1627,13 +1633,13 @@
               '<button type="button" class="btn-primary btn-new">+ New form</button>' +
             '</div>' +
           '</div>' +
-          '<p class="muted-text" style="margin-bottom:12px">Form type identifies the form (e.g. KYC, supply chain). Filter by form type to create custom views.</p>' +
+          '<p class="muted-text" style="margin-bottom:12px">Task type (form type) identifies the form (e.g. KYB, UBO). When tasks are created from forms, this value becomes the <strong>task type</strong> in the task list. Each task has exactly one task type, set by the Forms connector at creation.</p>' +
           '<div class="card">' +
             '<div class="filter-row">' +
-              '<label class="form-label">Form type</label><select class="form-input filter-form-type">' + formTypeFilter + '</select>' +
+              '<label class="form-label">Task type</label><select class="form-input filter-form-type">' + formTypeFilter + '</select>' +
             '</div>' +
             '<table><thead><tr>' +
-              '<th>Form name</th><th>Form type</th><th>Channel</th><th>Version</th><th>Status</th><th>Last modified</th><th>Responses</th><th style="width:52px">Actions</th>' +
+              '<th>Form name</th><th>Task type</th><th>Channel</th><th>Version</th><th>Status</th><th>Last modified</th><th>Responses</th><th style="width:52px">Actions</th>' +
             '</tr></thead><tbody>' + rows + '</tbody></table>' +
           '</div>' +
         '</div>';
@@ -1849,8 +1855,8 @@
                 '<input type="text" class="form-input" value="Configure sections, questions and branching for this form." placeholder="Brief description">' +
               '</div>' +
               '<div class="form-row">' +
-                '<label class="form-label">Form type</label>' +
-                '<p class="muted-text" style="margin:4px 0 8px">Identifies the form (e.g. KYC, UBO, Associate). Used for filtering and custom views.</p>' +
+                '<label class="form-label">Form type <span style="font-size:11px;color:var(--views-text-light);font-weight:400">(= task type)</span></label>' +
+                '<p class="muted-text" style="margin:4px 0 8px">Identifies the form (e.g. KYB, UBO, Associate). When a task is created from this form, the form type becomes the <strong>task type</strong> in the task list, enabling filtering by kind of work within the Forms connector.</p>' +
                 '<select class="form-input form-type-select" style="max-width:280px">' + formTypeOpts + '</select>' +
               '</div>' +
               '<div class="form-row">' +
@@ -2487,6 +2493,7 @@
           var attachmentsDisplay = (s.attachments && s.attachments.length) ? s.attachments.length + ' (' + s.attachments.join(', ') + ')' : '—';
           return '<tr>' +
             '<td class="task-list-cell-form"><a href="#/external/form/' + escapeHtml(s.id) + '" class="task-list-link external-form-view-link" data-id="' + escapeHtml(s.id) + '">' + escapeHtml(s.formName) + '</a></td>' +
+            '<td class="task-list-cell-task-type"><span class="lane-badge lane-entity">Forms</span></td>' +
             '<td class="task-list-cell-form-type">' + escapeHtml(formType) + '</td>' +
             '<td class="task-list-cell-version">v' + (s.formVersion || 1) + '</td>' +
             '<td class="task-list-cell-entity"><a href="#/external/form/' + escapeHtml(s.id) + '" class="task-list-link external-form-view-link" data-id="' + escapeHtml(s.id) + '">' + escapeHtml(s.entityName || '—') + '</a></td>' +
@@ -2517,10 +2524,10 @@
             '<div class="toolbar-row">' +
               '<span class="toolbar-item">🔒 Share</span>' +
               '<span class="toolbar-item">⫧ Filter <strong>0</strong></span>' +
-              '<span class="toolbar-item">▤ Columns <strong>11</strong></span>' +
+              '<span class="toolbar-item">▤ Columns <strong>12</strong></span>' +
             '</div>' +
             '<table><thead><tr>' +
-              '<th>Form</th><th>Form type</th><th>Version</th><th>Recipient</th><th>Sent to</th><th>Sent</th><th>Expires</th><th>Status</th><th>Completed</th><th>Attachments</th><th style="width:220px">Actions</th>' +
+              '<th>Form</th><th>Connector</th><th>Task type</th><th>Version</th><th>Recipient</th><th>Sent to</th><th>Sent</th><th>Expires</th><th>Status</th><th>Completed</th><th>Attachments</th><th style="width:220px">Actions</th>' +
             '</tr></thead><tbody>' + rows + '</tbody></table>' +
           '</div>' +
         '</div>';

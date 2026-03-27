@@ -759,11 +759,11 @@
   <script>
     (function () {
       const FORMS = [
-        { id: '1', name: 'KYB Entity Onboarding', type: 'Internal', formType: 'KYB', status: 'Published', version: 3, lastModified: '2026-02-28', responses: 124, publishedAt: '2026-02-28 09:15', publishedBy: 'Sarah Chen' },
-        { id: '2', name: 'Periodic Review Questionnaire', type: 'Internal', formType: 'Periodic review', status: 'Published', version: 2, lastModified: '2026-02-26', responses: 89, publishedAt: '2026-02-26 14:30', publishedBy: 'David Reviewer' },
-        { id: '5', name: 'MLRO review', type: 'Internal', formType: 'MLRO review', status: 'Published', version: 1, lastModified: '2026-02-27', responses: 45, publishedAt: '2026-02-27 11:00', publishedBy: 'Sarah Chen' },
-        { id: '3', name: 'Associate Information Request', type: 'External', formType: 'Associate', status: 'Draft', version: 1, lastModified: '2026-02-25', responses: 0, publishedAt: null, publishedBy: null },
-        { id: '4', name: 'UBO Declaration', type: 'Internal', formType: 'UBO', status: 'Published', version: 5, lastModified: '2026-02-20', responses: 312, publishedAt: '2026-02-20 16:45', publishedBy: 'David Reviewer' },
+        { id: '1', name: 'KYB Entity Onboarding', type: 'Internal', formType: 'KYB', status: 'Published', version: 3, lastModified: '2026-02-28', responses: 124, publishedAt: '2026-02-28 09:15', publishedBy: 'Sarah Chen', dedupEnabled: true },
+        { id: '2', name: 'Periodic Review Questionnaire', type: 'Internal', formType: 'Periodic review', status: 'Published', version: 2, lastModified: '2026-02-26', responses: 89, publishedAt: '2026-02-26 14:30', publishedBy: 'David Reviewer', dedupEnabled: false },
+        { id: '5', name: 'MLRO review', type: 'Internal', formType: 'MLRO review', status: 'Published', version: 1, lastModified: '2026-02-27', responses: 45, publishedAt: '2026-02-27 11:00', publishedBy: 'Sarah Chen', dedupEnabled: false },
+        { id: '3', name: 'Associate Information Request', type: 'External', formType: 'Associate', status: 'Draft', version: 1, lastModified: '2026-02-25', responses: 0, publishedAt: null, publishedBy: null, dedupEnabled: true },
+        { id: '4', name: 'UBO Declaration', type: 'Internal', formType: 'UBO', status: 'Published', version: 5, lastModified: '2026-02-20', responses: 312, publishedAt: '2026-02-20 16:45', publishedBy: 'David Reviewer', dedupEnabled: true },
       ];
       var FIELD_TYPES = ['text', 'longtext', 'number', 'date', 'dropdown', 'radio', 'checkbox', 'boolean', 'panel', 'file'];
       var FORM_SECTIONS = [
@@ -840,9 +840,9 @@
       var tasksTaskTypeFilter = 'all';
       var selectedTaskIds = [];
       var MOCK_TASKS = [
-        { id: 'tr1', taskName: 'KYB Entity Onboarding', entityName: 'Acme Corp', assessmentName: 'KYB Onboarding — Acme Corp', status: 'Pending Review', assignedTo: 'David Reviewer', assignedUserId: 'u2', permissions: ['View', 'Action'], createdAt: '18 Mar 2026 at 2:32 PM', connector: 'Forms', taskType: 'KYB', overrideCount: 2, customDataCount: 2 },
-        { id: 'tr2', taskName: 'Periodic Review Questionnaire', entityName: 'GlobalTech Solutions', assessmentName: 'Annual Review — GlobalTech', status: 'Pending Review', assignedTo: 'David Reviewer', assignedUserId: 'u2', permissions: ['View', 'Action'], createdAt: '17 Mar 2026 at 11:15 AM', connector: 'Forms', taskType: 'Periodic review', overrideCount: 1, customDataCount: 0 },
-        { id: 'tr3', taskName: 'Supplier Due Diligence', entityName: 'NorthStar Logistics', assessmentName: 'Supplier Onboarding — NorthStar', status: 'Complete', assignedTo: 'Sarah Chen', assignedUserId: 'u1', permissions: ['View'], createdAt: '15 Mar 2026 at 9:00 AM', connector: 'Forms', taskType: 'UBO', overrideCount: 0, customDataCount: 3 },
+        { id: 'tr1', taskName: 'KYB Entity Onboarding', entityName: 'Acme Corp', assessmentName: 'KYB Onboarding — Acme Corp', status: 'Pending Review', assignedTo: 'David Reviewer', assignedUserId: 'u2', permissions: ['View', 'Action'], createdAt: '18 Mar 2026 at 2:32 PM', connector: 'Forms', taskType: 'KYB' },
+        { id: 'tr2', taskName: 'Periodic Review Questionnaire', entityName: 'GlobalTech Solutions', assessmentName: 'Annual Review — GlobalTech', status: 'Pending Review', assignedTo: 'David Reviewer', assignedUserId: 'u2', permissions: ['View', 'Action'], createdAt: '17 Mar 2026 at 11:15 AM', connector: 'Forms', taskType: 'Risk Review' },
+        { id: 'tr3', taskName: 'Supplier Due Diligence', entityName: 'NorthStar Logistics', assessmentName: 'Supplier Onboarding — NorthStar', status: 'Complete', assignedTo: 'Sarah Chen', assignedUserId: 'u1', permissions: ['View'], createdAt: '15 Mar 2026 at 9:00 AM', connector: 'Forms', taskType: 'Monitoring' },
         { id: 't1', taskName: 'META - GRID', entityName: 'META', assessmentName: 'Evolution', status: 'Incomplete', assignedTo: 'Unassigned', assignedUserId: null, permissions: ['View'], createdAt: '9 Mar 2026 at 2:50 PM', connector: 'Screening', taskType: 'GRID workflow' },
         { id: 't2', taskName: 'FACEBOOK - GRID', entityName: 'FACEBOOK', assessmentName: 'Evolution', status: 'Incomplete', assignedTo: 'Unassigned', assignedUserId: null, permissions: ['View'], createdAt: '6 Mar 2026 at 9:24 PM', connector: 'Screening', taskType: 'GRID workflow' },
         { id: 't3', taskName: 'DIALOG CORP - GRID', entityName: 'MOODY\'S CORPORATION', assessmentName: 'Evolution', status: 'Incomplete', assignedTo: 'Unassigned', assignedUserId: null, permissions: ['View'], createdAt: '5 Mar 2026 at 11:00 AM', connector: 'Monitoring', taskType: 'Alert feed' },
@@ -1106,10 +1106,10 @@
             if (selectedChannelId === 'external') {
               checks.push({ status: 'pass', text: 'Channel set to External — sender and URL checks apply.' });
             }
-            var mappedCount = DATA_MAPPING_CONFIG.filter(function (dm) { return dm.lane !== 'local'; }).length;
+            var mappedCount = DATA_MAPPING_CONFIG.filter(function (dm) { return dm.source != null; }).length;
             if (mappedCount > 0) {
-              checks.push({ status: 'info', text: 'Runtime checks (validated when the workflow sends/displays this form)' });
-              checks.push({ status: 'info', text: mappedCount + ' pre-fill mapping(s) configured. Type consistency will be validated at runtime against the actual entity/custom data available in the workflow context.' });
+              checks.push({ status: 'info', text: 'Runtime checks (validated when the form is used in a workflow)' });
+              checks.push({ status: 'info', text: mappedCount + ' pre-fill mapping(s) configured. Availability of source data will be validated at runtime.' });
             }
             var itemsHtml = checks.map(function (c) {
               var icon = c.status === 'pass' ? '<span class="validation-icon-pass">✓</span>' : c.status === 'fail' ? '<span class="validation-icon-fail">✗</span>' : c.status === 'warn' ? '<span class="validation-icon-warn">⚠</span>' : '<span style="color:var(--views-primary);font-weight:700">ℹ</span>';
@@ -1263,10 +1263,6 @@
             var isChecked = selectedTaskIds.indexOf(t.id) !== -1;
             var statusClass = t.status === 'Pending Review' ? 'badge-pending' : t.status === 'Complete' ? 'badge-completed' : 'badge-sent';
             var connectorBadge = t.connector === 'Forms' ? '<span class="lane-badge lane-entity">' + escapeHtml(t.connector) + '</span>' : t.connector === 'Screening' ? '<span class="lane-badge lane-custom">' + escapeHtml(t.connector) + '</span>' : '<span class="lane-badge">' + escapeHtml(t.connector) + '</span>';
-            var dataChanges = '';
-            if (t.overrideCount > 0) dataChanges += '<span class="badge-entity-count">' + t.overrideCount + ' entity</span>';
-            if (t.customDataCount > 0) dataChanges += '<span class="badge-custom-count">' + t.customDataCount + ' custom</span>';
-            if (!dataChanges) dataChanges = '<span style="color:var(--views-text-light);font-size:12px">\u2014</span>';
             var taskActions =
               (t.connector === 'Forms' && t.status === 'Pending Review' ? '<a href="#/views/form-review/' + escapeHtml(t.id) + '" class="action-btn" style="font-weight:500">Review</a>' : '') +
               (t.connector === 'Forms' && t.status === 'Complete' ? '<a href="#/views/form-review/' + escapeHtml(t.id) + '" class="action-btn">View</a>' : '') +
@@ -1284,16 +1280,15 @@
               '<td class="task-list-cell-entity">' + escapeHtml(t.entityName) + '</td>' +
               '<td class="task-list-cell-assessment">' + escapeHtml(t.assessmentName) + '</td>' +
               '<td class="task-list-cell-status"><span class="' + statusClass + '">' + escapeHtml(t.status) + '</span></td>' +
-              '<td class="task-list-cell-form data-changes-badges">' + dataChanges + '</td>' +
               '<td class="task-list-cell-assigned">' + renderAssignedCell(t) + '</td>' +
               '<td class="task-list-cell-created">' + escapeHtml(t.createdAt) + '</td>' +
               '<td class="task-list-cell-actions task-actions-cell">' + taskActions + '</td>' +
             '</tr>';
           }).join('');
-          colCount = 11;
+          colCount = 10;
           tableHtml = '<table class="task-list-table"><thead><tr>' +
             '<th class="task-list-th task-list-th-cb"><input type="checkbox" class="task-list-cb task-select-all"' + (allSelected ? ' checked' : '') + '></th>' +
-            '<th class="task-list-th">Task</th><th class="task-list-th">Connector</th><th class="task-list-th">Task type</th><th class="task-list-th">Entity</th><th class="task-list-th">Assessment</th><th class="task-list-th">Status</th><th class="task-list-th">Data changes</th><th class="task-list-th">Assigned to</th><th class="task-list-th">Created</th><th class="task-list-th" style="min-width:200px">Actions</th>' +
+            '<th class="task-list-th">Task</th><th class="task-list-th">Connector</th><th class="task-list-th">Task type</th><th class="task-list-th">Entity</th><th class="task-list-th">Assessment</th><th class="task-list-th">Status</th><th class="task-list-th">Assigned to</th><th class="task-list-th">Created</th><th class="task-list-th" style="min-width:200px">Actions</th>' +
             '</tr></thead><tbody>' + taskRows + '</tbody></table>';
         }
         return '<div class="page page-external-forms">' +
@@ -1599,6 +1594,7 @@
               '<td><span style="padding:3px 10px;border-radius:4px;font-size:12px;font-weight:500;background:#f3f4f6;color:#6b7280">Previous</span></td>' +
               '<td>—</td>' +
               '<td>' + responseCount + '</td>' +
+              '<td></td>' +
               '<td><button type="button" class="action-btn btn-view-old-version" data-form-id="' + escapeHtml(f.id) + '" data-version="' + v + '">View</button></td>' +
             '</tr>';
           }
@@ -1610,6 +1606,7 @@
             '<td><span class="' + statusClass + '">' + escapeHtml(f.status) + '</span></td>' +
             '<td>' + escapeHtml(f.lastModified) + '</td>' +
             '<td>' + f.responses + '</td>' +
+            '<td>' + (f.dedupEnabled ? '<span style="padding:3px 10px;border-radius:4px;font-size:12px;font-weight:500;background:#dcfce7;color:#166534">On</span>' : '<span style="padding:3px 10px;border-radius:4px;font-size:12px;font-weight:500;background:#f3f4f6;color:#6b7280">Off</span>') + '</td>' +
             '<td style="position:relative">' +
               '<button type="button" class="action-menu-btn btn-actions-menu" data-id="' + escapeHtml(f.id) + '" title="Actions">⋮</button>' +
               '<div class="action-menu-dropdown action-menu-list" data-id="' + escapeHtml(f.id) + '" style="display:none">' +
@@ -1629,7 +1626,7 @@
             '<div style="display:flex;align-items:center;gap:8px;margin-left:auto">' +
               '<span class="toolbar-item">🔒 Share</span>' +
               '<span class="toolbar-item">⫧ Filter <strong>' + (manageFormsFormFilter ? '1' : '0') + '</strong></span>' +
-              '<span class="toolbar-item">▤ Columns <strong>8</strong></span>' +
+              '<span class="toolbar-item">▤ Columns <strong>9</strong></span>' +
               '<button type="button" class="btn-primary btn-new">+ New form</button>' +
             '</div>' +
           '</div>' +
@@ -1639,7 +1636,7 @@
               '<label class="form-label">Task type</label><select class="form-input filter-form-type">' + formTypeFilter + '</select>' +
             '</div>' +
             '<table><thead><tr>' +
-              '<th>Form name</th><th>Task type</th><th>Channel</th><th>Version</th><th>Status</th><th>Last modified</th><th>Responses</th><th style="width:52px">Actions</th>' +
+              '<th>Form name</th><th>Task type</th><th>Channel</th><th>Version</th><th>Status</th><th>Last modified</th><th>Responses</th><th>Dedup</th><th style="width:52px">Actions</th>' +
             '</tr></thead><tbody>' + rows + '</tbody></table>' +
           '</div>' +
         '</div>';
@@ -1676,54 +1673,40 @@
       }
 
       var DATA_MAPPING_CONFIG = [
-        { id: 'dm1', questionTitle: 'Entity name', lane: 'entity', mappedField: 'Entity name', prefillBehaviour: 'prefill_override', isRequired: true },
-        { id: 'dm2', questionTitle: 'Registration number', lane: 'entity', mappedField: 'Registration number', prefillBehaviour: 'prefill_override', isRequired: false },
-        { id: 'dm3', questionTitle: 'Country', lane: 'entity', mappedField: 'Country', prefillBehaviour: 'prefill_readonly', isRequired: false },
-        { id: 'dm4', questionTitle: 'Internal risk rating', lane: 'custom', mappedField: 'internal_risk_rating', prefillBehaviour: 'prefill_edit', isRequired: false },
-        { id: 'dm5', questionTitle: 'Compliance notes', lane: 'custom', mappedField: 'compliance_notes', prefillBehaviour: 'prefill_edit', isRequired: false },
-        { id: 'dm6', questionTitle: 'Has UBOs?', lane: 'local', mappedField: null, prefillBehaviour: 'none', isRequired: false },
-        { id: 'dm7', questionTitle: 'Supporting documents', lane: 'local', mappedField: null, prefillBehaviour: 'none', isRequired: false },
+        { id: 'dm1', questionTitle: 'Entity name', source: 'Entity name', prefillBehaviour: 'read_only', isRequired: true },
+        { id: 'dm2', questionTitle: 'Registration number', source: 'Registration number', prefillBehaviour: 'prefill_and_allow_edit', isRequired: false },
+        { id: 'dm3', questionTitle: 'Country', source: 'Country', prefillBehaviour: 'read_only', isRequired: false },
+        { id: 'dm4', questionTitle: 'Entity type', source: 'Legal form', prefillBehaviour: 'prefill_and_allow_edit', isRequired: false },
+        { id: 'dm5', questionTitle: 'Has UBOs?', source: null, prefillBehaviour: 'none', isRequired: false },
+        { id: 'dm6', questionTitle: 'UBO details', source: null, prefillBehaviour: 'none', isRequired: false },
+        { id: 'dm7', questionTitle: 'Supporting documents', source: null, prefillBehaviour: 'none', isRequired: false },
       ];
 
       function buildDataMappingRows() {
-        var entityFields = ['Entity name', 'Registration number', 'Country', 'Address', 'Legal form', 'Contact email'];
-        var customFields = ['internal_risk_rating', 'compliance_notes', 'kyb_status', '+ Create new field'];
+        var entitySources = ['Entity name', 'Registration number', 'Country', 'Address', 'Legal form', 'Contact email', '\u2014 None'];
         var html = '';
         DATA_MAPPING_CONFIG.forEach(function (dm) {
-          var laneClass = dm.lane === 'entity' ? 'lane-border-entity' : dm.lane === 'custom' ? 'lane-border-custom' : 'lane-border-local';
-          var laneBadge = dm.lane === 'entity' ? '<span class="lane-badge lane-entity">Entity data</span>' : dm.lane === 'custom' ? '<span class="lane-badge lane-custom">Custom data</span>' : '<span class="lane-badge lane-local">Form-local</span>';
           var reqTag = dm.isRequired ? '<span class="required-tag">Required</span>' : '';
-          html += '<div class="data-mapping-card ' + laneClass + '">' +
-            '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">' + laneBadge + '<strong>' + escapeHtml(dm.questionTitle) + '</strong>' + reqTag + '</div>' +
+          var hasPrefill = dm.source != null;
+          var borderStyle = hasPrefill ? 'border-left:3px solid #0369a1' : 'border-left:3px solid #d1d5db';
+          html += '<div class="data-mapping-card" style="' + borderStyle + '">' +
+            '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><strong>' + escapeHtml(dm.questionTitle) + '</strong>' + reqTag + '</div>' +
             '<div class="data-mapping-controls">';
 
-          if (dm.lane === 'entity') {
-            var fieldOpts = entityFields.map(function (f) { return '<option' + (dm.mappedField === f ? ' selected' : '') + '>' + escapeHtml(f) + '</option>'; }).join('');
-            var behaviourOpts = '<option' + (dm.prefillBehaviour === 'prefill_override' ? ' selected' : '') + '>Pre-fill &amp; allow override</option>' +
-              '<option' + (dm.prefillBehaviour === 'prefill_readonly' ? ' selected' : '') + '>Pre-fill read-only</option>' +
-              '<option' + (dm.prefillBehaviour === 'none' ? ' selected' : '') + '>No pre-fill</option>';
-            html += '<div><span class="form-label" style="margin:0;font-size:12px">Mapped entity field</span><br><select class="form-input" style="max-width:200px">' + fieldOpts + '</select></div>' +
-              '<div><span class="form-label" style="margin:0;font-size:12px">Pre-fill behaviour</span><br><select class="form-input" style="max-width:200px">' + behaviourOpts + '</select></div>';
-            html += '</div>';
-            if (dm.prefillBehaviour === 'prefill_override') {
-              html += '<div class="data-mapping-meta data-mapping-meta-entity"><span class="behaviour-badge behaviour-override">Tagged: entity</span> Pre-filled from entity service. If edited, the response is <strong>tagged as an entity field change</strong> and passed to the workflow for processing.</div>';
-            } else if (dm.prefillBehaviour === 'prefill_readonly') {
-              html += '<div class="data-mapping-meta data-mapping-meta-entity"><span class="behaviour-badge behaviour-readonly">Read-only</span> Pre-filled from entity service. <strong>Cannot be edited</strong> in the form.</div>';
-            }
-          } else if (dm.lane === 'custom') {
-            var cFieldOpts = customFields.map(function (f) { return '<option' + (dm.mappedField === f ? ' selected' : '') + '>' + escapeHtml(f) + '</option>'; }).join('');
-            var cBehaviourOpts = '<option' + (dm.prefillBehaviour === 'prefill_edit' ? ' selected' : '') + '>Pre-fill &amp; allow edit</option>' +
-              '<option' + (dm.prefillBehaviour === 'prefill_readonly' ? ' selected' : '') + '>Pre-fill read-only</option>' +
-              '<option' + (dm.prefillBehaviour === 'none' ? ' selected' : '') + '>No pre-fill</option>';
-            html += '<div><span class="form-label" style="margin:0;font-size:12px">Mapped custom field</span><br><select class="form-input" style="max-width:200px">' + cFieldOpts + '</select></div>' +
-              '<div><span class="form-label" style="margin:0;font-size:12px">Pre-fill behaviour</span><br><select class="form-input" style="max-width:200px">' + cBehaviourOpts + '</select></div>';
-            html += '</div>';
-            html += '<div class="data-mapping-meta data-mapping-meta-custom"><span class="behaviour-badge behaviour-prefill">Tagged: custom</span> Pre-filled from custom data. If edited, the response is <strong>tagged as a custom field change</strong> and passed to the workflow for processing.</div>';
+          var sourceOpts = entitySources.map(function (f) { return '<option' + (dm.source === f ? ' selected' : '') + '>' + escapeHtml(f) + '</option>'; }).join('');
+          var behaviourOpts = '<option' + (dm.prefillBehaviour === 'read_only' ? ' selected' : '') + '>Read-only</option>' +
+            '<option' + (dm.prefillBehaviour === 'prefill_and_allow_edit' ? ' selected' : '') + '>Pre-fill &amp; allow edit</option>' +
+            '<option' + (dm.prefillBehaviour === 'none' ? ' selected' : '') + '>No pre-fill</option>';
+          html += '<div><span class="form-label" style="margin:0;font-size:12px">Pre-fill source</span><br><select class="form-input" style="max-width:200px">' + sourceOpts + '</select></div>' +
+            '<div><span class="form-label" style="margin:0;font-size:12px">Behaviour</span><br><select class="form-input" style="max-width:200px">' + behaviourOpts + '</select></div>';
+          html += '</div>';
+
+          if (hasPrefill && dm.prefillBehaviour === 'read_only') {
+            html += '<div class="data-mapping-meta" style="margin-top:8px;font-size:12px;color:var(--views-text-light);padding:6px 10px;background:#f0f9ff;border-radius:4px"><strong>Read-only.</strong> Pre-filled from entity/assessment data. Cannot be edited in the form.</div>';
+          } else if (hasPrefill && dm.prefillBehaviour === 'prefill_and_allow_edit') {
+            html += '<div class="data-mapping-meta" style="margin-top:8px;font-size:12px;color:var(--views-text-light);padding:6px 10px;background:#f0fdf4;border-radius:4px"><strong>Editable.</strong> Pre-filled from entity/assessment data. Recipient can modify. Response consumed by Assessment Service.</div>';
           } else {
-            var laneOpts = '<option>Entity data</option><option>Custom data</option><option selected>Form-local</option>';
-            html += '<div><span class="form-label" style="margin:0;font-size:12px">Data lane</span><br><select class="form-input" style="max-width:200px">' + laneOpts + '</select></div>';
-            html += '</div>';
-            html += '<div class="data-mapping-hint data-mapping-hint-readonly">Form-local: data is stored only within the form response. No pre-fill, no write-back.</div>';
+            html += '<div class="data-mapping-meta" style="margin-top:8px;font-size:12px;color:var(--views-text-light);padding:6px 10px;background:#f8f9fb;border-radius:4px">No pre-fill. Response captured directly from recipient and consumed by Assessment Service.</div>';
           }
           html += '</div>';
         });
@@ -1867,35 +1850,31 @@
             '</div>' +
           '</div>' +
           '<div class="card">' +
-            '<div class="card-header">Cross-form deduplication</div>' +
+            '<div class="card-header">Deduplication</div>' +
             '<div class="card-body">' +
-              '<p class="muted-text">When the same company or individual appears in the portfolio multiple times (e.g. in more than one assessment or case), you can reuse a single form response across all linked assessments. <strong>Rule:</strong> Deduplication is by form name and only within the <strong>same form type</strong>. The same form used in multiple places with the same form type is deduplicated (one response feeds all). When there is a <strong>different form type</strong>, deduplication does not apply.</p>' +
+              '<p class="muted-text">Deduplication prevents the same recipient from being asked to fill out the same form unnecessarily. When enabled, a recipient who has already completed this form will not be asked again within the configured time window.</p>' +
               '<div class="checkbox-row">' +
                 '<input type="checkbox" id="enableDeduplication" class="dedup-enable"' + (DEDUP_CONFIG.enabled ? ' checked' : '') + '>' +
-                '<label for="enableDeduplication">Enable deduplication for this form (same form type only)</label>' +
+                '<label for="enableDeduplication">Enable deduplication for this form</label>' +
               '</div>' +
               '<div class="form-row dedup-options" style="margin-top:16px;padding:16px;background:#f8f9fb;border-radius:6px;border:1px solid #e5e8ec">' +
-                '<p class="form-label" style="margin:0 0 8px">Time limit (optional)</p>' +
-                '<p class="muted-text" style="margin-bottom:12px;font-size:13px">Set a time limit so that historical forms and entities are not impacted. Only responses from within the last X days are considered for reuse.</p>' +
+                '<div style="margin-bottom:16px;padding:12px;background:#f0f9ff;border-radius:6px;border:1px solid #bae6fd;font-size:13px;color:#0369a1"><strong>Dedup key: Form + Recipient.</strong> The recipient is whoever the form is about \u2014 the entity for entity-level forms, or the individual for director/UBO forms. Dedup is version-agnostic (keyed on logical form ID, not version number).</div>' +
+                '<p class="form-label" style="margin:0 0 8px">Time window</p>' +
+                '<p class="muted-text" style="margin-bottom:12px;font-size:13px">Set a time window so that responses expire and the form is re-sent. Leave empty for no time limit (forever).</p>' +
                 '<div class="expiry-row" style="align-items:center">' +
-                  '<label class="form-label" style="margin:0">Only deduplicate responses from the last</label>' +
+                  '<label class="form-label" style="margin:0">Deduplicate responses from the last</label>' +
                   '<input type="number" class="form-input dedup-time-limit-days" placeholder="No limit" min="1" max="3650" style="width:80px" value="' + (DEDUP_CONFIG.timeLimitDays != null && DEDUP_CONFIG.timeLimitDays !== '' ? escapeHtml(String(DEDUP_CONFIG.timeLimitDays)) : '') + '">' +
-                  '<span>days (leave empty for no limit)</span>' +
+                  '<span>days (leave empty for forever)</span>' +
                 '</div>' +
               '</div>' +
-              '<p class="info-note" style="margin-top:12px">Recipients receive a single form link per entity per form type. When they submit, the response is stored once and linked to every relevant assessment. Different form types never share responses.</p>' +
+              '<p class="info-note" style="margin-top:12px">Same form + same recipient = reuse the existing response. When the form is about the entity, the entity IS the recipient. When the form is about an associated individual (e.g. a director), the individual is the recipient \u2014 allowing dedup across entities.</p>' +
             '</div>' +
           '</div>' +
           '<div class="card">' +
-            '<div class="card-header">Data mapping &amp; pre-fill</div>' +
+            '<div class="card-header">Pre-fill configuration</div>' +
             '<div class="card-body">' +
-              '<p class="muted-text">Each question can be mapped to a <strong>data lane</strong> that determines where it reads from (pre-fill) and how the response is tagged when passed to the workflow. Questions not mapped to a lane are treated as form-local data.</p>' +
-              '<p class="info-note" style="margin-bottom:12px"><strong>Scope note:</strong> Forms (MPD) is responsible for pre-filling data and tagging responses with their data lane. The response data is then fed into the workflow. How data is written back to the Entity Service or Custom Data Service (overrides, approvals) is owned by the <strong>workflow orchestration team</strong>.</p>' +
-              '<div class="data-legend" style="margin:-4px -20px 16px;border-bottom:1px solid var(--views-border)">' +
-                '<div class="data-legend-item"><span class="data-legend-dot" style="background:#0369a1"></span> Entity data — pre-fills from entity service; edits tagged for workflow</div>' +
-                '<div class="data-legend-item"><span class="data-legend-dot" style="background:#7c3aed"></span> Custom data — pre-fills from custom fields; edits tagged for workflow</div>' +
-                '<div class="data-legend-item"><span class="data-legend-dot" style="background:#d1d5db"></span> Form-local — only stored with the form response</div>' +
-              '</div>' +
+              '<p class="muted-text">Form questions can be pre-filled from existing entity or assessment data. Pre-fill is <strong>read-only at runtime</strong> \u2014 the Forms service reads existing data for pre-population but does not write back.</p>' +
+              '<p class="info-note" style="margin-bottom:12px"><strong>MVP scope:</strong> Forms feed assessments only. Form responses are consumed by the Assessment Service as part of the workflow. Whether submitted form data writes back to the Entity Service or custom data is <strong>TBD</strong> and would be the responsibility of the Assessment Service if enabled in the future.</p>' +
               buildDataMappingRows() +
               '<button type="button" class="btn-secondary" style="margin-top:12px">+ Add data mapping</button>' +
             '</div>' +
@@ -2339,15 +2318,14 @@
         tr1: {
           taskId: 'tr1', formName: 'KYB Entity Onboarding', entityName: 'Acme Corp', assessment: 'KYB Onboarding — Acme Corp',
           submittedBy: 'analyst@company.com', submittedAt: '18 Mar 2026 at 2:30 PM', assignedTo: 'David Reviewer',
-          entityOverrides: [
-            { id: 'eo1', field: 'Entity name', source: 'Entity Service', original: 'ACME CORPORATION', proposed: 'Acme Corp', status: 'pending' },
-            { id: 'eo2', field: 'Registration number', source: 'Entity Service', original: 'REG-2020-00451', proposed: 'REG-2024-00451', status: 'pending' },
+          formVersion: 'v3', taskType: 'KYB', dedupKey: 'KYB Entity Onboarding + Acme Corp',
+          prefillFields: [
+            { field: 'Entity name', value: 'Acme Corp', source: 'Entity Service', behaviour: 'Read-only' },
+            { field: 'Registration number', value: 'REG-2024-00451', source: 'Entity Service', behaviour: 'Pre-fill & allow edit' },
+            { field: 'Country', value: 'United Kingdom', source: 'Entity Service', behaviour: 'Read-only' },
           ],
-          customDataChanges: [
-            { id: 'cd1', field: 'Internal risk rating', source: 'Custom Data Service', original: 'Medium', proposed: 'Low', status: 'pending' },
-            { id: 'cd2', field: 'Compliance notes', source: 'Custom Data Service', original: '(empty)', proposed: 'Reviewed — no concerns identified during KYB onboarding.', status: 'pending' },
-          ],
-          formLocalFields: [
+          responseFields: [
+            { field: 'Entity type', value: 'Corporate' },
             { field: 'Has UBOs?', value: 'Yes' },
             { field: 'UBO details', value: 'John Doe, 25%' },
             { field: 'Supporting documents', value: '2 files uploaded' },
@@ -2356,11 +2334,12 @@
         tr2: {
           taskId: 'tr2', formName: 'Periodic Review Questionnaire', entityName: 'GlobalTech Solutions', assessment: 'Annual Review — GlobalTech',
           submittedBy: 'reviewer@company.com', submittedAt: '17 Mar 2026 at 11:10 AM', assignedTo: 'David Reviewer',
-          entityOverrides: [
-            { id: 'eo3', field: 'Country', source: 'Entity Service', original: 'United Kingdom', proposed: 'Ireland', status: 'pending' },
+          formVersion: 'v2', taskType: 'Periodic review', dedupKey: 'Periodic Review Questionnaire + GlobalTech Solutions',
+          prefillFields: [
+            { field: 'Entity name', value: 'GlobalTech Solutions', source: 'Entity Service', behaviour: 'Read-only' },
+            { field: 'Country', value: 'Ireland', source: 'Entity Service', behaviour: 'Pre-fill & allow edit' },
           ],
-          customDataChanges: [],
-          formLocalFields: [
+          responseFields: [
             { field: 'Review outcome', value: 'Satisfactory' },
             { field: 'Next review date', value: '17 Mar 2027' },
           ],
@@ -2368,13 +2347,12 @@
         tr3: {
           taskId: 'tr3', formName: 'Supplier Due Diligence', entityName: 'NorthStar Logistics', assessment: 'Supplier Onboarding — NorthStar',
           submittedBy: 'procurement@company.com', submittedAt: '15 Mar 2026 at 9:00 AM', assignedTo: 'Sarah Chen',
-          entityOverrides: [],
-          customDataChanges: [
-            { id: 'cd3', field: 'Supplier tier', source: 'Custom Data Service', original: '(empty)', proposed: 'Tier 1', status: 'approved' },
-            { id: 'cd4', field: 'Contract value', source: 'Custom Data Service', original: '(empty)', proposed: '$2.4M', status: 'approved' },
-            { id: 'cd5', field: 'ESG score', source: 'Custom Data Service', original: '(empty)', proposed: 'B+', status: 'approved' },
-          ],
-          formLocalFields: [
+          formVersion: 'v5', taskType: 'UBO', dedupKey: 'UBO Declaration + Director B (UBO)',
+          prefillFields: [],
+          responseFields: [
+            { field: 'Supplier tier', value: 'Tier 1' },
+            { field: 'Contract value', value: '$2.4M' },
+            { field: 'ESG score', value: 'B+' },
             { field: 'Assessor comments', value: 'Approved — meets all supplier requirements.' },
           ],
         },
@@ -2385,104 +2363,48 @@
         if (!data) {
           return '<div class="page"><div class="page-breadcrumb"><a href="#/views/tasks">Tasks</a><span class="sep">\u203A</span><span class="current">Form Review</span></div><h1 class="title">Task not found</h1><p class="muted-text">No form review task with this ID.</p></div>';
         }
-        var totalChanges = data.entityOverrides.length + data.customDataChanges.length;
-        var pendingCount = data.entityOverrides.filter(function (o) { return o.status === 'pending'; }).length + data.customDataChanges.filter(function (c) { return c.status === 'pending'; }).length;
-        var approvedCount = data.entityOverrides.filter(function (o) { return o.status === 'approved'; }).length + data.customDataChanges.filter(function (c) { return c.status === 'approved'; }).length;
-        var rejectedCount = data.entityOverrides.filter(function (o) { return o.status === 'rejected'; }).length + data.customDataChanges.filter(function (c) { return c.status === 'rejected'; }).length;
 
-        function overrideCard(item, laneLabel, laneClass) {
-          var statusBadge = item.status === 'pending' ? '<span class="badge-pending">Pending</span>' : item.status === 'approved' ? '<span class="badge-approved-small">Approved</span>' : '<span class="badge-rejected-small">Rejected</span>';
-          var actionBtns = item.status === 'pending' ? '<div class="override-actions"><button type="button" class="btn-approve btn-review-approve" data-id="' + escapeHtml(item.id) + '">Approve</button><button type="button" class="btn-reject btn-review-reject" data-id="' + escapeHtml(item.id) + '">Reject</button></div>' : '';
-          return '<div class="override-review-card ' + item.status + '" data-review-id="' + escapeHtml(item.id) + '">' +
-            '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">' +
-              '<div><span class="lane-badge ' + laneClass + '">' + laneLabel + '</span><strong>' + escapeHtml(item.field) + '</strong></div>' +
-              statusBadge +
-            '</div>' +
-            '<div style="font-size:12px;color:var(--views-text-light);margin-bottom:6px">Source: ' + escapeHtml(item.source) + '</div>' +
-            '<div class="override-compare">' +
-              '<div class="override-value-box original"><div class="override-value-label">Current value</div><div class="override-value-text">' + escapeHtml(item.original) + '</div></div>' +
-              '<div style="text-align:center;font-size:18px;color:var(--views-text-light)">\u2192</div>' +
-              '<div class="override-value-box proposed"><div class="override-value-label">Proposed value</div><div class="override-value-text">' + escapeHtml(item.proposed) + '</div></div>' +
-            '</div>' +
-            actionBtns +
-          '</div>';
-        }
+        var prefillRows = data.prefillFields.map(function (f) {
+          return '<tr><td style="padding:10px 16px;border-bottom:1px solid var(--views-border);font-size:13px;color:var(--views-text-light)">' + escapeHtml(f.field) + '</td><td style="padding:10px 16px;border-bottom:1px solid var(--views-border);font-size:14px">' + escapeHtml(f.value) + '</td><td style="padding:10px 16px;border-bottom:1px solid var(--views-border);font-size:12px;color:var(--views-text-light)">' + escapeHtml(f.source) + '</td><td style="padding:10px 16px;border-bottom:1px solid var(--views-border);font-size:12px"><span style="background:#f0f9ff;padding:2px 8px;border-radius:3px;font-size:11px;font-weight:500;color:#0369a1">' + escapeHtml(f.behaviour) + '</span></td></tr>';
+        }).join('');
 
-        var entityCards = data.entityOverrides.map(function (o) { return overrideCard(o, 'Entity override', 'lane-entity'); }).join('');
-        var customCards = data.customDataChanges.map(function (c) { return overrideCard(c, 'Custom data', 'lane-custom'); }).join('');
-        var localRows = data.formLocalFields.map(function (f) {
+        var responseRows = data.responseFields.map(function (f) {
           return '<tr><td style="padding:10px 16px;border-bottom:1px solid var(--views-border);font-size:13px;color:var(--views-text-light)">' + escapeHtml(f.field) + '</td><td style="padding:10px 16px;border-bottom:1px solid var(--views-border);font-size:14px">' + escapeHtml(f.value) + '</td></tr>';
         }).join('');
 
-        var allDone = pendingCount === 0 && totalChanges > 0;
-
         return '<div class="page" style="max-width:900px">' +
-          '<div class="page-breadcrumb"><a href="#/views/tasks">Tasks</a><span class="sep">\u203A</span><span class="current">Form Review \u2014 ' + escapeHtml(data.formName) + '</span></div>' +
+          '<div class="page-breadcrumb"><a href="#/views/tasks">Tasks</a><span class="sep">\u203A</span><span class="current">' + escapeHtml(data.taskType || 'Form Review') + ' \u2014 ' + escapeHtml(data.formName) + '</span></div>' +
           '<div class="header-row">' +
-            '<h1 class="title">Review: ' + escapeHtml(data.formName) + '</h1>' +
-            (allDone ? '<button type="button" class="btn-primary btn-complete-review">Complete review</button>' : '') +
+            '<h1 class="title">' + escapeHtml(data.formName) + '</h1>' +
+            '<button type="button" class="btn-primary btn-complete-review">Complete review</button>' +
           '</div>' +
-          '<div class="info-note" style="margin-bottom:16px;padding:12px 16px;background:#f8f9fb;border:1px solid var(--views-border);border-radius:6px"><span style="font-size:11px;background:#f1f3f5;padding:2px 8px;border-radius:3px;font-weight:500;color:var(--views-text-light);margin-right:8px">Workflow team scope</span> This review task and its approval/rejection flow are owned by the <strong>workflow orchestration team</strong>. Forms (MPD) provides the tagged response data shown below. The write-back to Entity Service or Custom Data Service is not managed by Forms.</div>' +
+          '<div class="info-note" style="margin-bottom:16px;padding:12px 16px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:6px"><strong>Data flow:</strong> This form response is consumed by the <strong>Assessment Service</strong> as part of the workflow. Whether response data writes back to the Entity Service or custom data is TBD and would be the responsibility of the Assessment Service if enabled in the future.</div>' +
           '<div class="card">' +
             '<div class="card-header">Task details</div>' +
             '<div class="card-body">' +
               '<div class="meta-grid">' +
                 '<div class="meta-item"><div class="meta-label">Entity</div><div class="meta-value">' + escapeHtml(data.entityName) + '</div></div>' +
                 '<div class="meta-item"><div class="meta-label">Assessment</div><div class="meta-value">' + escapeHtml(data.assessment) + '</div></div>' +
+                '<div class="meta-item"><div class="meta-label">Form version</div><div class="meta-value">' + escapeHtml(data.formVersion) + '</div></div>' +
+                '<div class="meta-item"><div class="meta-label">Dedup key</div><div class="meta-value" style="font-family:monospace;font-size:12px">' + escapeHtml(data.dedupKey) + '</div></div>' +
                 '<div class="meta-item"><div class="meta-label">Submitted by</div><div class="meta-value">' + escapeHtml(data.submittedBy) + '</div></div>' +
                 '<div class="meta-item"><div class="meta-label">Submitted at</div><div class="meta-value">' + escapeHtml(data.submittedAt) + '</div></div>' +
                 '<div class="meta-item"><div class="meta-label">Assigned to</div><div class="meta-value">' + escapeHtml(data.assignedTo) + '</div></div>' +
               '</div>' +
             '</div>' +
           '</div>' +
-          '<div class="card">' +
-            '<div class="card-header">Review summary</div>' +
-            '<div class="review-summary-bar">' +
-              '<div class="review-summary-stat"><div class="stat-num">' + totalChanges + '</div><div class="stat-label">Total changes</div></div>' +
-              '<div class="review-summary-stat"><div class="stat-num" style="color:#b45309">' + pendingCount + '</div><div class="stat-label">Pending</div></div>' +
-              '<div class="review-summary-stat"><div class="stat-num" style="color:#166534">' + approvedCount + '</div><div class="stat-label">Approved</div></div>' +
-              '<div class="review-summary-stat"><div class="stat-num" style="color:#b91c1c">' + rejectedCount + '</div><div class="stat-label">Rejected</div></div>' +
-            '</div>' +
-          '</div>' +
-          (entityCards ? '<div class="card"><div class="card-header"><span class="lane-badge lane-entity" style="margin-right:6px">Entity</span> Entity data overrides (' + data.entityOverrides.length + ')</div><div class="card-body">' + entityCards + '</div></div>' : '') +
-          (customCards ? '<div class="card"><div class="card-header"><span class="lane-badge lane-custom" style="margin-right:6px">Custom</span> Custom data changes (' + data.customDataChanges.length + ')</div><div class="card-body">' + customCards + '</div></div>' : '') +
-          (localRows ? '<div class="card"><div class="card-header"><span class="lane-badge lane-local" style="margin-right:6px">Local</span> Form-local data (read-only)</div><div class="card-body"><table style="width:100%"><thead><tr><th style="text-align:left;padding:10px 16px;font-size:12px;font-weight:500;color:var(--views-text-light);text-transform:uppercase;letter-spacing:0.05em;border-bottom:1px solid var(--views-border)">Field</th><th style="text-align:left;padding:10px 16px;font-size:12px;font-weight:500;color:var(--views-text-light);text-transform:uppercase;letter-spacing:0.05em;border-bottom:1px solid var(--views-border)">Value</th></tr></thead><tbody>' + localRows + '</tbody></table></div></div>' : '') +
-          '<div class="card"><div class="card-header">Audit trail</div><div class="card-body"><p class="muted-text" style="margin:0">Task created: ' + escapeHtml(data.submittedAt) + ' \u2022 Submitted by: ' + escapeHtml(data.submittedBy) + '</p></div></div>' +
+          (prefillRows ? '<div class="card"><div class="card-header">Pre-filled fields (' + data.prefillFields.length + ')</div><div class="card-body"><table style="width:100%"><thead><tr><th style="text-align:left;padding:10px 16px;font-size:12px;font-weight:500;color:var(--views-text-light);text-transform:uppercase;letter-spacing:0.05em;border-bottom:1px solid var(--views-border)">Field</th><th style="text-align:left;padding:10px 16px;font-size:12px;font-weight:500;color:var(--views-text-light);text-transform:uppercase;letter-spacing:0.05em;border-bottom:1px solid var(--views-border)">Value</th><th style="text-align:left;padding:10px 16px;font-size:12px;font-weight:500;color:var(--views-text-light);text-transform:uppercase;letter-spacing:0.05em;border-bottom:1px solid var(--views-border)">Source</th><th style="text-align:left;padding:10px 16px;font-size:12px;font-weight:500;color:var(--views-text-light);text-transform:uppercase;letter-spacing:0.05em;border-bottom:1px solid var(--views-border)">Behaviour</th></tr></thead><tbody>' + prefillRows + '</tbody></table></div></div>' : '') +
+          '<div class="card"><div class="card-header">Form responses (' + data.responseFields.length + ')</div><div class="card-body"><table style="width:100%"><thead><tr><th style="text-align:left;padding:10px 16px;font-size:12px;font-weight:500;color:var(--views-text-light);text-transform:uppercase;letter-spacing:0.05em;border-bottom:1px solid var(--views-border)">Field</th><th style="text-align:left;padding:10px 16px;font-size:12px;font-weight:500;color:var(--views-text-light);text-transform:uppercase;letter-spacing:0.05em;border-bottom:1px solid var(--views-border)">Value</th></tr></thead><tbody>' + responseRows + '</tbody></table></div></div>' +
+          '<div class="card"><div class="card-header">Audit trail</div><div class="card-body"><p class="muted-text" style="margin:0">Task created: ' + escapeHtml(data.submittedAt) + ' \u2022 Submitted by: ' + escapeHtml(data.submittedBy) + ' \u2022 Form version: ' + escapeHtml(data.formVersion) + '</p></div></div>' +
         '</div>';
       }
 
       function bindFormReviewEvents(content) {
         if (!content) return;
-        content.querySelectorAll('.btn-review-approve').forEach(function (btn) {
-          btn.addEventListener('click', function () {
-            var id = this.getAttribute('data-id');
-            setReviewItemStatus(id, 'approved');
-            renderApp();
-          });
-        });
-        content.querySelectorAll('.btn-review-reject').forEach(function (btn) {
-          btn.addEventListener('click', function () {
-            var id = this.getAttribute('data-id');
-            setReviewItemStatus(id, 'rejected');
-            renderApp();
-          });
-        });
         content.querySelector('.btn-complete-review')?.addEventListener('click', function () {
-          alert('Review completed! All approved changes will be written to the respective data services.');
+          alert('Review completed. Form response data has been passed to the Assessment Service.');
           setRoute('#/views/tasks');
         });
-      }
-
-      function setReviewItemStatus(itemId, status) {
-        for (var key in FORM_REVIEW_DATA) {
-          var d = FORM_REVIEW_DATA[key];
-          for (var i = 0; i < d.entityOverrides.length; i++) {
-            if (d.entityOverrides[i].id === itemId) { d.entityOverrides[i].status = status; return; }
-          }
-          for (var j = 0; j < d.customDataChanges.length; j++) {
-            if (d.customDataChanges[j].id === itemId) { d.customDataChanges[j].status = status; return; }
-          }
-        }
       }
 
       function renderExternalDashboard() {

@@ -1,67 +1,38 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { theme } from '../theme';
 
-type OverrideStatus = 'pending' | 'approved' | 'rejected';
-type DataLane = 'entity_override' | 'custom_data' | 'form_local';
-
-interface ReviewField {
-  id: string;
-  fieldLabel: string;
-  dataLane: DataLane;
-  originalValue: string;
-  originalSource: string;
-  newValue: string;
-  status: OverrideStatus;
-}
-
-interface FormLocalField {
+interface ResponseField {
   id: string;
   fieldLabel: string;
   value: string;
+  prefilled: boolean;
+  prefilledFrom?: string;
+  edited?: boolean;
 }
 
-const mockEntityOverrides: ReviewField[] = [
-  {
-    id: 'r1', fieldLabel: 'Company name', dataLane: 'entity_override',
-    originalValue: 'Acme Corp', originalSource: 'Registry',
-    newValue: 'Acme Corporation Ltd', status: 'pending',
-  },
-  {
-    id: 'r2', fieldLabel: 'Registered address', dataLane: 'entity_override',
-    originalValue: '123 Business Park, London EC1A 1BB', originalSource: 'Registry',
-    newValue: '456 Enterprise Way, London EC2R 8AH', status: 'pending',
-  },
-];
-
-const mockCustomDataChanges: ReviewField[] = [
-  {
-    id: 'r3', fieldLabel: 'Supplier tier', dataLane: 'custom_data',
-    originalValue: 'Tier 2', originalSource: 'Custom Data',
-    newValue: 'Tier 1 - Strategic', status: 'pending',
-  },
-  {
-    id: 'r4', fieldLabel: 'Internal risk rating', dataLane: 'custom_data',
-    originalValue: '—', originalSource: 'Custom Data (new field)',
-    newValue: 'Medium', status: 'pending',
-  },
-];
-
-const mockFormLocalFields: FormLocalField[] = [
-  { id: 'fl1', fieldLabel: 'Has UBOs?', value: 'Yes' },
-  { id: 'fl2', fieldLabel: 'UBO details', value: 'John Smith — 35% ownership, UK national' },
-  { id: 'fl3', fieldLabel: 'Analyst justification', value: 'Updated company name to reflect recent rebranding. Address updated per Companies House filing from 2026-02-15.' },
+const mockResponseFields: ResponseField[] = [
+  { id: 'f1', fieldLabel: 'Entity name', value: 'Acme Corporation Ltd', prefilled: true, prefilledFrom: 'entity.companyName', edited: true },
+  { id: 'f2', fieldLabel: 'Registered address', value: '456 Enterprise Way, London EC2R 8AH', prefilled: true, prefilledFrom: 'entity.registeredAddress', edited: true },
+  { id: 'f3', fieldLabel: 'Incorporation number', value: '12345678', prefilled: true, prefilledFrom: 'entity.incorporationNumber', edited: false },
+  { id: 'f4', fieldLabel: 'Entity type', value: 'Private Limited Company', prefilled: true, prefilledFrom: 'entity.entityType', edited: false },
+  { id: 'f5', fieldLabel: 'Has UBOs?', value: 'Yes', prefilled: false },
+  { id: 'f6', fieldLabel: 'UBO details', value: 'John Smith — 35% ownership, UK national', prefilled: false },
+  { id: 'f7', fieldLabel: 'Analyst justification', value: 'Updated company name to reflect recent rebranding. Address updated per Companies House filing from 2026-02-15.', prefilled: false },
 ];
 
 const mockTaskMeta = {
   taskId: 'TASK-4821',
+  taskType: 'KYB',
   formName: 'KYB Entity Onboarding',
+  formVersion: 2,
   entityName: 'Acme Corp',
   entityId: 'ENT-10042',
   assessmentName: 'KYB Onboarding — Acme Corp',
   submittedBy: 'Jane Analyst',
   submittedAt: '2026-03-18 14:32',
   assignedTo: 'David Reviewer',
-  status: 'Pending Review',
+  status: 'Submitted',
+  dedupKey: 'Form: KYB Entity Onboarding · Recipient: Acme Corp',
 };
 
 const pageStyles: React.CSSProperties = { maxWidth: '1000px', margin: 0 };
@@ -92,8 +63,7 @@ const metaGridStyles: React.CSSProperties = {
 };
 
 const metaLabelStyles: React.CSSProperties = {
-  fontSize: theme.typography.fontSize.xs, color: theme.colors.textMuted,
-  marginBottom: '2px',
+  fontSize: theme.typography.fontSize.xs, color: theme.colors.textMuted, marginBottom: '2px',
 };
 
 const metaValueStyles: React.CSSProperties = {
@@ -101,160 +71,28 @@ const metaValueStyles: React.CSSProperties = {
   fontWeight: theme.typography.fontWeight.medium,
 };
 
-const btnPrimary: React.CSSProperties = {
-  padding: `${theme.spacing.sm} ${theme.spacing.md}`, background: theme.colors.primary,
-  color: '#fff', border: 'none', borderRadius: theme.radii.md,
-  fontSize: theme.typography.fontSize.sm, fontWeight: theme.typography.fontWeight.medium,
-};
-
-const btnSecondary: React.CSSProperties = {
-  padding: `${theme.spacing.sm} ${theme.spacing.md}`, background: theme.colors.surface,
-  color: theme.colors.primary, border: `1px solid ${theme.colors.borderStrong}`,
-  borderRadius: theme.radii.md, fontSize: theme.typography.fontSize.sm,
-  fontWeight: theme.typography.fontWeight.medium,
-};
-
-function StatusBadge({ status }: { status: OverrideStatus | string }) {
-  const styles: Record<string, { bg: string; fg: string }> = {
-    pending: { bg: theme.colors.warningBg, fg: theme.colors.warning },
-    approved: { bg: theme.colors.successBg, fg: theme.colors.success },
-    rejected: { bg: theme.colors.errorBg, fg: theme.colors.error },
-    'Pending Review': { bg: theme.colors.warningBg, fg: theme.colors.warning },
-  };
-  const c = styles[status] || styles.pending;
-  return (
-    <span style={{
-      display: 'inline-block', padding: `2px ${theme.spacing.sm}`,
-      background: c.bg, color: c.fg, borderRadius: theme.radii.sm,
-      fontSize: theme.typography.fontSize.xs, fontWeight: theme.typography.fontWeight.medium,
-    }}>
-      {status.charAt(0).toUpperCase() + status.slice(1)}
-    </span>
-  );
-}
-
-function OverrideReviewCard({
-  field, onApprove, onReject,
-}: {
-  field: ReviewField;
-  onApprove: () => void;
-  onReject: () => void;
-}) {
-  const laneColor = field.dataLane === 'entity_override' ? '#0369a1' : '#7c3aed';
-  const laneBg = field.dataLane === 'entity_override' ? '#e0f2fe' : '#f3e8ff';
-  const laneLabel = field.dataLane === 'entity_override' ? 'Entity Override' : 'Custom Data';
-
-  return (
-    <div style={{
-      padding: theme.spacing.md,
-      border: `1px solid ${field.status === 'pending' ? theme.colors.borderStrong : theme.colors.border}`,
-      borderLeft: `3px solid ${laneColor}`,
-      borderRadius: theme.radii.md, marginBottom: theme.spacing.sm,
-      background: field.status === 'approved' ? '#f0fdf4'
-        : field.status === 'rejected' ? '#fef2f2' : theme.colors.surface,
-    }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: theme.spacing.sm }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: theme.spacing.sm }}>
-          <span style={{
-            display: 'inline-block', padding: `2px ${theme.spacing.sm}`,
-            background: laneBg, color: laneColor, borderRadius: theme.radii.sm,
-            fontSize: theme.typography.fontSize.xs, fontWeight: theme.typography.fontWeight.medium,
-          }}>
-            {laneLabel}
-          </span>
-          <strong style={{ fontSize: theme.typography.fontSize.sm }}>{field.fieldLabel}</strong>
-        </div>
-        <StatusBadge status={field.status} />
-      </div>
-
-      <div style={{
-        display: 'grid', gridTemplateColumns: '1fr 32px 1fr', gap: theme.spacing.sm,
-        alignItems: 'center', marginBottom: theme.spacing.sm,
-      }}>
-        <div style={{
-          padding: theme.spacing.sm, background: theme.colors.surfaceRaised,
-          borderRadius: theme.radii.sm, border: `1px solid ${theme.colors.border}`,
-        }}>
-          <div style={{ fontSize: theme.typography.fontSize.xs, color: theme.colors.textMuted, marginBottom: '2px' }}>
-            Current value ({field.originalSource})
-          </div>
-          <div style={{ fontSize: theme.typography.fontSize.sm, color: theme.colors.text }}>
-            {field.originalValue || <span style={{ color: theme.colors.textMuted, fontStyle: 'italic' }}>Empty</span>}
-          </div>
-        </div>
-        <div style={{ textAlign: 'center', color: theme.colors.textMuted, fontSize: '16px' }}>→</div>
-        <div style={{
-          padding: theme.spacing.sm, background: '#fffbeb',
-          borderRadius: theme.radii.sm, border: '1px solid #fde68a',
-        }}>
-          <div style={{ fontSize: theme.typography.fontSize.xs, color: theme.colors.textMuted, marginBottom: '2px' }}>
-            Proposed value (form response)
-          </div>
-          <div style={{ fontSize: theme.typography.fontSize.sm, color: theme.colors.text, fontWeight: theme.typography.fontWeight.medium }}>
-            {field.newValue}
-          </div>
-        </div>
-      </div>
-
-      {field.status === 'pending' && (
-        <div style={{ display: 'flex', gap: theme.spacing.sm, justifyContent: 'flex-end' }}>
-          <button onClick={onReject} style={{
-            padding: `${theme.spacing.xs} ${theme.spacing.md}`,
-            background: theme.colors.surface, color: theme.colors.error,
-            border: `1px solid ${theme.colors.error}`, borderRadius: theme.radii.sm,
-            fontSize: theme.typography.fontSize.xs, fontWeight: theme.typography.fontWeight.medium,
-          }}>
-            Reject
-          </button>
-          <button onClick={onApprove} style={{
-            padding: `${theme.spacing.xs} ${theme.spacing.md}`,
-            background: theme.colors.success, color: '#fff',
-            border: 'none', borderRadius: theme.radii.sm,
-            fontSize: theme.typography.fontSize.xs, fontWeight: theme.typography.fontWeight.medium,
-          }}>
-            Approve override
-          </button>
-        </div>
-      )}
-    </div>
-  );
-}
-
 export function FormResponseReview() {
-  const [entityFields, setEntityFields] = useState(mockEntityOverrides);
-  const [customFields, setCustomFields] = useState(mockCustomDataChanges);
-
-  const updateFieldStatus = (
-    list: ReviewField[],
-    setList: React.Dispatch<React.SetStateAction<ReviewField[]>>,
-    fieldId: string,
-    status: OverrideStatus,
-  ) => {
-    setList(list.map((f) => (f.id === fieldId ? { ...f, status } : f)));
-  };
-
-  const allFields = [...entityFields, ...customFields];
-  const pendingCount = allFields.filter((f) => f.status === 'pending').length;
-  const approvedCount = allFields.filter((f) => f.status === 'approved').length;
-  const rejectedCount = allFields.filter((f) => f.status === 'rejected').length;
-
-  const approveAll = () => {
-    setEntityFields((prev) => prev.map((f) => f.status === 'pending' ? { ...f, status: 'approved' as OverrideStatus } : f));
-    setCustomFields((prev) => prev.map((f) => f.status === 'pending' ? { ...f, status: 'approved' as OverrideStatus } : f));
-  };
+  const prefilledFields = mockResponseFields.filter((f) => f.prefilled);
+  const otherFields = mockResponseFields.filter((f) => !f.prefilled);
 
   return (
     <div style={pageStyles}>
       <div style={headerRowStyles}>
         <div>
           <div style={{ fontSize: theme.typography.fontSize.xs, color: theme.colors.textMuted, marginBottom: '4px' }}>
-            Task {mockTaskMeta.taskId} · Form response review
+            Task {mockTaskMeta.taskId} · {mockTaskMeta.taskType}
           </div>
           <h1 style={{ fontSize: theme.typography.fontSize.xl, fontWeight: theme.typography.fontWeight.semibold, color: theme.colors.text, margin: 0 }}>
-            Review: {mockTaskMeta.formName}
+            {mockTaskMeta.formName}
           </h1>
         </div>
-        <StatusBadge status={mockTaskMeta.status} />
+        <span style={{
+          padding: `2px ${theme.spacing.sm}`, borderRadius: theme.radii.sm,
+          fontSize: theme.typography.fontSize.xs, fontWeight: theme.typography.fontWeight.medium,
+          background: theme.colors.successBg, color: theme.colors.success,
+        }}>
+          {mockTaskMeta.status}
+        </span>
       </div>
 
       {/* Task metadata */}
@@ -264,104 +102,98 @@ export function FormResponseReview() {
           <div style={metaGridStyles}>
             <div><div style={metaLabelStyles}>Entity</div><div style={metaValueStyles}>{mockTaskMeta.entityName} ({mockTaskMeta.entityId})</div></div>
             <div><div style={metaLabelStyles}>Assessment</div><div style={metaValueStyles}>{mockTaskMeta.assessmentName}</div></div>
+            <div><div style={metaLabelStyles}>Task type</div><div style={metaValueStyles}>{mockTaskMeta.taskType}</div></div>
             <div><div style={metaLabelStyles}>Submitted by</div><div style={metaValueStyles}>{mockTaskMeta.submittedBy}</div></div>
             <div><div style={metaLabelStyles}>Submitted at</div><div style={metaValueStyles}>{mockTaskMeta.submittedAt}</div></div>
-            <div><div style={metaLabelStyles}>Assigned to</div><div style={metaValueStyles}>{mockTaskMeta.assignedTo}</div></div>
-            <div><div style={metaLabelStyles}>Form name</div><div style={metaValueStyles}>{mockTaskMeta.formName}</div></div>
+            <div>
+              <div style={metaLabelStyles}>Form version</div>
+              <div style={metaValueStyles}>
+                v{mockTaskMeta.formVersion}
+                <span style={{ fontSize: theme.typography.fontSize.xs, color: theme.colors.textMuted, fontWeight: theme.typography.fontWeight.normal, marginLeft: theme.spacing.xs }}>
+                  (locked to version at time of send)
+                </span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Review summary bar */}
+      {/* Data flow note */}
       <div style={{
-        ...cardStyles,
-        background: pendingCount === 0 ? '#f0fdf4' : theme.colors.surface,
+        ...cardStyles, background: '#f0f9ff', borderColor: '#bae6fd',
+        padding: theme.spacing.md, fontSize: theme.typography.fontSize.xs, color: '#0369a1',
+        display: 'flex', alignItems: 'flex-start', gap: theme.spacing.sm,
       }}>
-        <div style={{
-          padding: theme.spacing.md, display: 'flex',
-          justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: theme.spacing.sm,
-        }}>
-          <div style={{ display: 'flex', gap: theme.spacing.lg }}>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: theme.typography.fontSize.xl, fontWeight: theme.typography.fontWeight.bold, color: theme.colors.warning }}>{pendingCount}</div>
-              <div style={{ fontSize: theme.typography.fontSize.xs, color: theme.colors.textMuted }}>Pending</div>
-            </div>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: theme.typography.fontSize.xl, fontWeight: theme.typography.fontWeight.bold, color: theme.colors.success }}>{approvedCount}</div>
-              <div style={{ fontSize: theme.typography.fontSize.xs, color: theme.colors.textMuted }}>Approved</div>
-            </div>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: theme.typography.fontSize.xl, fontWeight: theme.typography.fontWeight.bold, color: theme.colors.error }}>{rejectedCount}</div>
-              <div style={{ fontSize: theme.typography.fontSize.xs, color: theme.colors.textMuted }}>Rejected</div>
-            </div>
+        <span style={{ fontSize: '14px' }}>ℹ</span>
+        <span>
+          This form response is consumed by the <strong>Assessment Service</strong> as an input to assessment outcomes and risk decisioning.
+          Form data does not write back to the Entity Service or custom data.
+        </span>
+      </div>
+
+      {/* Pre-filled responses */}
+      {prefilledFields.length > 0 && (
+        <div style={cardStyles}>
+          <div style={{ ...cardHeaderStyles, borderLeft: '3px solid #0369a1' }}>
+            <span>Pre-filled fields ({prefilledFields.length})</span>
+            <span style={{ fontSize: theme.typography.fontSize.xs, color: theme.colors.textMuted, fontWeight: theme.typography.fontWeight.normal }}>
+              Data pulled from entity/assessment context
+            </span>
           </div>
-          <div style={{ display: 'flex', gap: theme.spacing.sm }}>
-            {pendingCount > 0 && (
-              <button onClick={approveAll} style={btnPrimary}>Approve all pending ({pendingCount})</button>
-            )}
-            {pendingCount === 0 && (
-              <button style={btnPrimary}>Complete review</button>
-            )}
+          <div style={sectionStyles}>
+            {prefilledFields.map((field) => (
+              <div key={field.id} style={{
+                padding: theme.spacing.sm,
+                borderBottom: `1px solid ${theme.colors.borderLight}`,
+                display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start',
+              }}>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: theme.typography.fontSize.xs, color: theme.colors.textMuted, marginBottom: '2px' }}>
+                    {field.fieldLabel}
+                    {field.prefilledFrom && (
+                      <span style={{ marginLeft: theme.spacing.sm, color: '#0369a1' }}>← {field.prefilledFrom}</span>
+                    )}
+                  </div>
+                  <div style={{ fontSize: theme.typography.fontSize.sm, color: theme.colors.text }}>
+                    {field.value}
+                  </div>
+                </div>
+                <div style={{ display: 'flex', gap: theme.spacing.xs }}>
+                  <span style={{
+                    fontSize: theme.typography.fontSize.xs, padding: `2px ${theme.spacing.sm}`,
+                    background: '#e0f2fe', color: '#0369a1', borderRadius: theme.radii.sm,
+                    whiteSpace: 'nowrap',
+                  }}>
+                    Pre-filled
+                  </span>
+                  {field.edited && (
+                    <span style={{
+                      fontSize: theme.typography.fontSize.xs, padding: `2px ${theme.spacing.sm}`,
+                      background: theme.colors.warningBg, color: theme.colors.warning,
+                      borderRadius: theme.radii.sm, whiteSpace: 'nowrap',
+                    }}>
+                      Edited
+                    </span>
+                  )}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
-      </div>
+      )}
 
-      {/* Entity overrides */}
-      <div style={cardStyles}>
-        <div style={{ ...cardHeaderStyles, borderLeft: '3px solid #0369a1' }}>
-          <span>Entity data overrides ({entityFields.length})</span>
-          <span style={{ fontSize: theme.typography.fontSize.xs, color: theme.colors.textMuted, fontWeight: theme.typography.fontWeight.normal }}>
-            Approved changes will be written to the Entity Service and propagated across Maxsight
-          </span>
-        </div>
-        <div style={sectionStyles}>
-          {entityFields.map((field) => (
-            <OverrideReviewCard
-              key={field.id}
-              field={field}
-              onApprove={() => updateFieldStatus(entityFields, setEntityFields, field.id, 'approved')}
-              onReject={() => updateFieldStatus(entityFields, setEntityFields, field.id, 'rejected')}
-            />
-          ))}
-        </div>
-      </div>
-
-      {/* Custom data changes */}
-      <div style={cardStyles}>
-        <div style={{ ...cardHeaderStyles, borderLeft: '3px solid #7c3aed' }}>
-          <span>Custom data changes ({customFields.length})</span>
-          <span style={{ fontSize: theme.typography.fontSize.xs, color: theme.colors.textMuted, fontWeight: theme.typography.fontWeight.normal }}>
-            Approved changes will be written to the Custom Data Service
-          </span>
-        </div>
-        <div style={sectionStyles}>
-          {customFields.map((field) => (
-            <OverrideReviewCard
-              key={field.id}
-              field={field}
-              onApprove={() => updateFieldStatus(customFields, setCustomFields, field.id, 'approved')}
-              onReject={() => updateFieldStatus(customFields, setCustomFields, field.id, 'rejected')}
-            />
-          ))}
-        </div>
-      </div>
-
-      {/* Form-local data (read-only) */}
-      <div style={cardStyles}>
-        <div style={{ ...cardHeaderStyles, borderLeft: '3px solid #d1d5db' }}>
-          <span>Form-local data (no review needed)</span>
-          <span style={{ fontSize: theme.typography.fontSize.xs, color: theme.colors.textMuted, fontWeight: theme.typography.fontWeight.normal }}>
-            Assessment-scoped data — stored in form response only
-          </span>
-        </div>
-        <div style={sectionStyles}>
-          {mockFormLocalFields.map((field) => (
-            <div key={field.id} style={{
-              padding: theme.spacing.sm,
-              borderBottom: `1px solid ${theme.colors.borderLight}`,
-              display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start',
-            }}>
-              <div>
+      {/* Other responses */}
+      {otherFields.length > 0 && (
+        <div style={cardStyles}>
+          <div style={cardHeaderStyles}>
+            <span>Form responses ({otherFields.length})</span>
+          </div>
+          <div style={sectionStyles}>
+            {otherFields.map((field) => (
+              <div key={field.id} style={{
+                padding: theme.spacing.sm,
+                borderBottom: `1px solid ${theme.colors.borderLight}`,
+              }}>
                 <div style={{ fontSize: theme.typography.fontSize.xs, color: theme.colors.textMuted, marginBottom: '2px' }}>
                   {field.fieldLabel}
                 </div>
@@ -369,15 +201,33 @@ export function FormResponseReview() {
                   {field.value}
                 </div>
               </div>
-              <span style={{
-                fontSize: theme.typography.fontSize.xs, color: theme.colors.textMuted,
-                padding: `2px ${theme.spacing.sm}`, background: '#f1f3f5',
-                borderRadius: theme.radii.sm, whiteSpace: 'nowrap',
-              }}>
-                Form-local
-              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Deduplication info */}
+      <div style={cardStyles}>
+        <div style={cardHeaderStyles}>Deduplication</div>
+        <div style={sectionStyles}>
+          <div style={{ display: 'flex', gap: theme.spacing.lg }}>
+            <div>
+              <div style={metaLabelStyles}>Dedup key</div>
+              <div style={{ fontSize: theme.typography.fontSize.sm, color: theme.colors.text, fontFamily: 'monospace' }}>
+                {mockTaskMeta.dedupKey}
+              </div>
             </div>
-          ))}
+            <div>
+              <div style={metaLabelStyles}>Status</div>
+              <div style={{
+                fontSize: theme.typography.fontSize.xs, padding: `2px ${theme.spacing.sm}`,
+                background: theme.colors.successBg, color: theme.colors.success,
+                borderRadius: theme.radii.sm, display: 'inline-block',
+              }}>
+                Active — future requests for this form + recipient will reuse this response
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -387,13 +237,16 @@ export function FormResponseReview() {
         <div style={sectionStyles}>
           <div style={{ fontSize: theme.typography.fontSize.xs, color: theme.colors.textSecondary }}>
             <div style={{ padding: `${theme.spacing.xs} 0`, borderBottom: `1px solid ${theme.colors.borderLight}` }}>
-              <strong>2026-03-18 14:32</strong> — {mockTaskMeta.submittedBy} submitted form "{mockTaskMeta.formName}" for entity {mockTaskMeta.entityName}. 2 entity overrides and 2 custom data changes flagged for review.
+              <strong>2026-03-18 14:32</strong> — {mockTaskMeta.submittedBy} submitted form "{mockTaskMeta.formName}" (v{mockTaskMeta.formVersion}) for entity {mockTaskMeta.entityName}.
             </div>
             <div style={{ padding: `${theme.spacing.xs} 0`, borderBottom: `1px solid ${theme.colors.borderLight}` }}>
-              <strong>2026-03-18 14:32</strong> — Review task {mockTaskMeta.taskId} created and assigned to {mockTaskMeta.assignedTo}.
+              <strong>2026-03-18 14:32</strong> — Form response passed to Assessment Service for "{mockTaskMeta.assessmentName}".
             </div>
-            <div style={{ padding: `${theme.spacing.xs} 0`, color: theme.colors.textMuted, fontStyle: 'italic' }}>
-              Awaiting reviewer actions...
+            <div style={{ padding: `${theme.spacing.xs} 0`, borderBottom: `1px solid ${theme.colors.borderLight}` }}>
+              <strong>2026-03-18 14:30</strong> — Form pre-filled with entity data. 4 fields populated, 0 failed.
+            </div>
+            <div style={{ padding: `${theme.spacing.xs} 0` }}>
+              <strong>2026-03-18 14:28</strong> — Task {mockTaskMeta.taskId} created as part of assessment "{mockTaskMeta.assessmentName}".
             </div>
           </div>
         </div>

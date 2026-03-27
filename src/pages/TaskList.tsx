@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { theme } from '../theme';
 
 type TaskStatus = 'Pending Review' | 'In Progress' | 'Completed' | 'Expired';
-type TaskType = 'Form Review' | 'Entity Override Review' | 'SC Forms' | 'Screening' | 'Assessment';
+type TaskType = 'KYB' | 'Risk Review' | 'SC Forms' | 'Screening' | 'Monitoring';
 
 interface TaskItem {
   id: string;
@@ -14,29 +14,27 @@ interface TaskItem {
   status: TaskStatus;
   assignedTo: string;
   created: string;
-  overrideCount?: number;
-  customDataCount?: number;
   hasFormResponse: boolean;
 }
 
 const mockTasks: TaskItem[] = [
   {
-    id: 'TASK-4821', taskName: 'KYB Entity Onboarding', taskType: 'Form Review',
+    id: 'TASK-4821', taskName: 'KYB Entity Onboarding', taskType: 'KYB',
     entity: 'Acme Corp', assessment: 'KYB Onboarding — Acme Corp',
     status: 'Pending Review', assignedTo: 'David Reviewer', created: '2026-03-18',
-    overrideCount: 2, customDataCount: 2, hasFormResponse: true,
+    hasFormResponse: true,
   },
   {
-    id: 'TASK-4819', taskName: 'Periodic Review Questionnaire', taskType: 'Form Review',
+    id: 'TASK-4819', taskName: 'Periodic Review Questionnaire', taskType: 'KYB',
     entity: 'GlobalTech Solutions', assessment: 'Annual Review — GlobalTech',
     status: 'Pending Review', assignedTo: 'David Reviewer', created: '2026-03-17',
-    overrideCount: 1, customDataCount: 0, hasFormResponse: true,
+    hasFormResponse: true,
   },
   {
-    id: 'TASK-4815', taskName: 'Supplier Due Diligence', taskType: 'Form Review',
+    id: 'TASK-4815', taskName: 'Supplier Due Diligence', taskType: 'KYB',
     entity: 'NorthStar Logistics', assessment: 'Supplier Onboarding — NorthStar',
     status: 'Completed', assignedTo: 'Sarah Analyst', created: '2026-03-15',
-    overrideCount: 0, customDataCount: 3, hasFormResponse: true,
+    hasFormResponse: true,
   },
   {
     id: 'TASK-4810', taskName: 'KYB Entity Onboarding', taskType: 'SC Forms',
@@ -51,14 +49,20 @@ const mockTasks: TaskItem[] = [
     hasFormResponse: false,
   },
   {
-    id: 'TASK-4805', taskName: 'Risk assessment review', taskType: 'Assessment',
+    id: 'TASK-4805', taskName: 'Risk assessment review', taskType: 'Risk Review',
     entity: 'GlobalTech Solutions', assessment: 'Annual Review — GlobalTech',
     status: 'In Progress', assignedTo: 'David Reviewer', created: '2026-03-14',
-    hasFormResponse: false,
+    hasFormResponse: true,
+  },
+  {
+    id: 'TASK-4803', taskName: 'Transaction monitoring review', taskType: 'Monitoring',
+    entity: 'Acme Corp', assessment: 'Ongoing Monitoring — Acme Corp',
+    status: 'Pending Review', assignedTo: 'Jane Analyst', created: '2026-03-12',
+    hasFormResponse: true,
   },
 ];
 
-const taskTypes: TaskType[] = ['Form Review', 'Entity Override Review', 'SC Forms', 'Screening', 'Assessment'];
+const taskTypes: TaskType[] = ['KYB', 'Risk Review', 'Monitoring', 'SC Forms', 'Screening'];
 
 const pageStyles: React.CSSProperties = { maxWidth: '1200px', margin: 0 };
 
@@ -159,7 +163,6 @@ export function TaskList() {
               <th style={thStyles}>Entity</th>
               <th style={thStyles}>Assessment</th>
               <th style={thStyles}>Status</th>
-              <th style={thStyles}>Data changes</th>
               <th style={thStyles}>Assigned to</th>
               <th style={thStyles}>Created</th>
               <th style={{ ...thStyles, width: '120px' }}>Actions</th>
@@ -167,10 +170,7 @@ export function TaskList() {
           </thead>
           <tbody>
             {filteredTasks.map((task) => (
-              <tr key={task.id} style={{
-                background: task.taskType === 'Form Review' && task.status === 'Pending Review'
-                  ? '#fffbeb' : 'transparent',
-              }}>
+              <tr key={task.id} style={{ background: 'transparent' }}>
                 <td style={tdStyles}>
                   <div>
                     <button
@@ -194,8 +194,8 @@ export function TaskList() {
                 <td style={tdStyles}>
                   <span style={{
                     padding: `2px ${theme.spacing.sm}`,
-                    background: task.taskType === 'Form Review' ? '#e0f2fe' : '#f1f3f5',
-                    color: task.taskType === 'Form Review' ? '#0369a1' : theme.colors.textMuted,
+                    background: '#f1f3f5',
+                    color: theme.colors.textMuted,
                     borderRadius: theme.radii.sm, fontSize: theme.typography.fontSize.xs,
                     fontWeight: theme.typography.fontWeight.medium,
                   }}>
@@ -205,29 +205,6 @@ export function TaskList() {
                 <td style={tdStyles}>{task.entity}</td>
                 <td style={{ ...tdStyles, fontSize: theme.typography.fontSize.xs }}>{task.assessment}</td>
                 <td style={tdStyles}><span style={statusBadge(task.status)}>{task.status}</span></td>
-                <td style={tdStyles}>
-                  {(task.overrideCount !== undefined && task.overrideCount > 0) && (
-                    <span style={{
-                      display: 'inline-block', padding: `1px ${theme.spacing.xs}`,
-                      background: '#e0f2fe', color: '#0369a1', borderRadius: '3px',
-                      fontSize: '10px', marginRight: '4px',
-                    }}>
-                      {task.overrideCount} entity
-                    </span>
-                  )}
-                  {(task.customDataCount !== undefined && task.customDataCount > 0) && (
-                    <span style={{
-                      display: 'inline-block', padding: `1px ${theme.spacing.xs}`,
-                      background: '#f3e8ff', color: '#7c3aed', borderRadius: '3px',
-                      fontSize: '10px',
-                    }}>
-                      {task.customDataCount} custom
-                    </span>
-                  )}
-                  {(!task.overrideCount && !task.customDataCount) && (
-                    <span style={{ fontSize: theme.typography.fontSize.xs, color: theme.colors.textMuted }}>—</span>
-                  )}
-                </td>
                 <td style={tdStyles}>{task.assignedTo}</td>
                 <td style={tdStyles}>{task.created}</td>
                 <td style={tdStyles}>

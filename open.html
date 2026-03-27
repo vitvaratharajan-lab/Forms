@@ -752,7 +752,20 @@
     .meta-item .meta-value { font-size: 14px; color: var(--views-text); font-weight: 500; }
     .data-changes-badges .badge-entity-count { display: inline-block; padding: 1px 6px; background: #e0f2fe; color: #0369a1; border-radius: 3px; font-size: 10px; margin-right: 4px; }
     .data-changes-badges .badge-custom-count { display: inline-block; padding: 1px 6px; background: #f3e8ff; color: #7c3aed; border-radius: 3px; font-size: 10px; }
+    #surveyCreatorContainer { width: 100%; }
+    #surveyCreatorContainer .svc-creator { border-radius: 0; }
+    #surveyCreatorContainer .svc-creator__area { border: none; }
+    #surveyCreatorContainer .svc-full-container { height: 100% !important; }
   </style>
+  <!-- SurveyJS Form Library -->
+  <link href="https://unpkg.com/survey-core/survey-core.min.css" type="text/css" rel="stylesheet">
+  <script src="https://unpkg.com/survey-core/survey.core.min.js"></script>
+  <script src="https://unpkg.com/survey-js-ui/survey-js-ui.min.js"></script>
+  <script src="https://unpkg.com/survey-core/themes/index.min.js"></script>
+  <!-- SurveyJS Creator -->
+  <link href="https://unpkg.com/survey-creator-core/survey-creator-core.min.css" type="text/css" rel="stylesheet">
+  <script src="https://unpkg.com/survey-creator-core/survey-creator-core.min.js"></script>
+  <script src="https://unpkg.com/survey-creator-js/survey-creator-js.min.js"></script>
 </head>
 <body>
   <div id="app"></div>
@@ -816,11 +829,74 @@
         bullets: ['SCS acknowledgement must be "Yes"', 'Forced/bonded labour must be "Yes"'],
         consequenceText: 'If either of these is "No", the supplier does not meet minimum compliance requirements.',
       };
-      var BRANCHING_RULES = [
-        { id: 'b1', sourceQuestion: 'hasUbo', sourceLabel: 'Has UBOs?', operator: 'equals', value: 'true', thenShowSectionId: 'sec2', thenShowLabel: 'UBO details' },
-        { id: 'b2', sourceQuestion: 'entityType', sourceLabel: 'Entity type', operator: 'equals', value: 'Corporate', thenShowSectionId: 'sec4', thenShowLabel: 'Corporate details' },
-        { id: 'b3', sourceQuestion: 'entityType', sourceLabel: 'Entity type', operator: 'equals', value: 'Financial institution', thenShowSectionId: 'sec5', thenShowLabel: 'Financial institution details' },
-      ];
+      var BRANCHING_RULES = [];
+
+      var currentCreatorInstance = null;
+      var DEFAULT_SURVEY_JSON = {
+        pages: [
+          {
+            name: "General",
+            title: "General",
+            description: "Basic entity information",
+            elements: [
+              { type: "text", name: "entityName", title: "Entity name", isRequired: true },
+              { type: "dropdown", name: "entityType", title: "Entity type", isRequired: true, choices: ["Corporate", "Individual", "Partnership", "Financial institution"] },
+              { type: "boolean", name: "hasUbo", title: "Has UBOs?" }
+            ]
+          },
+          {
+            name: "UBODetails",
+            title: "UBO details",
+            description: "Beneficial ownership and supporting documents",
+            visibleIf: "{hasUbo} = true",
+            elements: [
+              { type: "panel", name: "uboDetailsPanel", title: "UBO details", elements: [
+                { type: "text", name: "uboName", title: "UBO full name" },
+                { type: "text", name: "uboOwnership", title: "Ownership percentage", inputType: "number" }
+              ]},
+              { type: "file", name: "supportingDocs", title: "Supporting documents" }
+            ]
+          },
+          {
+            name: "Financials",
+            title: "Financials",
+            description: "Financial information",
+            elements: [
+              { type: "text", name: "annualRevenue", title: "Annual revenue", inputType: "number" },
+              { type: "dropdown", name: "currency", title: "Currency", choices: ["USD", "GBP", "EUR", "CHF", "JPY"] }
+            ]
+          },
+          {
+            name: "CorporateDetails",
+            title: "Corporate details",
+            description: "Details specific to corporate entities",
+            visibleIf: "{entityType} = 'Corporate'",
+            elements: [
+              { type: "text", name: "registrationNumber", title: "Registration number" },
+              { type: "text", name: "registeredAddress", title: "Registered address" },
+              { type: "text", name: "dateOfIncorporation", title: "Date of incorporation", inputType: "date" }
+            ]
+          },
+          {
+            name: "FinancialInstitutionDetails",
+            title: "Financial institution details",
+            description: "Details specific to financial institutions",
+            visibleIf: "{entityType} = 'Financial institution'",
+            elements: [
+              { type: "text", name: "licenseNumber", title: "License / registration number" },
+              { type: "dropdown", name: "regulatoryBody", title: "Regulatory body", choices: ["FCA", "SEC", "BaFin", "FINMA", "MAS", "Other"] },
+              { type: "boolean", name: "isSystemicallyImportant", title: "Systemically important institution?" }
+            ]
+          }
+        ]
+      };
+
+      function getSurveyJsonForForm(formId) {
+        try {
+          var stored = localStorage.getItem('survey-json-' + formId);
+          return stored ? JSON.parse(stored) : DEFAULT_SURVEY_JSON;
+        } catch (e) { return DEFAULT_SURVEY_JSON; }
+      }
       const SENT_FORMS = [
         { id: 's1', formId: '3', formName: 'Associate Information Request', formVersion: 1, entityName: 'Acme Corp', assessmentName: 'Screening', recipient: 'associate@example.com', sentAt: '2026-02-28 10:30', expiresAt: '2026-03-14', status: 'Completed', completedAt: '2026-03-01 14:00', attachments: ['ID document.pdf', 'Proof of address.pdf'], assignedTo: 'Unassigned', assignedUserId: null, permissions: ['View'] },
         { id: 's2', formId: '3', formName: 'Associate Information Request', formVersion: 1, entityName: 'Partner Ltd', assessmentName: 'Evolution', recipient: 'j.smith@partner.com', sentAt: '2026-02-27 09:00', expiresAt: '2026-03-13', status: 'Opened', completedAt: null, attachments: [], assignedTo: 'Unassigned', assignedUserId: null, permissions: ['View'] },
@@ -1083,25 +1159,26 @@
             var checks = [];
             var hasErrors = false;
             checks.push({ status: 'info', text: 'Publish-time checks (form structure via SurveyJS)' });
-            if (FORM_SECTIONS.length === 0) { checks.push({ status: 'fail', text: 'No sections defined. Add at least one section.' }); hasErrors = true; }
-            else checks.push({ status: 'pass', text: 'At least one section exists (' + FORM_SECTIONS.length + ' sections).' });
-            if (QUESTION_LIST.length === 0) { checks.push({ status: 'fail', text: 'No questions defined. Add at least one question.' }); hasErrors = true; }
-            else checks.push({ status: 'pass', text: 'Questions defined (' + QUESTION_LIST.length + ' questions).' });
-            var noType = QUESTION_LIST.filter(function (q) { return !q.type; });
-            if (noType.length > 0) { checks.push({ status: 'fail', text: noType.length + ' question(s) missing a field type.' }); hasErrors = true; }
-            else if (QUESTION_LIST.length > 0) checks.push({ status: 'pass', text: 'All questions have a field type assigned.' });
-            var names = {}; var dupes = [];
-            QUESTION_LIST.forEach(function (q) { if (q.name) { if (names[q.name]) dupes.push(q.name); names[q.name] = true; } });
-            if (dupes.length > 0) { checks.push({ status: 'fail', text: 'Duplicate field names: ' + dupes.join(', ') + '.' }); hasErrors = true; }
-            else if (QUESTION_LIST.length > 0) checks.push({ status: 'pass', text: 'All field names are unique.' });
-            var emptySections = FORM_SECTIONS.filter(function (s) { return !QUESTION_LIST.some(function (q) { return q.sectionId === s.id; }); });
-            if (emptySections.length > 0) checks.push({ status: 'warn', text: emptySections.length + ' section(s) have no questions: ' + emptySections.map(function (s) { return s.title; }).join(', ') + '.' });
-            BRANCHING_RULES.forEach(function (r) {
-              if (!QUESTION_LIST.some(function (q) { return q.name === r.sourceQuestion; })) {
-                checks.push({ status: 'fail', text: 'Branching rule references missing question "' + r.sourceLabel + '".' }); hasErrors = true;
-              }
+            var surveyJson = currentCreatorInstance ? currentCreatorInstance.JSON : DEFAULT_SURVEY_JSON;
+            var pages = surveyJson.pages || [];
+            var allElements = [];
+            pages.forEach(function (p) {
+              (p.elements || []).forEach(function (el) {
+                allElements.push(el);
+                if (el.type === 'panel' && el.elements) el.elements.forEach(function (sub) { allElements.push(sub); });
+              });
             });
-            if (BRANCHING_RULES.length > 0 && !hasErrors) checks.push({ status: 'pass', text: 'All branching rules reference valid questions.' });
+            if (pages.length === 0) { checks.push({ status: 'fail', text: 'No pages/sections defined. Add at least one page in the form builder.' }); hasErrors = true; }
+            else checks.push({ status: 'pass', text: 'Pages defined (' + pages.length + ' pages).' });
+            if (allElements.length === 0) { checks.push({ status: 'fail', text: 'No questions defined. Add at least one question.' }); hasErrors = true; }
+            else checks.push({ status: 'pass', text: 'Questions defined (' + allElements.length + ' questions).' });
+            var names = {}; var dupes = [];
+            allElements.forEach(function (el) { if (el.name) { if (names[el.name]) dupes.push(el.name); names[el.name] = true; } });
+            if (dupes.length > 0) { checks.push({ status: 'fail', text: 'Duplicate field names: ' + dupes.join(', ') + '.' }); hasErrors = true; }
+            else if (allElements.length > 0) checks.push({ status: 'pass', text: 'All field names are unique.' });
+            var emptyPages = pages.filter(function (p) { return !p.elements || p.elements.length === 0; });
+            if (emptyPages.length > 0) checks.push({ status: 'warn', text: emptyPages.length + ' page(s) have no questions: ' + emptyPages.map(function (p) { return p.title || p.name; }).join(', ') + '.' });
+            checks.push({ status: 'pass', text: 'Branching/visibility logic is managed by SurveyJS Creator.' });
             var selectedChannelId = formConfigChannelId || (activeForm && activeForm.type === 'External' ? 'external' : 'internal');
             if (selectedChannelId === 'external') {
               checks.push({ status: 'pass', text: 'Channel set to External — sender and URL checks apply.' });
@@ -1141,6 +1218,25 @@
             }
           });
           bindFormConfigEvents(content);
+          var creatorContainer = document.getElementById('surveyCreatorContainer');
+          if (creatorContainer && typeof SurveyCreator !== 'undefined') {
+            var formId = activeForm ? activeForm.id : 'new';
+            var creator = new SurveyCreator.SurveyCreator({
+              showLogicTab: true,
+              showJSONEditorTab: true,
+              showPreviewTab: true,
+              isAutoSave: true,
+              showTranslationTab: false,
+              showEmbeddedSurveyTab: false
+            });
+            creator.JSON = getSurveyJsonForForm(formId);
+            creator.saveSurveyFunc = function (saveNo, callback) {
+              try { localStorage.setItem('survey-json-' + formId, creator.text); } catch (e) {}
+              callback(saveNo, true);
+            };
+            creator.render(creatorContainer);
+            currentCreatorInstance = creator;
+          }
         }
       }
 
@@ -1642,35 +1738,7 @@
         '</div>';
       }
 
-      function buildQuestionCardHtml(q) {
-        var typeOpts = FIELD_TYPES.map(function (t) {
-          return '<option value="' + escapeHtml(t) + '"' + (q.type === t ? ' selected' : '') + '>' + escapeHtml(t) + '</option>';
-        }).join('');
-        var choicesHtml = '';
-        if (q.type === 'dropdown' || q.type === 'radio' || q.type === 'checkbox') {
-          var ch = (q.choices || []).map(function (c, i) {
-            return '<div class="choice-row">' +
-              '<input type="text" class="form-input q-choice-input" data-question-id="' + escapeHtml(q.id) + '" data-choice-idx="' + i + '" value="' + escapeHtml(c) + '" placeholder="Option ' + (i + 1) + '">' +
-              '<button type="button" class="action-btn muted btn-remove-choice" data-question-id="' + escapeHtml(q.id) + '" data-choice-idx="' + i + '">Remove</button>' +
-            '</div>';
-          }).join('');
-          choicesHtml = '<div class="choices-list">' +
-            '<label class="form-label" style="margin-bottom:6px">Multiple choice options</label>' + ch +
-            '<button type="button" class="btn-secondary btn-add-choice" data-question-id="' + escapeHtml(q.id) + '" style="margin-top:6px">+ Add option</button></div>';
-        }
-        return '<div class="question-card-config" data-question-id="' + escapeHtml(q.id) + '">' +
-          '<div class="q-row">' +
-            '<select class="form-input q-type" data-question-id="' + escapeHtml(q.id) + '">' + typeOpts + '</select>' +
-            '<input type="text" class="form-input q-title" data-question-id="' + escapeHtml(q.id) + '" value="' + escapeHtml(q.title) + '" placeholder="Question title">' +
-            '<input type="text" class="form-input q-name" data-question-id="' + escapeHtml(q.id) + '" value="' + escapeHtml(q.name || '') + '" placeholder="Field name">' +
-            '<label class="checkbox-row" style="margin:0;white-space:nowrap"><input type="checkbox" class="q-required" data-question-id="' + escapeHtml(q.id) + '"' + (q.isRequired ? ' checked' : '') + '> Mandatory</label>' +
-            '<button type="button" class="action-btn muted btn-remove-question" data-question-id="' + escapeHtml(q.id) + '">Remove</button>' +
-          '</div>' +
-          '<div class="q-row"><label class="form-label" style="margin:0">Placeholder / hint</label><input type="text" class="form-input q-placeholder" value="' + escapeHtml(q.placeholder || '') + '" placeholder="Optional" data-question-id="' + escapeHtml(q.id) + '" style="max-width:280px"></div>' +
-          '<div class="q-row"><label class="form-label" style="margin:0">Help text / tooltip</label><input type="text" class="form-input q-help-text" value="' + escapeHtml(q.helpText || '') + '" placeholder="Optional" data-question-id="' + escapeHtml(q.id) + '" style="max-width:280px"></div>' +
-          (q.type === 'file' ? '<div class="q-row"><label class="form-label" style="margin:0">Accept</label><input type="text" class="form-input q-accept" value="' + escapeHtml(q.accept || '') + '" data-question-id="' + escapeHtml(q.id) + '" style="max-width:200px"></div>' : '') +
-          choicesHtml + '</div>';
-      }
+      
 
       var DATA_MAPPING_CONFIG = [
         { id: 'dm1', questionTitle: 'Entity name', source: 'Entity name', prefillBehaviour: 'read_only', isRequired: true },
@@ -1715,60 +1783,6 @@
 
       function renderFormConfig(title, isNew, activeForm) {
         const formName = title || 'New form';
-        var formStructureHtml = FORM_SECTIONS.map(function (sec) {
-          var sectionQuestions = QUESTION_LIST.filter(function (q) { return (q.sectionId || 'sec1') === sec.id; });
-          var questionsInSectionHtml = sectionQuestions.map(function (q) { return buildQuestionCardHtml(q); }).join('');
-          return '<div class="form-section-block" data-section-id="' + escapeHtml(sec.id) + '">' +
-            '<div class="form-section-header">' +
-              '<label class="form-label" style="margin:0 0 6px;display:block">Section title</label>' +
-              '<input type="text" class="form-input section-title-input" data-section-id="' + escapeHtml(sec.id) + '" value="' + escapeHtml(sec.title) + '" placeholder="e.g. General, UBO details, Financials" style="max-width:320px;font-weight:600">' +
-              '<label class="form-label" style="margin:12px 0 6px;display:block">Description (optional)</label>' +
-              '<textarea class="form-input section-desc-input" data-section-id="' + escapeHtml(sec.id) + '" placeholder="Brief description of this section" rows="2" style="max-width:500px;resize:vertical">' + escapeHtml(sec.description || '') + '</textarea>' +
-              (FORM_SECTIONS.length > 1 ? '<button type="button" class="action-btn muted btn-remove-section" data-section-id="' + escapeHtml(sec.id) + '" style="margin-top:12px">Remove section</button>' : '') +
-            '</div>' +
-            '<div class="form-section-questions">' +
-              (questionsInSectionHtml ? '<p class="form-label" style="margin:16px 0 8px">Questions in this section</p>' + questionsInSectionHtml : '<p class="muted-text" style="margin:16px 0 8px">No questions yet. Add one below.</p>') +
-            '</div>' +
-            '<button type="button" class="btn-secondary add-question-in-section" data-section-id="' + escapeHtml(sec.id) + '" style="margin-top:12px">+ Add question to this section</button>' +
-          '</div>';
-        }).join('') +
-        '<button type="button" class="btn-primary add-section-btn" style="margin-top:16px">+ Add section</button>';
-        var questionsHtml = formStructureHtml;
-        var thStyle = 'text-align:left;padding:8px 16px;font-size:12px;font-weight:600;color:#6b7278;text-transform:uppercase;letter-spacing:0.04em;background:#f0f2f4;border-bottom:1px solid #e4e6e8;';
-        function buildBranchingRuleRow(r) {
-          var sourceOpts = QUESTION_LIST.map(function (q) {
-            return '<option value="' + escapeHtml(q.name) + '"' + (r.sourceQuestion === q.name ? ' selected' : '') + '>' + escapeHtml(q.title) + '</option>';
-          }).join('');
-          var operatorOpts = ['equals', 'notEquals', 'empty'].map(function (op) {
-            return '<option value="' + op + '"' + (r.operator === op ? ' selected' : '') + '>' + (op === 'notEquals' ? 'not equals' : op === 'empty' ? 'is empty' : 'equals') + '</option>';
-          }).join('');
-          var sectionOpts = FORM_SECTIONS.map(function (sec) {
-            return '<option value="' + escapeHtml(sec.id) + '"' + (r.thenShowSectionId === sec.id ? ' selected' : '') + '>' + escapeHtml(sec.title) + '</option>';
-          }).join('');
-          var srcQ = findQuestionByName(r.sourceQuestion);
-          var valueCell;
-          if (srcQ && (srcQ.type === 'boolean' || (srcQ.choices && srcQ.choices.length > 0))) {
-            var valueOpts;
-            if (srcQ.type === 'boolean') {
-              valueOpts = '<option value="true"' + (r.value === 'true' ? ' selected' : '') + '>Yes</option><option value="false"' + (r.value === 'false' ? ' selected' : '') + '>No</option>';
-            } else {
-              valueOpts = (srcQ.choices || []).map(function (c) {
-                return '<option value="' + escapeHtml(c) + '"' + (r.value === c ? ' selected' : '') + '>' + escapeHtml(c) + '</option>';
-              }).join('');
-            }
-            valueCell = '<select class="form-input branch-rule-value" data-rule-id="' + escapeHtml(r.id) + '" style="min-width:140px">' + valueOpts + '</select>';
-          } else {
-            valueCell = '<input type="text" class="form-input branch-rule-value" data-rule-id="' + escapeHtml(r.id) + '" value="' + escapeHtml(r.value || '') + '" placeholder="Value" style="min-width:120px">';
-          }
-          return '<tr data-rule-id="' + escapeHtml(r.id) + '">' +
-            '<td style="padding:12px 16px;border-bottom:1px solid #e4e6e8"><select class="form-input branch-rule-source" data-rule-id="' + escapeHtml(r.id) + '" style="min-width:160px">' + sourceOpts + '</select></td>' +
-            '<td style="padding:12px 16px;border-bottom:1px solid #e4e6e8"><select class="form-input branch-rule-operator" data-rule-id="' + escapeHtml(r.id) + '">' + operatorOpts + '</select></td>' +
-            '<td style="padding:12px 16px;border-bottom:1px solid #e4e6e8">' + valueCell + '</td>' +
-            '<td style="padding:12px 16px;border-bottom:1px solid #e4e6e8"><select class="form-input branch-rule-then-section" data-rule-id="' + escapeHtml(r.id) + '" style="min-width:180px">' + sectionOpts + '</select></td>' +
-            '<td style="padding:12px 16px;border-bottom:1px solid #e4e6e8"><button type="button" class="action-btn muted btn-remove-branch-rule" data-rule-id="' + escapeHtml(r.id) + '">Remove</button></td>' +
-          '</tr>';
-        }
-        var branchingRulesRows = BRANCHING_RULES.map(buildBranchingRuleRow).join('');
         var mandatoryDocsRows = MANDATORY_DOCUMENTS_EXAMPLE.map(function (d) {
           var opts = DOCUMENT_TYPES.map(function (t) {
             return '<option value="' + escapeHtml(t) + '"' + (d.type === t ? ' selected' : '') + '>' + escapeHtml(t) + '</option>';
@@ -1969,20 +1983,19 @@
             '</div>' +
           '</div>' : '') +
           '<div class="card">' +
-            '<div class="card-header">Form structure (sections & questions)</div>' +
-            '<div class="card-body">' +
-              '<p class="muted-text">Organise the form into sections (e.g. General, UBO details, Financials). Add a section, give it a title and optional description, then add questions to that section. Each section is a clear block for respondents.</p>' +
-              '<p class="info-note">Form completion: statuses Opened / Started / Completed; input is auto-saved; users can view and reuse previous responses.</p>' +
-              questionsHtml +
+            '<div class="card-header">Form structure (sections & questions) — SurveyJS Creator</div>' +
+            '<div class="card-body" style="padding:0;overflow:hidden">' +
+              '<p class="muted-text" style="padding:16px 20px 0">Use the form builder below to add sections (pages), questions, configure field types, set required fields, and define branching logic (via the Logic tab). Changes are auto-saved.</p>' +
+              '<div id="surveyCreatorContainer" style="height:700px;border-top:1px solid var(--views-border);margin-top:12px"></div>' +
             '</div>' +
           '</div>' +
           '<div class="card">' +
             '<div class="card-header">Mandatory fields, mandatory documents & file upload</div>' +
             '<div class="card-body">' +
               '<p class="muted-text">For internal and external forms, define which fields and documents are required and whether file upload is allowed.</p>' +
-              '<div class="task-form-note">Forms for both channels (internal and external) use the same configuration. Set mandatory fields in the Form structure above by marking questions as required.</div>' +
+              '<div class="task-form-note">Forms for both channels (internal and external) use the same configuration. Set mandatory fields in the SurveyJS Creator above by marking questions as required.</div>' +
               '<h4 style="margin:0 0 8px;font-size:14px">Mandatory fields</h4>' +
-              '<p class="muted-text" style="margin-bottom:16px">Mark questions as required in the Form structure. Submissions (and task completion) will require all mandatory fields to be completed.</p>' +
+              '<p class="muted-text" style="margin-bottom:16px">Mark questions as required in the SurveyJS form builder. Submissions (and task completion) will require all mandatory fields to be completed.</p>' +
               '<div class="checkbox-row">' +
                 '<input type="checkbox" id="enforceMandatory" checked>' +
                 '<label for="enforceMandatory">Enforce mandatory fields before form can be submitted / task completed (internal or external)</label>' +
@@ -2001,27 +2014,6 @@
                 '<label for="requireOneFile">Require at least one file to be uploaded (when file upload is used)</label>' +
               '</div>' +
               '<p class="muted-text" style="margin-top:8px">When enabled, add a "File upload" or "Supporting documents" question in the Form structure (see example above). Accepted types (e.g. PDF, images) can be configured per question.</p>' +
-            '</div>' +
-          '</div>' +
-          '<div class="card">' +
-            '<div class="card-header">Branching & validation</div>' +
-            '<div class="card-body">' +
-              '<p class="muted-text">Branching is configured in the section below. Validation rules can be added in the full config UI.</p>' +
-            '</div>' +
-          '</div>' +
-          '<div class="card">' +
-            '<div class="card-header">Set up branching within this form</div>' +
-            '<div class="card-body">' +
-              '<p class="muted-text">Define when sections are shown based on answers to questions. Each rule says: <strong>When</strong> [question] <strong>[condition]</strong> [value], <strong>then show</strong> [section]. Add sections above (e.g. Corporate details, Financial institution details), then add rules here so that section is shown only when the condition matches (e.g. Entity type = Corporate → show Corporate details).</p>' +
-              '<div class="branching-flow">' +
-                '<strong>How it works</strong>' +
-                '<code>When "Entity type" equals "Corporate" → show "Corporate details" section. When "Entity type" equals "Financial institution" → show "Financial institution details" section. Sections not matched by any rule can be hidden or shown by default depending on config.</code>' +
-              '</div>' +
-              '<table style="margin-top:16px"><thead><tr>' +
-                '<th style="' + thStyle + '">When (question)</th><th style="' + thStyle + '">Condition</th><th style="' + thStyle + '">Value</th><th style="' + thStyle + '">Then show (section)</th><th style="' + thStyle + 'width:80px"></th></tr></thead><tbody>' +
-              branchingRulesRows +
-              '</tbody></table>' +
-              '<button type="button" class="btn-secondary add-branching-rule" style="margin-top:12px">+ Add branching rule</button>' +
             '</div>' +
           '</div>' +
           '<div class="card">' +
@@ -2061,14 +2053,7 @@
         '</div>';
       }
 
-      function findQuestion(id) {
-        for (var i = 0; i < QUESTION_LIST.length; i++) if (QUESTION_LIST[i].id === id) return QUESTION_LIST[i];
-        return null;
-      }
-      function findQuestionByName(name) {
-        for (var i = 0; i < QUESTION_LIST.length; i++) if (QUESTION_LIST[i].name === name) return QUESTION_LIST[i];
-        return null;
-      }
+      
 
       function bindFormConfigEvents(content) {
         if (!content) return;
@@ -2076,74 +2061,7 @@
           formConfigChannelId = this.value || '';
           renderApp();
         });
-        content.querySelector('.add-section-btn')?.addEventListener('click', function () {
-          var newId = 'sec' + Date.now();
-          FORM_SECTIONS.push({ id: newId, title: 'New section', description: '' });
-          renderApp();
-        });
-        content.querySelector('.add-branching-rule')?.addEventListener('click', function () {
-          var firstQ = QUESTION_LIST[0];
-          var firstSec = FORM_SECTIONS[1] || FORM_SECTIONS[0];
-          BRANCHING_RULES.push({
-            id: 'b' + Date.now(),
-            sourceQuestion: firstQ ? firstQ.name : '',
-            sourceLabel: firstQ ? firstQ.title : '—',
-            operator: 'equals',
-            value: (firstQ && firstQ.choices && firstQ.choices[0]) ? firstQ.choices[0] : (firstQ && firstQ.type === 'boolean' ? 'true' : ''),
-            thenShowSectionId: firstSec ? firstSec.id : '',
-            thenShowLabel: firstSec ? firstSec.title : '—',
-          });
-          renderApp();
-        });
-        content.querySelectorAll('.btn-remove-branch-rule').forEach(function (btn) {
-          btn.addEventListener('click', function () {
-            var id = this.getAttribute('data-rule-id');
-            for (var i = 0; i < BRANCHING_RULES.length; i++) {
-              if (BRANCHING_RULES[i].id === id) { BRANCHING_RULES.splice(i, 1); break; }
-            }
-            renderApp();
-          });
-        });
-        content.querySelectorAll('.branch-rule-source').forEach(function (sel) {
-          sel.addEventListener('change', function () {
-            var id = this.getAttribute('data-rule-id');
-            var q = findQuestionByName(this.value);
-            var r = BRANCHING_RULES.find(function (x) { return x.id === id; });
-            if (r && q) {
-              r.sourceQuestion = q.name;
-              r.sourceLabel = q.title;
-              r.value = (q.choices && q.choices[0]) ? q.choices[0] : (q.type === 'boolean' ? 'true' : r.value || '');
-              renderApp();
-            }
-          });
-        });
-        content.querySelectorAll('.branch-rule-operator').forEach(function (sel) {
-          sel.addEventListener('change', function () {
-            var id = this.getAttribute('data-rule-id');
-            var r = BRANCHING_RULES.find(function (x) { return x.id === id; });
-            if (r) { r.operator = this.value; }
-          });
-        });
-        content.querySelectorAll('.branch-rule-value').forEach(function (el) {
-          var ev = el.tagName === 'SELECT' ? 'change' : 'input';
-          el.addEventListener(ev, function () {
-            var id = this.getAttribute('data-rule-id');
-            var r = BRANCHING_RULES.find(function (x) { return x.id === id; });
-            if (r) { r.value = this.value; }
-          });
-        });
-        content.querySelectorAll('.branch-rule-then-section').forEach(function (sel) {
-          sel.addEventListener('change', function () {
-            var id = this.getAttribute('data-rule-id');
-            var secId = this.value;
-            var sec = FORM_SECTIONS.find(function (s) { return s.id === secId; });
-            var r = BRANCHING_RULES.find(function (x) { return x.id === id; });
-            if (r && sec) {
-              r.thenShowSectionId = sec.id;
-              r.thenShowLabel = sec.title;
-            }
-          });
-        });
+        
         content.querySelector('#reviewPromptEnabled')?.addEventListener('change', function () {
           REVIEW_PROMPT_CONFIG.enabled = this.checked;
         });
@@ -2210,107 +2128,6 @@
         });
         content.querySelector('.review-prompt-consequence')?.addEventListener('input', function () {
           REVIEW_PROMPT_CONFIG.consequenceText = this.value;
-        });
-        content.querySelectorAll('.add-question-in-section').forEach(function (btn) {
-          btn.addEventListener('click', function () {
-            var sectionId = this.getAttribute('data-section-id');
-            QUESTION_LIST.push({
-              id: 'q' + Date.now(),
-              sectionId: sectionId,
-              type: 'text',
-              title: 'New question',
-              name: '',
-              isRequired: false,
-              visibleIf: '',
-              choices: [],
-              placeholder: '',
-              helpText: '',
-            });
-            renderApp();
-          });
-        });
-        content.querySelectorAll('.section-title-input').forEach(function (inp) {
-          inp.addEventListener('input', function () {
-            var sectionId = inp.getAttribute('data-section-id');
-            var sec = FORM_SECTIONS.find(function (s) { return s.id === sectionId; });
-            if (sec) sec.title = inp.value;
-          });
-        });
-        content.querySelectorAll('.section-desc-input').forEach(function (inp) {
-          inp.addEventListener('input', function () {
-            var sectionId = inp.getAttribute('data-section-id');
-            var sec = FORM_SECTIONS.find(function (s) { return s.id === sectionId; });
-            if (sec) sec.description = inp.value;
-          });
-        });
-        content.querySelectorAll('.btn-remove-section').forEach(function (btn) {
-          btn.addEventListener('click', function () {
-            var sectionId = this.getAttribute('data-section-id');
-            var firstOther = FORM_SECTIONS.find(function (s) { return s.id !== sectionId; });
-            if (firstOther) {
-              QUESTION_LIST.forEach(function (q) { if (q.sectionId === sectionId) q.sectionId = firstOther.id; });
-            }
-            for (var i = 0; i < FORM_SECTIONS.length; i++) {
-              if (FORM_SECTIONS[i].id === sectionId) { FORM_SECTIONS.splice(i, 1); break; }
-            }
-            renderApp();
-          });
-        });
-        content.querySelectorAll('.btn-remove-question').forEach(function (btn) {
-          btn.addEventListener('click', function () {
-            var id = this.getAttribute('data-question-id');
-            for (var i = 0; i < QUESTION_LIST.length; i++) {
-              if (QUESTION_LIST[i].id === id) { QUESTION_LIST.splice(i, 1); break; }
-            }
-            renderApp();
-          });
-        });
-        content.querySelectorAll('.btn-add-choice').forEach(function (btn) {
-          btn.addEventListener('click', function () {
-            var q = findQuestion(this.getAttribute('data-question-id'));
-            if (q) { q.choices = q.choices || []; q.choices.push(''); renderApp(); }
-          });
-        });
-        content.querySelectorAll('.btn-remove-choice').forEach(function (btn) {
-          btn.addEventListener('click', function () {
-            var q = findQuestion(this.getAttribute('data-question-id'));
-            var idx = parseInt(this.getAttribute('data-choice-idx'), 10);
-            if (q && q.choices && !isNaN(idx)) { q.choices.splice(idx, 1); renderApp(); }
-          });
-        });
-        content.querySelectorAll('.q-type').forEach(function (sel) {
-          sel.addEventListener('change', function () {
-            var q = findQuestion(this.getAttribute('data-question-id'));
-            if (!q) return;
-            q.type = this.value;
-            if ((q.type === 'dropdown' || q.type === 'radio' || q.type === 'checkbox') && (!q.choices || !q.choices.length)) q.choices = [''];
-            renderApp();
-          });
-        });
-        content.querySelectorAll('.q-title').forEach(function (inp) {
-          inp.addEventListener('input', function () { var q = findQuestion(this.getAttribute('data-question-id')); if (q) q.title = this.value; });
-        });
-        content.querySelectorAll('.q-name').forEach(function (inp) {
-          inp.addEventListener('input', function () { var q = findQuestion(this.getAttribute('data-question-id')); if (q) q.name = this.value; });
-        });
-        content.querySelectorAll('.q-required').forEach(function (cb) {
-          cb.addEventListener('change', function () { var q = findQuestion(this.getAttribute('data-question-id')); if (q) q.isRequired = this.checked; });
-        });
-        content.querySelectorAll('.q-choice-input').forEach(function (inp) {
-          inp.addEventListener('input', function () {
-            var q = findQuestion(this.getAttribute('data-question-id'));
-            var idx = parseInt(this.getAttribute('data-choice-idx'), 10);
-            if (q && q.choices && !isNaN(idx)) q.choices[idx] = this.value;
-          });
-        });
-        content.querySelectorAll('.q-accept').forEach(function (inp) {
-          inp.addEventListener('input', function () { var q = findQuestion(this.getAttribute('data-question-id')); if (q) q.accept = this.value; });
-        });
-        content.querySelectorAll('.q-placeholder').forEach(function (inp) {
-          inp.addEventListener('input', function () { var q = findQuestion(this.getAttribute('data-question-id')); if (q) q.placeholder = this.value; });
-        });
-        content.querySelectorAll('.q-help-text').forEach(function (inp) {
-          inp.addEventListener('input', function () { var q = findQuestion(this.getAttribute('data-question-id')); if (q) q.helpText = this.value; });
         });
       }
 
